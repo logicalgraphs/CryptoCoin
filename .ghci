@@ -1,4 +1,2 @@
-:set prompt ">>> "
-:set -iexercises/HAD:src
-:m + Test.DocTest
-:l HAD
+:set prompt "logicalgraphs> "
+:set -iData:CoinMarketCap
