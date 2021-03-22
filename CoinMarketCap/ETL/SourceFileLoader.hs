@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module CryptoCoin.CoinMarketCap.ETL.SourceFileLoader where
+module CoinMarketCap.ETL.SourceFileLoader where
 
 import qualified Data.ByteString.Char8 as BL
 
