@@ -1,2 +1,0 @@
-* sqllite lite in haskell https://cstack.github.io/db_tutorial/
-* 
