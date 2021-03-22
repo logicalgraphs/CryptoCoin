@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module CryptoCoin.CoinMarketCap.ETL.Types where
+module CoinMarketCap.ETL.JSONFile where
 
 -- types shared across the ETL codebase.
 
@@ -17,7 +17,7 @@ import Data.Maybe (mapMaybe)
 
 import Data.LookupTable
 
-import CryptoCoin.CoinMarketCap.Types
+import CoinMarketCap.Types
 
 import Store.SQL.Connection
 import Store.SQL.Util.Indexed

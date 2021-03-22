@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module CryptoCoin.CoinMarketCap.Types.Internal where
+module CoinMarketCap.Types.Internal where
 
 import Data.Aeson
 
@@ -12,7 +12,7 @@ import Data.Map (Map)
 import System.Environment (getEnv)
 
 import Data.CryptoCurrency.Types   -- for indexed
-import CryptoCoin.CoinMarketCap.Types.Quote
+import CoinMarketCap.Types.Quote
 
 data Coin' = Coin' { id :: Idx, name, symbol, slug :: String,
                      rank', is_active :: Int,

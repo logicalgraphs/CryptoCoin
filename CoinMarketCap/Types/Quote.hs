@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module CryptoCoin.CoinMarketCap.Types.Quote where
+module CoinMarketCap.Types.Quote where
 
 import Data.Aeson
 import Data.Aeson.Types

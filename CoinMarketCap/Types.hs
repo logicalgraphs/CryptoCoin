@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module CryptoCoin.CoinMarketCap.Types where
+module CoinMarketCap.Types where
 
 import Control.Arrow ((&&&))
 
@@ -12,8 +12,8 @@ import qualified Data.Map as Map
 import Data.Time
 
 import Data.CryptoCurrency.Types
-import CryptoCoin.CoinMarketCap.Types.Internal hiding (id)
-import CryptoCoin.CoinMarketCap.Types.Quote
+import CoinMarketCap.Types.Internal hiding (id)
+import CoinMarketCap.Types.Quote
 
 import Data.XHTML (Name)
 
