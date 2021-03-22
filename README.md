@@ -54,7 +54,7 @@ back into the database.
 
 ## E/R D
 
-<img src="ETL/imgs/e-coin-erd.png"/>
+<img src="CoinMarketCap/ETL/imgs/e-coin-erd.png"/>
 
 TODOs (besides the TODO above):
 
