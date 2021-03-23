@@ -135,3 +135,6 @@ instance FromJSON Listing where
 
 instance Indexed Listing where
    idx = idx . coin
+
+instance Rank Listing where
+   rank = rank . coin
