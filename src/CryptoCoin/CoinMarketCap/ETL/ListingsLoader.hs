@@ -11,6 +11,8 @@ import qualified Data.ByteString.Char8 as B
 
 import qualified Data.Map as Map
 
+import Data.Maybe (mapMaybe)
+
 import Data.Time (Day)
 
 import Data.CryptoCurrency.Types
@@ -21,24 +23,27 @@ import CryptoCoin.CoinMarketCap.Types.Quote
 import Store.SQL.Util.Indexed hiding (idx)
 
 data DayListing =
-   DayListing { fileId :: Integer, forDay :: Day, listing :: Listing }
+   DayListing { fileId :: Integer, forDay :: Day, cmcId :: Integer,
+                rank1 :: Integer, numPairs :: Integer,
+                sups :: Supplies, quot :: Quote }
       deriving (Eq, Ord, Show)
 
 toListings :: IxValue MetaData -> [DayListing]
 toListings (IxV i (MetaData (Status d _ _ _ _ _) listings)) =
-   map (DayListing i d) (Map.elems listings)
+   mapMaybe (\l@(Listing _ nmp s _tgs mbq) ->
+               DayListing i d (fi $ idx l) (fi $ rank l) nmp s <$> mbq)
+            (Map.elems listings)
+      where fi = fromIntegral
 
 instance ToRow DayListing where
-   toRow (DayListing srcId d l@(Listing _ nmp s _tgs q)) =
-      [toField . fi $ idx l, toField nmp, toField $ maxSupply s,
+   toRow (DayListing srcId d idx rank nmp s q) =
+      [toField idx, toField nmp, toField $ maxSupply s,
        toField $ circulatingSupply s, toField $ totalSupply s, 
-       toField $ price <$> q, toField $ volume24h <$> q,
-       toField $ percentChange1h <$> q, toField $ percentChange24h <$> q,
-       toField $ percentChange7d <$> q, toField $ percentChange30d <$> q,
-       toField $ percentChange60d <$> q, toField $ percentChange90d <$> q,
-       toField $ marketCap <$> q, toField srcId, toField d, toField $ rank l]
-         where fi :: Int -> Integer
-               fi = fromIntegral
+       toField $ price q, toField $ volume24h q,
+       toField $ percentChange1h q, toField $ percentChange24h q,
+       toField $ percentChange7d q, toField $ percentChange30d q,
+       toField $ percentChange60d q, toField $ percentChange90d q,
+       toField $ marketCap q, toField srcId, toField d, toField rank]
 
 listingInsertQuery :: Query
 listingInsertQuery = Query . B.pack $ unwords [
@@ -54,5 +59,5 @@ insertListings conn md =
    let lists = toListings md in
    putStrLn (unwords ["Inserting", show (length lists), "listings for",
                       show (date (val md))])             >>
-   executeMany conn listingInsertQuery lists   >>
+   executeMany conn listingInsertQuery lists             >>
    putStrLn "... done."

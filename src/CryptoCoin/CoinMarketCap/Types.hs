@@ -128,7 +128,7 @@ data Listing =
 
 l2l :: Listing' -> Listing
 l2l l@(Listing' _id _name _sym _slug num dt cs ts ms tgs _plat _rank qt) =
-   Listing (raw2coin l) num (Supplies cs ts ms) tgs (Map.lookup "USA" qt)
+   Listing (raw2coin l) num (Supplies cs ts ms) tgs (Map.lookup "USD" qt)
 
 instance FromJSON Listing where
    parseJSON v = l2l <$> parseJSON v

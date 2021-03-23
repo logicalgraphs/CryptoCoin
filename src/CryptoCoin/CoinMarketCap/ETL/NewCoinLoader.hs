@@ -75,7 +75,7 @@ instance ToRow CoinInfo where
 insertCoinInfoQuery :: Query
 insertCoinInfoQuery = Query . B.pack $ unwords 
    ["INSERT INTO coin (cmc_id, name, symbol, slug, date_added)",
-    "VALUES (?, ?, ?, ?, ?, ?)"]
+    "VALUES (?, ?, ?, ?, ?)"]
 
 instance ToRow Token where
    toRow (Token coininf parentId tok) =
@@ -121,8 +121,8 @@ processOneListingFile conn i@(IxV _ md) =
 setProcessed :: Connection -> LookupTable -> IO ()
 setProcessed conn srcs =
    execute conn "UPDATE source SET processed=? WHERE source_type_id=?"
-           (True, srcs Map.! "RANKING") >>
-   putStrLn "Set all ranking files as processed."
+           (True, srcs Map.! "LISTING") >>
+   putStrLn "Set all listings files as processed."
 
 -- Process all of them:
 
