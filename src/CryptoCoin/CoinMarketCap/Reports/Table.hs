@@ -40,7 +40,7 @@ instance Rasa ContextCoin where
    
 ci2tr :: CoinInfo -> Double -> Double -> [Content]
 ci2tr c@(CoinInfo _i name sym slug rank _date) pr ch =
-   [link c, S sym, S (show rank), s USD pr, s P ch]
+   [link c, S sym, S (show rank), s USD pr, s P (ch / 100)]
       where s f = S . show . f . toRational
 
 link :: CoinInfo -> Content
