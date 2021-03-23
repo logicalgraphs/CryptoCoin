@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module CryptoCoin.CoinMarketCap.ETL.RankExtract where
-
--- import Control.Monad (forM_)
+module CryptoCoin.CoinMarketCap.ETL.ListingsLoader where
 
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.ToRow
@@ -10,26 +8,6 @@ import Database.PostgreSQL.Simple.ToField
 import Database.PostgreSQL.Simple.Types
 
 import qualified Data.ByteString.Char8 as B
-{--
-import qualified Data.ByteString.Lazy.Char8 as BL
-
-import Data.Int (Int64)
-
-import Data.List (partition)
-
-import Data.Map (Map)
-
-import Data.Maybe (mapMaybe)
-
-import Data.Set (Set)
-import qualified Data.Set as Set
-
-import Data.LookupTable
-
-import Store.SQL.Util.Indexed
-import Store.SQL.Util.LookupTable
-import Store.SQL.Connection
---}
 
 import qualified Data.Map as Map
 
