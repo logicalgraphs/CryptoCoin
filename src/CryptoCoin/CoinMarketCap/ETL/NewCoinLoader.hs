@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module CryptoCoin.CoinMarketCap.ETL.CoinExtract where
+module CryptoCoin.CoinMarketCap.ETL.NewCoinLoader where
 
 import Control.Monad (forM_)
 
@@ -19,7 +19,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 
 import CryptoCoin.CoinMarketCap.Types
-import CryptoCoin.CoinMarketCap.ETL.Types
+import CryptoCoin.CoinMarketCap.ETL.JSONFile
 import CryptoCoin.CoinMarketCap.ETL.RankExtract (insertRankings)
 
 import Data.CryptoCurrency.Types hiding (idx)      -- Idx
@@ -121,7 +121,7 @@ processOneRankFile conn i@(IxV _ md) =
 setProcessed :: Connection -> LookupTable -> IO ()
 setProcessed conn srcs =
    execute conn "UPDATE source SET processed=? WHERE source_type_id=?"
-           (True, rankingIdx srcs) >>
+           (True, srcs Map.! "RANKING") >>
    putStrLn "Set all ranking files as processed."
 
 -- Process all of them:
