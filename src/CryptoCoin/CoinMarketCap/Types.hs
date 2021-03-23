@@ -11,11 +11,14 @@ import qualified Data.Map as Map
 
 import Data.Time
 
-import Data.CryptoCurrency.Types
 import CryptoCoin.CoinMarketCap.Types.Internal hiding (id)
 import CryptoCoin.CoinMarketCap.Types.Quote
 
+import Data.CryptoCurrency.Types
+
 import Data.XHTML (Name)
+
+import Store.SQL.Util.Indexed (IxValue)
 
 data MetaData = MetaData Status (Map Idx Listing)
    deriving (Eq, Ord, Show)
@@ -96,11 +99,14 @@ r2c :: Listing' -> Maybe CoinRef' -> ECoin
 r2c l Nothing = C (Coin (mkci l))
 r2c l (Just (CR' i tok)) = T (Token (mkci l) i tok)
 
+type NewCoins = ([ECoin], [ECoin])
+type NewCoinsCtx = (IxValue MetaData, NewCoins)
+
+-- FOR LISTINGS AND QUOTES --------------------------------------------
+
 mkci :: Listing' -> CoinInfo
 mkci (Listing' id name sym slug _num dt _cs _ts _ms _tgs _plat rank _qt) =
    CoinInfo (fromIntegral id) name sym slug (fromIntegral rank) (readDate dt)
-
--- FOR LISTINGS AND QUOTES --------------------------------------------
 
 data Supplies = 
    Supplies { circulatingSupply :: Double,
