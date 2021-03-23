@@ -9,6 +9,6 @@ CURL_CMD=$COIN_MARKET_CAP_DIR/scripts/curl-command.sh
 cd $COIN_MARKET_CAP_DIR/scripts
 $CURL_CMD cryptocurrency/$LIST_CMD $LISTING_FILE
 
-$COIN_MARKET_CAP_DIR/scripts/report
+runhaskell $COIN_MARKET_CAP_DIR/scripts/report.hs
 
 echo "done."
