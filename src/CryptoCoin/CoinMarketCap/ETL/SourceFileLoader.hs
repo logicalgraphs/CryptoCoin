@@ -68,13 +68,16 @@ Uploaded listings-2021-03-05.json
 
 go :: IO ()
 go = withConnection ECOIN (\conn ->
-   lookupTable conn "source_type_lk" >>= \src ->
+         lookupTable conn "source_type_lk" >>= uploadFiles conn)
+
+uploadFiles :: Connection -> LookupTable -> IO ()
+uploadFiles conn src =
    getEnv "COIN_MARKET_CAP_DIR"      >>= \cmcDir ->
    let uploader dir typ = uploadAllFilesAt (cmcDir ++ ('/':dir))
                                            (src Map.! typ) conn
    in  uploader "listings" "LISTING" >>
        uploader "scores"   "FCAS"    >>
-       sources conn)
+       sources conn
 
 {--
 >>> go
