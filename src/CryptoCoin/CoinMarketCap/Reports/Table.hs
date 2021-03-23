@@ -35,7 +35,8 @@ ec2cc (MetaData _ m) c = undefined
 
 instance Rasa ContextCoin where
    printRow (CC _ pc@(PC (C (Coin ci)) p ch)) = tr (ci2tr ci p ch ++ [S "--"])
-   printRow (CC m pc@(PC (T (Token ci _ _)) p ch)) = tr (ci2tr ci p ch ++ [S "Token"])
+   printRow (CC m pc@(PC (T (Token ci i _)) p ch)) =
+      tr (ci2tr ci p ch ++ [link . info . coin $ m Map.! i])
    
 ci2tr :: CoinInfo -> Double -> Double -> [Content]
 ci2tr c@(CoinInfo _i name sym slug rank _date) pr ch =
@@ -65,7 +66,7 @@ report :: MetaData -> [ECoin] -> IO ()
 report md =
    flip printContent 3 . E
       . tabulate [Attrib "border" "1"]
-                 [thdrs (words "Name Symbol Rank Price %Change Type")]
+                 [thdrs (words "Name Symbol Rank Price %Change Basis")]
       . mapMaybe (ec2cc md)
 
 p :: [Content] -> Content
