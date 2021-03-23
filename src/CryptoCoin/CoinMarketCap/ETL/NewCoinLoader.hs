@@ -1,7 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections     #-}
 
 module CryptoCoin.CoinMarketCap.ETL.NewCoinLoader where
 
+import Control.Arrow (second, (&&&))
 import Control.Monad (forM_)
 
 import Database.PostgreSQL.Simple
@@ -101,7 +103,7 @@ thenInsertCoin conn (T tok) = execute conn insertTokenQuery tok >> return ()
 
 -- We insert all the coins first, then we insert the tokens
 
-insertAllCoins :: Connection -> [ECoin] -> IO ()
+insertAllCoins :: Connection -> [ECoin] -> IO NewCoins
 insertAllCoins conn ecoins =
    let (tokens, coins) = partition isToken ecoins in
    putStrLn ("Inserting " ++ show (length coins) ++ " coins.")   >>
@@ -109,14 +111,16 @@ insertAllCoins conn ecoins =
    putStrLn "...done."                                           >>
    putStrLn ("Inserting " ++ show (length tokens) ++ " tokens.") >>
    forM_ tokens (insertCoin conn)                                >>
-   putStrLn "...done."
+   putStrLn "...done."                                           >>
+   return (coins, tokens)
 
-processOneListingFile :: Connection -> IxValue MetaData -> IO ()
+processOneListingFile :: Connection -> IxValue MetaData -> IO NewCoins
 processOneListingFile conn i@(IxV _ md) =
    putStrLn ("\n\nFor listing file " ++ show (date md) ++ ":") >>
    newCoins conn md                                            >>=
-   insertAllCoins conn . map coin . Map.elems                  >>
-   insertListings conn i
+   insertAllCoins conn . map coin . Map.elems                  >>= \ans ->
+   insertListings conn i                                       >>
+   return ans
 
 setProcessed :: Connection -> LookupTable -> IO ()
 setProcessed conn srcs =
@@ -129,7 +133,11 @@ setProcessed conn srcs =
 go :: IO ()
 go =
    withConnection ECOIN (\conn ->
-      lookupTable conn "source_type_lk" >>= \srcs ->
-      extractListings conn srcs            >>=
-      mapM_ (processOneListingFile conn)   >>
-      setProcessed conn srcs)
+      lookupTable conn "source_type_lk" >>= processFiles conn)
+
+processFiles :: Connection -> LookupTable -> IO [NewCoinsCtx]
+processFiles conn srcs =
+      extractListings conn srcs                                 >>=
+      traverse (sequence . (id &&& processOneListingFile conn)) >>= \newsies ->
+      setProcessed conn srcs                                    >>
+      return newsies
