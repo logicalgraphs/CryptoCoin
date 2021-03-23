@@ -1,2 +1,2 @@
 :set prompt "logicalgraphs> "
-:set -iData:CoinMarketCap
+:set -isrc
