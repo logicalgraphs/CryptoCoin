@@ -11,10 +11,10 @@ import Data.Maybe (mapMaybe)
 
 import Data.Time
 
-import CryptoCoin.CoinMarketCap.Types
+import CryptoCoin.CoinMarketCap.Types hiding (idx)
 import CryptoCoin.CoinMarketCap.Types.Quote
 
-import Data.CryptoCurrency.Types (Idx, rank)
+import Data.CryptoCurrency.Types (Idx, rank, idx)
 
 import Data.Monetary.USD
 import Data.Percentage
@@ -31,7 +31,7 @@ data ContextCoin = CC (Map Idx Listing) PriceCoin
    deriving (Eq, Ord, Show)
 
 ec2cc :: MetaData -> ECoin -> Maybe ContextCoin
-ec2cc (MetaData _ m) c = undefined
+ec2cc (MetaData _ m) c = CC m <$> (Map.lookup (idx c) m >>= l2PC)
 
 instance Rasa ContextCoin where
    printRow (CC _ pc@(PC (C (Coin ci)) p ch)) = tr (ci2tr ci p ch ++ [S "--"])
