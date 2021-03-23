@@ -14,8 +14,6 @@ ALTER TABLE "flipside_crypto_daily" DROP CONSTRAINT IF EXISTS "flipside_crypto_d
 
 -- TABLES ------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "coin_market_cap_daily_ranking";
-
 DROP TABLE IF EXISTS "coin";
 
 DROP TABLE IF EXISTS "token";

@@ -1,14 +1,3 @@
-CREATE TABLE "coin_market_cap_daily_ranking" (
-	"cmc_daily_ranking_id" serial NOT NULL,
-	"cmc_id" integer NOT NULL,
-	"date" DATE not null default now(),
-	"rank" integer NOT NULL,
-	"rank_src_id" bigint NOT NULL,
-	CONSTRAINT "coin_market_cap_daily_ranking_pk" PRIMARY KEY ("cmc_daily_ranking_id")
-) WITH (
-  OIDS=FALSE
-);
-
 CREATE TABLE "coin_market_cap_daily_listing" (
 	"cmc_daily_listing_id" serial NOT NULL,
 	"cmc_id" bigint NOT NULL,
@@ -25,6 +14,8 @@ CREATE TABLE "coin_market_cap_daily_listing" (
 	"percent_change_60d" double precision NOT NULL,
 	"percent_change_90d" double precision NOT NULL,
 	"market_cap" double precision NOT NULL,
+	"for_date" DATE not null default now(),
+	"rank" integer NOT NULL,
 	"list_src_id" bigint NOT NULL,
 	CONSTRAINT "coin_market_cap_daily_listing_pk" PRIMARY KEY ("cmc_daily_listing_id")
 ) WITH (
