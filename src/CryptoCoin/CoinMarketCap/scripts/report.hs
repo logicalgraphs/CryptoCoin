@@ -1,3 +1,3 @@
-import CryptoCoin.CoinMarketCap.Reporter
+import CryptoCoin.CoinMarketCap.Go
 
 main = go
