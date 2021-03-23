@@ -56,14 +56,14 @@ back into the database.
 
 <img src="src/CryptoCoin/CoinMarketCap/ETL/imgs/e-coin-erd.png"/>
 
-TODOs (besides the TODO above):
+TODOs:
 
+* For tokens, link their source-coin
 * **SHOOT!** all the CMC data are captured in listings; rewrite ETL to use
 this file only and drop rankings-file from all implementations.
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
 * use coin-state from SQL data-store.
 * check back on new coins a month later. How are they doing?
-  * we need a table for new coins.
 
 OTHER TODOs: 
 
