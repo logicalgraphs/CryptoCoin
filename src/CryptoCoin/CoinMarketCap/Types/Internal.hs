@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module CoinMarketCap.Types.Internal where
+module CryptoCoin.CoinMarketCap.Types.Internal where
 
 import Data.Aeson
 
@@ -12,7 +12,7 @@ import Data.Map (Map)
 import System.Environment (getEnv)
 
 import Data.CryptoCurrency.Types   -- for indexed
-import CoinMarketCap.Types.Quote
+import CryptoCoin.CoinMarketCap.Types.Quote
 
 data Coin' = Coin' { id :: Idx, name, symbol, slug :: String,
                      rank', is_active :: Int,
@@ -44,8 +44,10 @@ instance FromJSON CoinRef' where
    parseJSON = withObject "ref" $ \v ->
       CR' <$> v .: "id" <*> v .: "token_address"
 
-data Listing' = Listing' Integer Integer Double Double (Maybe Double) [String] (Map String Quote)
-   deriving Show
+data Listing' =
+   Listing' Integer Integer Double Double (Maybe Double) [String]
+            (Map String Quote)
+      deriving Show
 
 instance FromJSON Listing' where
    parseJSON = withObject "listing" $ \v ->
