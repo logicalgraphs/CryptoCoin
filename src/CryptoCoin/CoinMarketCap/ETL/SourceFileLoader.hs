@@ -1,8 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module CoinMarketCap.ETL.SourceFileLoader where
+module CryptoCoin.CoinMarketCap.ETL.SourceFileLoader where
 
-import qualified Data.ByteString.Char8 as BL
+{--
+Takes the JSON we downloaded from crypto-coin web APIs and loads those files
+to our SQL data-store.
+--}
+
+import qualified Data.ByteString.Char8 as B
 
 import Data.Char (toLower)
 
@@ -24,16 +29,19 @@ import Control.Scan.CSV
 import Data.LookupTable
 import Data.Time.TimeSeries (today)
 
+import Store.SQL.Connection
 import Store.SQL.Util.LookupTable
 
-import Store.SQL.Connection
+uploadFileQuery :: Query
+uploadFileQuery = Query . B.pack $ unwords [
+   "INSERT INTO source (source_type_id, file_name, for_day, file)",
+   "VALUES (?, ?, ?, ?) RETURNING source_id"]
 
 uploadFile :: Integer -> FilePath -> Connection -> IO (FilePath, Integer)
 uploadFile sourceType filename conn =
    readFile filename                        >>= \file ->
    today                                    >>= \tday ->
-   query conn
-         "INSERT INTO source (source_type_id, file_name, for_day, file) VALUES (?, ?, ?, ?) RETURNING source_id"
+   query conn uploadFileQuery
          (sourceType, filename, tday, file) >>= \[Only i] ->
    putStrLn ("Uploaded " ++ filename)       >>
    removeFile filename                      >>
@@ -42,7 +50,7 @@ uploadFile sourceType filename conn =
 
 uploadAllFilesAt :: FilePath -> Integer -> Connection -> IO [(FilePath, Integer)]
 uploadAllFilesAt dir srcTyp conn =
-   listDirectory dir >>= \files ->
+   listDirectory dir       >>= \files ->
    setCurrentDirectory dir >>
    mapM (flip (uploadFile srcTyp) conn) (filter (".json" `isSuffixOf`) files)
 
@@ -52,35 +60,9 @@ uploadAllFilesAt dir srcTyp conn =
 >>> src
 fromList [("FCAS",3),("LISTING",2),("RANKING",1)]
 >>> cmcDir <- getEnv "COIN_MARKET_CAP_DIR"
->>> uploadAllFilesAt (cmcDir ++ "/rankings/2021") (src Map.! "RANKING") conn
-Uploaded coins-2021-03-01.json
-Uploaded coins-2021-03-06.json
-Uploaded coins-2021-02-27.json
-Uploaded coins-2021-02-26.json
-Uploaded coins-2021-03-07.json
-Uploaded coins-2021-03-04.json
-Uploaded coins-2021-03-08.json
-Uploaded coins-2021-02-25.json
-Uploaded coins-2021-02-24.json
-Uploaded coins-2021-03-05.json
-Uploaded coins-2021-02-28.json
-Uploaded coins-2021-02-23.json
-Uploaded coins-2021-03-02.json
-Uploaded coins-2021-03-03.json
-Uploaded coins-2021-02-22.json
-[("coins-2021-03-01.json",1),("coins-2021-03-06.json",2),
- ("coins-2021-02-27.json",3),("coins-2021-02-26.json",4),
- ("coins-2021-03-07.json",5),("coins-2021-03-04.json",6),
- ("coins-2021-03-08.json",7),("coins-2021-02-25.json",8),
- ("coins-2021-02-24.json",9),("coins-2021-03-05.json",10),
- ("coins-2021-02-28.json",11),("coins-2021-02-23.json",12),
- ("coins-2021-03-02.json",13),("coins-2021-03-03.json",14),
- ("coins-2021-02-22.json",15)]
-
->>> uploadAllFilesAt (cmcDir ++ "/listings/2021") (src Map.! "LISTING") conn
+>>> uploadAllFilesAt (cmcDir ++ "/listings") (src Map.! "LISTING") conn
 Uploaded listings-2021-03-05.json
 [("listings-2021-03-05.json",16)]
-
 >>> close conn
 --}
 
@@ -88,19 +70,15 @@ go :: IO ()
 go = withConnection ECOIN (\conn ->
    lookupTable conn "source_type_lk" >>= \src ->
    getEnv "COIN_MARKET_CAP_DIR"      >>= \cmcDir ->
-   let uploader dir typ = uploadAllFilesAt (cmcDir ++ ('/':dir ++ "/2021"))
+   let uploader dir typ = uploadAllFilesAt (cmcDir ++ ('/':dir))
                                            (src Map.! typ) conn
-   in  uploader "rankings" "RANKING" >> 
-       uploader "listings" "LISTING" >>
+   in  uploader "listings" "LISTING" >>
        uploader "scores"   "FCAS"    >>
        sources conn)
 
 {--
 >>> go
-Uploaded coins-2021-03-09.json
 Uploaded listings-2021-03-09.json
-
-SQL query to check that the database is populated:
 --}
 
 data Source = Source { idx :: Integer, source :: String, forDay :: Day,
@@ -116,8 +94,10 @@ instance Univ Source where
 showBool :: Bool -> String
 showBool = (flip (:) . tail <*> toLower . head) . show
 
+-- SQL query to check that the database is populated:
+
 sourceQuery :: Day -> Query
-sourceQuery tday = Query . BL.pack $ unlines [
+sourceQuery tday = Query . B.pack $ unlines [
    "SELECT a.source_id, b.source_type, a.for_day, a.file_name, a.processed",
    "FROM source a",
    "INNER JOIN source_type_lk b ON b.source_type_id=a.source_type_id",
@@ -127,7 +107,7 @@ sourceQuery tday = Query . BL.pack $ unlines [
 srcs :: Connection -> Day -> IO [Source]
 srcs conn day = 
    let srcQuery = sourceQuery day in
-   BL.putStrLn (fromQuery srcQuery) >> query_ conn srcQuery
+   B.putStrLn (fromQuery srcQuery) >> query_ conn srcQuery
 
 sources :: Connection -> IO ()
 sources conn = getCurrentTime                     >>=
