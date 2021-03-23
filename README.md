@@ -45,7 +45,7 @@ It will tell you which files it uploaded and then deleted.
 Then, run the Coin extractor
 
 ```BASH
-$ ghci $COIN_MARKET_CAP_DIR/ETL/CoinExtract.hs
+$ ghci $COIN_MARKET_CAP_DIR/ETL/NewCoinLoader.hs
 ghci> go
 ```
 
