@@ -7,7 +7,7 @@ import Data.Aeson.Types
 
 data Quote = Quote {
    price :: Double,
-   volumn24h        :: Double,
+   volume24h        :: Double,
    percentChange1h  :: Maybe Double,
    percentChange24h :: Maybe Double,
    percentChange7d  :: Maybe Double,
