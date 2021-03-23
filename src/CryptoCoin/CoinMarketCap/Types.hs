@@ -134,4 +134,4 @@ instance FromJSON Listing where
    parseJSON v = l2l <$> parseJSON v
 
 instance Indexed Listing where
-   idx = idx . info . coin
+   idx = idx . coin
