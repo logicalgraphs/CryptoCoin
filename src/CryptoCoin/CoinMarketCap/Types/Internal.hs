@@ -2,6 +2,8 @@
 
 module CryptoCoin.CoinMarketCap.Types.Internal where
 
+-- translates raw-JSON structures to our Haskell-y types
+
 import Data.Aeson
 
 import Data.ByteString.Lazy.Char8 (ByteString)
@@ -13,24 +15,6 @@ import System.Environment (getEnv)
 
 import Data.CryptoCurrency.Types   -- for indexed
 import CryptoCoin.CoinMarketCap.Types.Quote
-
-{--
-data Coin' = Coin' { id :: Idx, name, symbol, slug :: String,
-                     rank' :: Int,
-                     date_added :: String,
-                     platform :: Maybe CoinRef' }
-   deriving (Eq, Ord, Show)
-
-instance FromJSON Coin' where
-   parseJSON = withObject "Raw coin" $ \v ->
-      Coin' <$> v .: "id"
-            <*> v .: "name"
-            <*> v .: "symbol"
-            <*> v .: "slug"
-            <*> v .: "cmc_rank"
-            <*> v .: "date_added",
-            <*> v .:? "platform"
---}
 
 type TokenAddress = String
 
