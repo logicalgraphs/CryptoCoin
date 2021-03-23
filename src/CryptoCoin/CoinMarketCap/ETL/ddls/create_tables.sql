@@ -28,9 +28,8 @@ CREATE TABLE "coin" (
 	"name" TEXT NOT NULL,
 	"symbol" TEXT NOT NULL,
 	"flipsidecrypto_id" uuid,
-	"is_active" bool NOT NULL DEFAULT 'true',
 	"slug" TEXT,
-	"first_historical_data" date,
+	"date_added" date,
 	CONSTRAINT "coin_pk" PRIMARY KEY ("cmc_id")
 ) WITH (
   OIDS=FALSE

@@ -20,7 +20,7 @@ import qualified Data.Map as Map
 
 import CryptoCoin.CoinMarketCap.Types
 import CryptoCoin.CoinMarketCap.ETL.JSONFile
-import CryptoCoin.CoinMarketCap.ETL.ListingsLoader (insertRankings)
+import CryptoCoin.CoinMarketCap.ETL.ListingsLoader (insertListings)
 
 import Data.CryptoCurrency.Types hiding (idx)      -- Idx
 
@@ -48,7 +48,7 @@ with the indices in the database vs the indices here. The indices here
 are the new coins, which we archive.
 --}
 
-newCoins :: Connection -> MetaData -> IO (Map Idx ECoin)
+newCoins :: Connection -> MetaData -> IO (Map Idx Listing)
 newCoins conn (MetaData _ m) =
    foldr Map.delete m . map (fromIntegral . idx) <$> coins conn
 
@@ -68,19 +68,19 @@ coins conn = query_ conn "SELECT cmc_id FROM coin"
 -- dailies? I guess that can work...
 
 instance ToRow CoinInfo where
-   toRow (CoinInfo i name symbol slug isActive _rank (Duration f _)) =
-      [toField i, toField name, toField symbol, toField isActive,
+   toRow (CoinInfo i name symbol slug _rank f) =
+      [toField i, toField name, toField symbol,
        toField slug, toField f]
 
 insertCoinInfoQuery :: Query
 insertCoinInfoQuery = Query . B.pack $ unwords 
-   ["INSERT INTO coin (cmc_id, name, symbol, is_active, slug,",
-    "first_historical_data) VALUES (?, ?, ?, ?, ?, ?)"]
+   ["INSERT INTO coin (cmc_id, name, symbol, slug, date_added)",
+    "VALUES (?, ?, ?, ?, ?, ?)"]
 
 instance ToRow Token where
    toRow (Token coininf parentId tok) =
       [toField (i coininf), toField parentId, toField tok]
-         where i (CoinInfo i _ _ _ _ _ _) = i
+         where i (CoinInfo i _ _ _ _ _) = i
 
 insertTokenQuery :: Query
 insertTokenQuery = 
@@ -111,12 +111,12 @@ insertAllCoins conn ecoins =
    forM_ tokens (insertCoin conn)                                >>
    putStrLn "...done."
 
-processOneRankFile :: Connection -> IxValue MetaData -> IO ()
-processOneRankFile conn i@(IxV _ md) =
-   putStrLn ("\n\nFor ranking file " ++ show (date md) ++ ":") >>
-   newCoins conn md                                    >>=
-   insertAllCoins conn . Map.elems                     >>
-   insertRankings conn i
+processOneListingFile :: Connection -> IxValue MetaData -> IO ()
+processOneListingFile conn i@(IxV _ md) =
+   putStrLn ("\n\nFor listing file " ++ show (date md) ++ ":") >>
+   newCoins conn md                                            >>=
+   insertAllCoins conn . map coin . Map.elems                  >>
+   insertListings conn i
 
 setProcessed :: Connection -> LookupTable -> IO ()
 setProcessed conn srcs =
@@ -130,6 +130,6 @@ go :: IO ()
 go =
    withConnection ECOIN (\conn ->
       lookupTable conn "source_type_lk" >>= \srcs ->
-      extractRanks conn srcs            >>=
-      mapM_ (processOneRankFile conn)   >>
+      extractListings conn srcs            >>=
+      mapM_ (processOneListingFile conn)   >>
       setProcessed conn srcs)

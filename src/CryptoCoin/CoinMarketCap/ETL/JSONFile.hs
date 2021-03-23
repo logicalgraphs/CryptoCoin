@@ -42,25 +42,18 @@ extractJSON lk conn srcs =
 extractRanks :: Connection -> LookupTable -> IO [IxValue MetaData]
 extractRanks = extractJSON "RANKING"
 
-data Listings = Listings { unlist :: [Listing] }
-
-instance Show Listings where
-   show (Listings ls) =
-      "Listings (" ++ show (length ls) ++ "), e.g.: " ++ show (take 3 ls)
-
-instance FromJSON Listings where
-   parseJSON = withObject "data" $ \v -> Listings <$> v .: "data"
-
-extractListings :: Connection -> LookupTable -> IO [IxValue Listings]
+extractListings :: Connection -> LookupTable -> IO [IxValue MetaData]
 extractListings = extractJSON "LISTING"
 
 {--
->>> withConnection ECOIN (\conn -> lookupTable conn "source_type_lk >>=
-                                   extractRanks conn                >>=
+>>> withConnection ECOIN (\conn -> lookupTable conn "source_type_lk" >>=
+                                   extractListings conn              >>=
                                    mapM_ (\(IxV i (MetaData s _)) -> print (i,s)))
-(38,Status 2021-03-19 0 Nothing 16 1 Nothing)
+(41,Status 2021-03-20 0 Nothing 752 23 Nothing)
+(44,Status 2021-03-21 0 Nothing 271 23 Nothing)
+(45,Status 2021-03-22 0 Nothing 197 23 Nothing)
 
-... returns only the non-processed rank-files.
+... returns only the non-processed listings-files.
 
 Okay, we're extracting and translating the JSON. Now we have to load these
 data into the tables... somehow.

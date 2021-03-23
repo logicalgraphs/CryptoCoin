@@ -58,6 +58,7 @@ back into the database.
 
 TODOs:
 
+* add TagLoader to the ETL-set
 * For tokens, link their source-coin
 * **SHOOT!** all the CMC data are captured in listings; rewrite ETL to use
 this file only and drop rankings-file from all implementations.
