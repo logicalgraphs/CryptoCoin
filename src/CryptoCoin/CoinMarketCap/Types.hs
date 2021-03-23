@@ -17,15 +17,15 @@ import CryptoCoin.CoinMarketCap.Types.Quote
 
 import Data.XHTML (Name)
 
-data MetaData = MetaData Status (Map Idx ECoin)
+data MetaData = MetaData Status (Map Idx Listing)
    deriving (Eq, Ord, Show)
 
-mapCoins :: [Coin'] -> Map Idx ECoin
-mapCoins = Map.fromList . map ((idx &&& id) . raw2coin)
+mapListings :: [Listing] -> Map Idx Listing
+mapListings = Map.fromList . map (idx &&& id)
 
 instance FromJSON MetaData where
    parseJSON = withObject "Metadata" $ \v ->
-      MetaData <$> v .: "status" <*> (mapCoins <$> v .: "data")
+      MetaData <$> v .: "status" <*> (mapListings <$> v .: "data")
 
 instance Date MetaData where
    date (MetaData (Status d _ _ _ _ _) _) = d
@@ -42,29 +42,31 @@ instance FromJSON Status where
 readDate :: String -> Day
 readDate = read . take 10
 
+{--
 data Duration = Duration { first, last :: Day }
    deriving (Eq, Ord, Show)
 
 mkdur :: String -> String -> Duration
 mkdur f l = Duration (readDate f) (readDate l)
+--}
 
-data CoinInfo = CoinInfo Idx Name Symbol String Bool Int Duration
+data CoinInfo = CoinInfo Idx Name Symbol String Int Day
    deriving (Eq, Ord, Show)
 
 class CoinData a where
    info :: a -> CoinInfo
 
 instance Rank CoinInfo where
-   rank (CoinInfo _ _ _ _ _ r _) = r
+   rank (CoinInfo _ _ _ _ r _) = r
 
 instance Named CoinInfo where
-   namei (CoinInfo _ n _ _ _ _ _) = n
+   namei (CoinInfo _ n _ _ _ _) = n
 
 instance Cymbal CoinInfo where
-   sym (CoinInfo _ _ s _ _ _ _) = s
+   sym (CoinInfo _ _ s _ _ _) = s
 
 instance Indexed CoinInfo where
-   idx (CoinInfo i _ _ _ _ _ _) = i
+   idx (CoinInfo i _ _ _ _ _) = i
 
 data Coin = Coin CoinInfo
    deriving (Eq, Ord, Show)
@@ -95,15 +97,16 @@ instance Indexed ECoin where
 instance Cymbal ECoin where
    sym = sym . info
 
-raw2coin :: Coin' -> ECoin
-raw2coin c@(Coin' _id _name _sym _slug _rank _activ _frist _lst Nothing) =
-   C (Coin (mkci c))
-raw2coin c@(Coin' _id _name _sym _slg _rnk _actv _fst _lst (Just (CR' i tok))) =
-   T (Token (mkci c) i tok)
+raw2coin :: Listing' -> ECoin
+raw2coin l = r2c l (plat l)
 
-mkci :: Coin' -> CoinInfo
-mkci (Coin' id name sym slug rank activ frist lst _) =
-   CoinInfo id name sym slug (activ == 1) rank (mkdur frist lst)
+r2c :: Listing' -> Maybe CoinRef' -> ECoin
+r2c l Nothing = C (Coin (mkci l))
+r2c l (Just (CR' i tok)) = T (Token (mkci l) i tok)
+
+mkci :: Listing' -> CoinInfo
+mkci (Listing' id name sym slug _num dt _cs _ts _ms _tgs _plat rank _qt) =
+   CoinInfo (fromIntegral id) name sym slug (fromIntegral rank) (readDate dt)
 
 -- FOR LISTINGS AND QUOTES --------------------------------------------
 
@@ -116,7 +119,7 @@ data Supplies =
 type Tag = String
       
 data Listing =
-   Listing { coin        :: Integer,
+   Listing { coin        :: ECoin,
              marketPairs :: Integer,
              supplies    :: Supplies,
              tags        :: [Tag],
@@ -124,8 +127,11 @@ data Listing =
       deriving (Eq, Ord, Show)
 
 l2l :: Listing' -> Listing
-l2l (Listing' i m cs ts ms tgs q) =
-   Listing i m (Supplies cs ts ms) tgs (Map.lookup "USA" q)
+l2l l@(Listing' _id _name _sym _slug num dt cs ts ms tgs _plat _rank qt) =
+   Listing (raw2coin l) num (Supplies cs ts ms) tgs (Map.lookup "USA" qt)
 
 instance FromJSON Listing where
    parseJSON v = l2l <$> parseJSON v
+
+instance Indexed Listing where
+   idx = idx . info . coin
