@@ -4,7 +4,7 @@ module CryptoCoin.CoinMarketCap.Reports.Reporter where
 
 {--
 Okay, report.sh downloads the JSON of listings for us to process. Here, we
-process them then report them.
+report on the files processed.
 --}
 
 import Data.Aeson (decode)
@@ -23,13 +23,6 @@ import CryptoCoin.CoinMarketCap.Reports.Table
 
 import Store.SQL.Util.Indexed
 
-{--
-go :: IO ()
-go = getCurrentTime >>= \date ->
-     let day = utctDay date
-     in  ranking day >>= tweet day >> title day
---}
-
 ranking :: Day -> NewCoinsCtx -> IO NewCoins
 ranking date (IxV _ md@(MetaData status ecoins), newsies) =
    header date                                                     >>
@@ -47,8 +40,6 @@ ranking date (IxV _ md@(MetaData status ecoins), newsies) =
     </tr>
     <tr><td>1</td><td>Bitcoin</td><td>BTC</td><td>Coin</td></tr>
 ...
-
-need to add a twitter poster here, too.
 --}
 
 tweet :: Day -> NewCoins -> IO ()
