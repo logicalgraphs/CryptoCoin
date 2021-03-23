@@ -58,10 +58,9 @@ back into the database.
 
 TODOs:
 
+* generate reports during ETL-upload
 * add TagLoader to the ETL-set
 * For tokens, link their source-coin
-* **SHOOT!** all the CMC data are captured in listings; rewrite ETL to use
-this file only and drop rankings-file from all implementations.
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
 * use coin-state from SQL data-store.
 * check back on new coins a month later. How are they doing?
