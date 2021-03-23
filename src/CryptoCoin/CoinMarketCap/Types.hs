@@ -42,14 +42,6 @@ instance FromJSON Status where
 readDate :: String -> Day
 readDate = read . take 10
 
-{--
-data Duration = Duration { first, last :: Day }
-   deriving (Eq, Ord, Show)
-
-mkdur :: String -> String -> Duration
-mkdur f l = Duration (readDate f) (readDate l)
---}
-
 data CoinInfo = CoinInfo Idx Name Symbol String Int Day
    deriving (Eq, Ord, Show)
 
