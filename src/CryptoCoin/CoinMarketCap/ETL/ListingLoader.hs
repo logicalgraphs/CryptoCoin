@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module CryptoCoin.CoinMarketCap.ETL.ListingsLoader where
+module CryptoCoin.CoinMarketCap.ETL.ListingLoader where
 
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.ToRow
