@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module CryptoCoin.CoinMarketCap.ETL.TagsLoader where
+module CryptoCoin.CoinMarketCap.ETL.TagLoader where
 
 {--
 We need to get our tags-context, we need to extract all tags-coins, we need
