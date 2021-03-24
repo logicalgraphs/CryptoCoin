@@ -22,7 +22,7 @@ import qualified Data.Map as Map
 
 import CryptoCoin.CoinMarketCap.Types
 import CryptoCoin.CoinMarketCap.ETL.JSONFile
-import CryptoCoin.CoinMarketCap.ETL.ListingsLoader (insertListings)
+import CryptoCoin.CoinMarketCap.ETL.ListingLoader (insertListings)
 
 import Data.CryptoCurrency.Types hiding (idx)      -- Idx
 
