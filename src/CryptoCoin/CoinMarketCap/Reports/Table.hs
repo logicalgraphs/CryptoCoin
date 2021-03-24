@@ -79,10 +79,14 @@ newCoins md ncs@(coins, tokens) =
 newStuff :: MetaData -> [ECoin] -> String -> IO ()
 newStuff md coins typ =
    let sz     = length coins
-       header = concat ["There are ",show sz," new ",typ,plural sz," today:"]
+       header = concat ["There",toBe sz,show sz," new ",typ,plural sz," today:"]
        ranked = sortOn rank coins
    in  printContent (p [S header]) 0 >> report md ranked
 
 plural :: Int -> String
 plural 1 = ""
 plural _ = "s"
+
+toBe :: Int -> String
+toBe count | count == 1 = " is "
+           | otherwise  = " are "
