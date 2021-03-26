@@ -38,7 +38,7 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 TODOs:
 
 * add TagLoader to the ETL-set TODO! change Idx from Int to Integer; what
-was I thinking??!?!?!
+was I thinking??!?!?! ... both DONE! Now I need to test both.
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
 * check back on new coins a month later. How are they doing?
 
