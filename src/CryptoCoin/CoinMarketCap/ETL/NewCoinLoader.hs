@@ -52,7 +52,7 @@ are the new coins, which we archive.
 
 newCoins :: Connection -> MetaData -> IO (Map Idx Listing)
 newCoins conn (MetaData _ m) =
-   foldr Map.delete m . map (fromIntegral . idx) <$> coins conn
+   foldr Map.delete m . map idx <$> coins conn
 
 -- to do that, we need to extract the indices from the database, ... with
 -- (any other) value

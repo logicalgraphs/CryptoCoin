@@ -33,7 +33,7 @@ instance FromJSON MetaData where
 instance Date MetaData where
    date (MetaData (Status d _ _ _ _ _) _) = d
 
-data Status = Status Day Int (Maybe String) Int Int (Maybe String)
+data Status = Status Day Integer (Maybe String) Integer Integer (Maybe String)
    deriving (Eq, Ord, Show)
 
 instance FromJSON Status where
@@ -45,7 +45,7 @@ instance FromJSON Status where
 readDate :: String -> Day
 readDate = read . take 10
 
-data CoinInfo = CoinInfo Idx Name Symbol String Int Day
+data CoinInfo = CoinInfo Idx Name Symbol String Integer Day
    deriving (Eq, Ord, Show)
 
 class CoinData a where
@@ -106,7 +106,7 @@ type NewCoinsCtx = (IxValue MetaData, NewCoins)
 
 mkci :: Listing' -> CoinInfo
 mkci (Listing' id name sym slug _num dt _cs _ts _ms _tgs _plat rank _qt) =
-   CoinInfo (fromIntegral id) name sym slug (fromIntegral rank) (readDate dt)
+   CoinInfo id name sym slug rank (readDate dt)
 
 data Supplies = 
    Supplies { circulatingSupply :: Double,
