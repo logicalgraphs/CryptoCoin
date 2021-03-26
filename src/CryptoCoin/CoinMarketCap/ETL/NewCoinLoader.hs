@@ -49,9 +49,14 @@ with the indices in the database vs the indices here. The indices here
 are the new coins, which we archive.
 --}
 
-newCoins :: Connection -> MetaData -> IO (Map Idx Listing)
+newCoins :: Connection -> MetaData -> IO NewCoins
 newCoins conn (MetaData _ m) =
-   foldr Map.delete m . map idx <$> coins conn
+   partition (not . isToken)
+   . map coin
+   . Map.elems
+   . foldr Map.delete m
+   . map idx
+   <$> coins conn
 
 -- to do that, we need to extract the indices from the database, ... with
 -- (any other) value
@@ -102,25 +107,24 @@ thenInsertCoin conn (T tok) = execute conn insertTokenQuery tok >> return ()
 
 -- We insert all the coins first, then we insert the tokens
 
-insertAllCoins :: Connection -> [ECoin] -> IO NewCoins
-insertAllCoins conn ecoins =
-   let (tokens, coins) = partition isToken ecoins in
+insertAllCoins :: Connection -> NewCoins -> IO NewCoins
+insertAllCoins conn nc@(coins, tokens) =
    putStrLn ("Inserting " ++ show (length coins) ++ " coins.")   >>
    forM_ coins (insertCoin conn)                                 >>
    putStrLn "...done."                                           >>
    putStrLn ("Inserting " ++ show (length tokens) ++ " tokens.") >>
    forM_ tokens (insertCoin conn)                                >>
    putStrLn "...done."                                           >>
-   return (coins, tokens)
+   return nc
 
-processOneListingFile :: Connection -> IxValue MetaData -> IO NewCoins
+processOneListingFile :: Connection -> IxValue MetaData -> IO NewCoinsCtx
 processOneListingFile conn i@(IxV _ md) =
    putStrLn ("\n\nFor listing file " ++ show (date md) ++ ":") >>
    newCoins conn md                                            >>=
-   insertAllCoins conn . map coin . Map.elems                  >>= \ans ->
+   insertAllCoins conn                                         >>= \ans ->
    insertListings conn i                                       >>
    processTags conn i                                          >>
-   return ans
+   return (i, ans)
 
 setProcessed :: Connection -> LookupTable -> IO ()
 setProcessed conn srcs =
@@ -138,6 +142,6 @@ go =
 processFiles :: Connection -> LookupTable -> IO [NewCoinsCtx]
 processFiles conn srcs =
       extractListings conn srcs                                 >>=
-      traverse (sequence . (id &&& processOneListingFile conn)) >>= \newsies ->
+      mapM (processOneListingFile conn)                         >>= \newsies ->
       setProcessed conn srcs                                    >>
       return newsies
