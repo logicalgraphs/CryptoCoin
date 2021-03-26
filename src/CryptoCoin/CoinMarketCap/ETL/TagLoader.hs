@@ -95,8 +95,7 @@ deleteOldPivots conn tags =
    putStrLn (unwords ["Deleted tag relations for",
                       show (length cmcIds), "coins."])
 
--- ... which means we need an index on cmc_id in our j_tag_coin table
--- we probably also need an index on our tag_id, for data-mining
+-- Now we add the tag-relations for the coin-ids
 
 andPivotTags :: Connection -> [Pivot] -> IO ()
 andPivotTags con ps =
