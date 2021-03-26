@@ -34,8 +34,6 @@ import Store.SQL.Util.Indexed
 import Store.SQL.Util.LookupTable
 
 {-- 
-Remember we need to set processed to true when we're all done here!
-
 The coin table is a lookup table ... with multicolumns for the value against
 the index. The only lookupTable construct I have (so far) is a string against
 an index, so that's not working, but I need the same functionality for coin
