@@ -22,6 +22,7 @@ CREATE TABLE "coin_market_cap_daily_listing" (
   OIDS=FALSE
 );
 
+CREATE INDEX ON coin_market_cap_daily_listing (cmc_id);
 
 CREATE TABLE "coin" (
 	"cmc_id" serial NOT NULL,
@@ -65,7 +66,8 @@ CREATE TABLE "j_tag_coin" (
   OIDS=FALSE
 );
 
-
+CREATE INDEX ON j_tag_coin (tag_id);
+CREATE INDEX ON j_tag_coin (cmc_id);
 
 CREATE TABLE "flipside_crypto_daily" (
 	"fsc_day_id" serial NOT NULL,

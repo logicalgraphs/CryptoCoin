@@ -23,6 +23,7 @@ import qualified Data.Map as Map
 import CryptoCoin.CoinMarketCap.Types
 import CryptoCoin.CoinMarketCap.ETL.JSONFile
 import CryptoCoin.CoinMarketCap.ETL.ListingLoader (insertListings)
+import CryptoCoin.CoinMarketCap.ETL.TagLoader (processTags)
 
 import Data.CryptoCurrency.Types hiding (idx)      -- Idx
 
@@ -120,6 +121,7 @@ processOneListingFile conn i@(IxV _ md) =
    newCoins conn md                                            >>=
    insertAllCoins conn . map coin . Map.elems                  >>= \ans ->
    insertListings conn i                                       >>
+   processTags conn i                                          >>
    return ans
 
 setProcessed :: Connection -> LookupTable -> IO ()
