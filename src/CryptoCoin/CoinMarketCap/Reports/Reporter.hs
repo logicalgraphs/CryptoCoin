@@ -14,14 +14,14 @@ import qualified Data.ByteString.Lazy.Char8 as BL
 import Data.List (sortOn, splitAt)
 import qualified Data.Map as Map
 import qualified Data.Set as Set
-import Data.Time
+import Data.Time (Day)
 
-import Data.CryptoCurrency.Types
+import Data.CryptoCurrency.Types (rank)
 
-import CryptoCoin.CoinMarketCap.Types
-import CryptoCoin.CoinMarketCap.Reports.Table
+import CryptoCoin.CoinMarketCap.Types (NewCoins, NewCoinsCtx, MetaData(MetaData), coin)
+import CryptoCoin.CoinMarketCap.Reports.Table (header, report, newCoins, plural)
 
-import Store.SQL.Util.Indexed
+import Store.SQL.Util.Indexed (IxValue(IxV))
 
 ranking :: Day -> NewCoinsCtx -> IO NewCoins
 ranking date (IxV _ md@(MetaData status ecoins), newsies) =
