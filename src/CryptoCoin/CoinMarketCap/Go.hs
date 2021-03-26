@@ -18,9 +18,10 @@ import Store.SQL.Connection
 import Store.SQL.Util.LookupTable
 
 go :: IO ()
-go = withConnection ECOIN (\conn ->
-   lookupTable conn "source_type_lk" >>= \srcs ->
-   uploadFiles conn srcs             >>
-   today                             >>= \tday ->
-   processFiles conn srcs            >>=
-   mapM_ (\listings -> ranking tday listings >>= tweet tday >> title tday))
+go = 
+   today                                >>= \tday ->
+   withConnection ECOIN                    (\conn ->
+      lookupTable conn "source_type_lk" >>= \srcs ->
+      uploadFiles conn srcs             >>
+      processFiles conn srcs            >>=
+      mapM_ (\listings -> ranking tday listings >>= tweet tday >> title tday))
