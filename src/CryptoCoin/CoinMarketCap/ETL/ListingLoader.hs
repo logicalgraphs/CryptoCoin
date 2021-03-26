@@ -31,9 +31,8 @@ data DayListing =
 toListings :: IxValue MetaData -> [DayListing]
 toListings (IxV i (MetaData (Status d _ _ _ _ _) listings)) =
    mapMaybe (\l@(Listing _ nmp s _tgs mbq) ->
-               DayListing i d (fi $ idx l) (fi $ rank l) nmp s <$> mbq)
+               DayListing i d (idx l) (rank l) nmp s <$> mbq)
             (Map.elems listings)
-      where fi = fromIntegral
 
 instance ToRow DayListing where
    toRow (DayListing srcId d idx rank nmp s q) =
