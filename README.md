@@ -37,8 +37,6 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 
 TODOs:
 
-* add TagLoader to the ETL-set TODO! change Idx from Int to Integer; what
-was I thinking??!?!?! ... both DONE! Now I need to test both.
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
 * check back on new coins a month later. How are they doing?
 
@@ -70,3 +68,15 @@ Do we look at all e-coins as Voronoi? or Word-cloud?
 
 ... I have examples of running d3 under 
 https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
+
+## Revision History
+### ... or feeping creatures! AHA!
+
+* 2021-03-26: Saving Cryptocoin-tags to data-store:
+http://logicalgraphs.blogspot.com/2021/03/saving-cryptocoin-tags-to-data-store.html
+
+* 2021-03-23: Shifted from the CoinMarketCap ranking-JSON file to the
+more-comprehensive listing-JSON file.
+
+* 2021-03-09: Saving CoinMarketCap JSON files to the data-store:
+http://logicalgraphs.blogspot.com/2021/03/progress-report-2021-03-09.html
