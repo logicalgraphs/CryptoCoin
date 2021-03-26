@@ -26,11 +26,13 @@ import Control.Map (snarf)
 import Data.CryptoCurrency.Types (Idx)
 import Data.LookupTable
 
+import Store.SQL.Connection (withConnection, Database(ECOIN))
 import Store.SQL.Util.Indexed (IxValue(IxV))
 import Store.SQL.Util.LookupTable
 import Store.SQL.Util.Pivots
 
 import CryptoCoin.CoinMarketCap.Types
+import CryptoCoin.CoinMarketCap.ETL.JSONFile
 
 processTags :: Connection -> IxValue MetaData -> IO ()
 processTags conn (IxV _ (MetaData _ listings)) =
@@ -91,7 +93,7 @@ tagPivotValues big news =
 deleteOldPivots :: Connection -> Map Tag (Set Idx) -> IO ()
 deleteOldPivots conn tags =
    let cmcIds = Set.toList (Set.unions (Map.elems tags)) in
-   execute conn "DELETE FROM j_tag_coin WHERE cmc_id IN (?)" cmcIds >>
+   execute conn "DELETE FROM j_tag_coin WHERE cmc_id IN ?" (Only (In cmcIds)) >>
    putStrLn (unwords ["Deleted tag relations for",
                       show (length cmcIds), "coins."])
 
@@ -101,3 +103,9 @@ andPivotTags :: Connection -> [Pivot] -> IO ()
 andPivotTags con ps =
    executeMany con "INSERT INTO j_tag_coin (tag_id, cmc_id) VALUES (?, ?)" ps >>
    putStrLn (unwords ["Insert", show (length ps), "tag-relations."])
+
+go :: IO ()
+go = withConnection ECOIN (\conn ->
+   lookupTable conn "source_type_lk" >>=
+   extractListings conn              >>=
+   mapM_ (processTags conn))
