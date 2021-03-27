@@ -156,16 +156,49 @@ CREATE TABLE "j_tracked_coin_tracked_type" (
 );
 
 
--- I actually don't do foreign keys with SQL tables, but to each his own.
+CREATE TABLE "portfolio" (
+	"portfolio_id" serial NOT NULL,
+	"portfolio_name" TEXT NOT NULL,
+	"cash" double precision NOT NULL,
+	CONSTRAINT "Portfolio_pk" PRIMARY KEY ("portfolio_id")
+) WITH (
+  OIDS=FALSE
+);
 
-ALTER TABLE "coin_market_cap_daily" ADD CONSTRAINT "coin_market_cap_daily_fk0" FOREIGN KEY ("cmc_id") REFERENCES "coin"("cmc_id");
 
 
-ALTER TABLE "token" ADD CONSTRAINT "token_fk0" FOREIGN KEY ("token_id") REFERENCES "coin"("cmc_id");
-ALTER TABLE "token" ADD CONSTRAINT "token_fk1" FOREIGN KEY ("parent_id") REFERENCES "coin"("cmc_id");
+CREATE TABLE "transaction_log" (
+	"transaction_id" serial NOT NULL,
+	"cmc_id" bigint NOT NULL,
+	"purchase_usd" double precision NOT NULL,
+	"surcharge_usd" double precision NOT NULL,
+	"n_coins" double precision NOT NULL,
+	"transaction_type_id" bigint NOT NULL,
+	CONSTRAINT "transaction_log_pk" PRIMARY KEY ("transaction_id")
+) WITH (
+  OIDS=FALSE
+);
 
 
-ALTER TABLE "j_tag_coin" ADD CONSTRAINT "j_tag_coin_fk0" FOREIGN KEY ("tag_id") REFERENCES "tag"("tag_id");
-ALTER TABLE "j_tag_coin" ADD CONSTRAINT "j_tag_coin_fk1" FOREIGN KEY ("cmc_id") REFERENCES "coin"("cmc_id");
 
-ALTER TABLE "flipside_crypto_daily" ADD CONSTRAINT "flipside_crypto_daily_fk0" FOREIGN KEY ("flipside_crypto_id") REFERENCES "coin"("cmc_id");
+CREATE TABLE "j_transaction_portfolio" (
+	"jtp_id" serial NOT NULL,
+	"portfolio_id" bigint NOT NULL,
+	"transaction_id" bigint NOT NULL,
+	CONSTRAINT "j_transaction_portfolio_pk" PRIMARY KEY ("jtp_id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "transaction_type_lk" (
+	"transaction_type_id" serial NOT NULL,
+	"transaction_type" TEXT NOT NULL,
+	CONSTRAINT "transaction_type_lk_pk" PRIMARY KEY ("transaction_type_id")
+) WITH (
+  OIDS=FALSE
+);
+
+INSERT INTO transaction_type_lk (transaction_type_id, transaction_type)
+VALUES (1, 'STRONG_BUY'), (2, 'BUY'), (3, 'HOLD'), (4, 'SELL'), (5, 'STRONG_SELL');

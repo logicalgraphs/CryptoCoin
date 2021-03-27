@@ -37,3 +37,12 @@ DROP TABLE IF EXISTS "tracked_coin";
 DROP TABLE IF EXISTS "tracked_type_lk";
 
 DROP TABLE IF EXISTS "j_tracked_coin_tracked_type";
+
+DROP TABLE IF EXISTS "portfolio";
+
+DROP TABLE IF EXISTS "transaction_log";
+
+DROP TABLE IF EXISTS "j_transaction_portfolio";
+
+DROP TABLE IF EXISTS "transaction_type_lk";
+
