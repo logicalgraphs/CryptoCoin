@@ -1,3 +1,5 @@
+-- TABLES --------------------------------------------------------------------------
+
 CREATE TABLE "coin_market_cap_daily_listing" (
 	"cmc_daily_listing_id" serial NOT NULL,
 	"cmc_id" bigint NOT NULL,
@@ -119,7 +121,7 @@ create table "source_type_lk" (
 );
 
 INSERT INTO source_type_lk (source_type_id, source_type)
-VALUES (1, 'RANKING'), (2, 'LISTING'), (3, 'FCAS');
+VALUES (1, 'RANKING'), (2, 'LISTING'), (3, 'FCAS'), (4, 'CANDLESTICKS');
 
 CREATE TABLE "tracked_coin" (
 	"tracked_coin_id" serial NOT NULL,
@@ -132,7 +134,7 @@ CREATE TABLE "tracked_coin" (
   OIDS=FALSE
 );
 
-
+CREATE INDEX ON tracked_coin (cmc_id);
 
 CREATE TABLE "tracked_type_lk" (
 	"tracked_type_id" serial NOT NULL,
@@ -179,6 +181,7 @@ CREATE TABLE "transaction_log" (
   OIDS=FALSE
 );
 
+CREATE INDEX ON transaction_log (cmc_id);
 
 
 CREATE TABLE "j_transaction_portfolio" (
@@ -202,3 +205,34 @@ CREATE TABLE "transaction_type_lk" (
 
 INSERT INTO transaction_type_lk (transaction_type_id, transaction_type)
 VALUES (1, 'STRONG_BUY'), (2, 'BUY'), (3, 'HOLD'), (4, 'SELL'), (5, 'STRONG_SELL');
+
+
+CREATE TABLE "candlesticks" (
+	"candlestick_id" serial NOT NULL,
+	"date" DATE NOT NULL,
+	"open" double precision NOT NULL,
+	"high" double precision NOT NULL,
+	"low" double precision NOT NULL,
+	"close" double precision NOT NULL,
+	"adjusted_close" double precision NOT NULL,
+	"volume" double precision NOT NULL,
+	"currency_id" bigint NOT NULL,
+	"cmc_id" bigint NOT NULL,
+	CONSTRAINT "candlesticks_pk" PRIMARY KEY ("candlestick_id")
+) WITH (
+  OIDS=FALSE
+);
+
+CREATE INDEX ON candlesticks (cmc_id);
+CREATE INDEX ON candlesticks (date);
+
+
+CREATE TABLE "currency_lk" (
+	"currency_id" serial NOT NULL,
+	"currency" TEXT NOT NULL,
+	CONSTRAINT "currency_lk_pk" PRIMARY KEY ("currency_id")
+) WITH (
+  OIDS=FALSE
+);
+
+INSERT INTO currency_lk (currency_id, currency) VALUES (1, 'USD');
