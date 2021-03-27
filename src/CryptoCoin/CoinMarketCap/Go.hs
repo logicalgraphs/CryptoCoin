@@ -23,18 +23,19 @@ import Store.SQL.Util.Indexed (val)
 import Store.SQL.Util.LookupTable (lookupTable)
 
 go :: IO ()
-go = withECoinDo (\conn srcs -> uploadFiles conn srcs >> processFiles conn srcs)
+go = withECoinReport (\conn srcs ->
+        uploadFiles conn srcs >> processFiles conn srcs)
 
 -- if we want just the report (because we did the upload, but then SOMEbody
 -- messed up a database-insert and that was done, later, manually) ...
 
 report :: IO ()
-report = withECoinDo (\conn srcs ->
+report = withECoinReport (\conn srcs ->
    extractListings conn srcs >>=
    traverse (sequence . (id &&& newCoins conn . val)))
 
-withECoinDo :: (Connection -> LookupTable -> IO [NewCoinsCtx]) -> IO ()
-withECoinDo proc =
+withECoinReport :: (Connection -> LookupTable -> IO [NewCoinsCtx]) -> IO ()
+withECoinReport proc =
    today                                >>= \tday ->
    withConnection ECOIN                    (\conn ->
       lookupTable conn "source_type_lk" >>=
