@@ -74,10 +74,14 @@ p = E . Elt "p" []
 
 newCoins :: MetaData -> NewCoins -> IO NewCoins
 newCoins md ncs@(coins, tokens) =
-   newStuff md coins "coin" >> newStuff md tokens "token" >> return ncs
+   newStuff md "coin" coins >> newStuff md "token" tokens >> return ncs
 
-newStuff :: MetaData -> [ECoin] -> String -> IO ()
-newStuff md coins typ =
+newStuff :: MetaData -> String -> [ECoin] -> IO ()
+newStuff md typ = ns' md typ . id <*> length
+
+ns' :: MetaData -> String -> [ECoin] -> Int -> IO ()
+ns' _ _ _ 0 = return ()
+ns' md typ coins _ =
    let sz     = length coins
        header = concat ["There",toBe sz,show sz," new ",typ,plural sz," today:"]
        ranked = sortOn rank coins

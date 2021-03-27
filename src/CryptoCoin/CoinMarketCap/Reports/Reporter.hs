@@ -49,10 +49,28 @@ tweet today (coins, tokens) =
        urlday = url ++ day ++ ".html"
        ncoins = length coins
        ntokens = length tokens
-   in  putStrLn (unwords ["The top-10 e-coins for", day, "with",
-                          show ncoins, "new coin" ++ plural ncoins, "and",
-                          show ntokens, "new token" ++ plural ntokens, "for",
-                          "today are archived at", urlday, "#cryptocurrency "])
+   in  putStrLn ("The top-10 e-coins for " ++ day ++ coinsNtokens ncoins ntokens
+                 ++ " are archived at " ++ urlday ++ " #cryptocurrency ")
+
+-- Looking at the below arithmetic, I can see that George Boole was onto 
+-- something!
+
+coinsNtokens :: Int -> Int -> String
+coinsNtokens c t = c' (c + t) c t
+
+c' :: Int -> Int -> Int -> String
+c' 0 _ _ = ""
+c' _ c t =
+    " with" ++ n "coin" c ++ connective (c * t) ++ n "token" t ++ " for today"
+
+connective :: Int -> String
+connective 0 = ""
+connective _ = " and"
+
+n :: String -> Int -> String
+n typ c = " new " ++ typ ++ plural c
+
+
 
 title :: Day -> IO ()
 title = putStrLn . unwords . ("Top-10 E-coins for":) . return . show 
