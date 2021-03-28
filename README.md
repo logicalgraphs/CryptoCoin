@@ -37,21 +37,21 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 
 TODOs:
 
+* populate candlesticks for tracked coins
+* create a daily cadence for updating candlesticks
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
-* check back on new coins a month later. How are they doing?
 
 OTHER TODOs: 
 
 * create a portfolio: positions held, money invested, current value
 * create a transaction history (you know, for tax purposes)
 
-* track coinbase coins / track binance coins
 * apply analytics (WHICH ONES? 3 candlesticks is a start) against coins
-* get d3.js tools working, e.g.s:
 
-* get cmc_id for coindesk and binance traded-coins.
 * get FCAS ids for cmc_id'd coins I want to measure with FCAS
 * get FCAS data for monitored coins
+
+* get d3.js tools working, e.g.s:
 
 ### d3.js has the following:
 
@@ -71,6 +71,8 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 
 ## Revision History
 ### ... or feeping creatures! AHA!
+
+* 2021-03-27: uploaded coinbase and binance tradeable coins to tracked-coins.
 
 * 2021-03-26: Saving Cryptocoin-tags to data-store:
 http://logicalgraphs.blogspot.com/2021/03/saving-cryptocoin-tags-to-data-store.html
