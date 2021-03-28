@@ -20,8 +20,6 @@ DROP TABLE IF EXISTS "source";
 
 DROP TABLE IF EXISTS "coin_market_cap_daily_listing";
 
-DROP TABLE IF EXISTS "tracked_coin";
-
 DROP TABLE IF EXISTS "portfolio";
 
 DROP TABLE IF EXISTS "transaction_log";

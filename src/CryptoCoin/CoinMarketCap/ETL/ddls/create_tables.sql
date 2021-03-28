@@ -123,19 +123,6 @@ create table "source_type_lk" (
 INSERT INTO source_type_lk (source_type_id, source_type)
 VALUES (1, 'RANKING'), (2, 'LISTING'), (3, 'FCAS'), (4, 'CANDLESTICKS');
 
-CREATE TABLE "tracked_coin" (
-	"tracked_coin_id" serial NOT NULL,
-	"cmc_id" bigint NOT NULL,
-	"tracked_from" DATE NOT NULL,
-	"tracked_price" double precision NOT NULL,
-	"tracked_type_id" bigint NOT NULL,
-	CONSTRAINT "tracked_coin_pk" PRIMARY KEY ("tracked_coin_id")
-) WITH (
-  OIDS=FALSE
-);
-
-CREATE INDEX ON tracked_coin (cmc_id);
-
 CREATE TABLE "tracked_type_lk" (
 	"tracked_type_id" serial NOT NULL,
 	"tracked_type" TEXT NOT NULL,
