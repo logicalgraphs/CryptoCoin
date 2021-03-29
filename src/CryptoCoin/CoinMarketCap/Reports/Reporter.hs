@@ -68,9 +68,7 @@ connective 0 = ""
 connective _ = " and"
 
 n :: String -> Int -> String
-n typ c = " new " ++ typ ++ plural c
-
-
+n typ c = ' ':show c ++ " new " ++ typ ++ plural c
 
 title :: Day -> IO ()
 title = putStrLn . unwords . ("Top-10 E-coins for":) . return . show 
