@@ -37,8 +37,8 @@ uploadFileQuery = Query . B.pack $ unwords [
    "INSERT INTO source (source_type_id, file_name, for_day, file)",
    "VALUES (?, ?, ?, ?)"]
 
-uploadFile :: Integer -> FilePath -> Connection -> IO ()
-uploadFile sourceType filename conn =
+uploadFile :: Integer -> Connection -> FilePath -> IO ()
+uploadFile sourceType conn filename =
    readFile filename                        >>= \file ->
    today                                    >>= \tday ->
    execute conn uploadFileQuery
@@ -51,7 +51,7 @@ uploadAllFilesAt :: FilePath -> Integer -> Connection -> IO ()
 uploadAllFilesAt dir srcTyp conn =
    setCurrentDirectory dir >>
    listDirectory dir       >>=
-   mapM_ (flip (uploadFile srcTyp) conn) . filter (suffixes ".json .csv")
+   mapM_ (uploadFile srcTyp conn) . filter (suffixes ".json .csv")
       where suffixes types = or . ([isSuffixOf] <*> (words types) <*>) . return 
 
 {--
