@@ -35,24 +35,24 @@ import Store.SQL.Util.LookupTable
 uploadFileQuery :: Query
 uploadFileQuery = Query . B.pack $ unwords [
    "INSERT INTO source (source_type_id, file_name, for_day, file)",
-   "VALUES (?, ?, ?, ?) RETURNING source_id"]
+   "VALUES (?, ?, ?, ?)"]
 
-uploadFile :: Integer -> FilePath -> Connection -> IO (FilePath, Integer)
+uploadFile :: Integer -> FilePath -> Connection -> IO ()
 uploadFile sourceType filename conn =
    readFile filename                        >>= \file ->
    today                                    >>= \tday ->
-   query conn uploadFileQuery
-         (sourceType, filename, tday, file) >>= \[Only i] ->
+   execute conn uploadFileQuery
+         (sourceType, filename, tday, file) >>
    putStrLn ("Uploaded " ++ filename)       >>
    removeFile filename                      >>
-   putStrLn ("Removed file " ++ filename)   >>
-   return (filename, i)
+   putStrLn ("Removed file " ++ filename)
 
-uploadAllFilesAt :: FilePath -> Integer -> Connection -> IO [(FilePath, Integer)]
+uploadAllFilesAt :: FilePath -> Integer -> Connection -> IO ()
 uploadAllFilesAt dir srcTyp conn =
-   listDirectory dir       >>= \files ->
    setCurrentDirectory dir >>
-   mapM (flip (uploadFile srcTyp) conn) (filter (".json" `isSuffixOf`) files)
+   listDirectory dir       >>=
+   mapM_ (flip (uploadFile srcTyp) conn) . filter (suffixes ".json .csv")
+      where suffixes types = or . ([isSuffixOf] <*> (words types) <*>) . return 
 
 {--
 >>> conn <- connection >>= connect
@@ -72,11 +72,12 @@ go = withConnection ECOIN (\conn ->
 
 uploadFiles :: Connection -> LookupTable -> IO ()
 uploadFiles conn src =
-   getEnv "COIN_MARKET_CAP_DIR"      >>= \cmcDir ->
-   let uploader dir typ = uploadAllFilesAt (cmcDir ++ ('/':dir))
+   getEnv "CRYPTOCOIN_DIR"                    >>= \cmcDir ->
+   let uploader dir typ = uploadAllFilesAt (cmcDir ++ ("/data-files/" ++ dir))
                                            (src Map.! typ) conn
-   in  uploader "listings" "LISTING" >>
-       uploader "scores"   "FCAS"    >>
+   in  uploader "listings"     "LISTING"      >>
+       uploader "scores"       "FCAS"         >>
+       uploader "candlesticks" "CANDLESTICKS" >>
        sources conn
 
 {--

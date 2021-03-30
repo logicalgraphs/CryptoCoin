@@ -1,6 +1,6 @@
 LE_DATE=$(date +%Y-%m-%d)
 
-LISTING_FILE=$COIN_MARKET_CAP_DIR/listings/listings-$LE_DATE.json
+LISTING_FILE=$CRYPTOCOIN_DIR/data-files/listings/listings-$LE_DATE.json
 
 LIST_CMD="listings/latest?start=1&limit=5000&convert=USD"
 
