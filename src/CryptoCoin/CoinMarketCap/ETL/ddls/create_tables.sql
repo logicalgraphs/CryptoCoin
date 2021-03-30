@@ -196,7 +196,7 @@ VALUES (1, 'STRONG_BUY'), (2, 'BUY'), (3, 'HOLD'), (4, 'SELL'), (5, 'STRONG_SELL
 
 CREATE TABLE "candlesticks" (
 	"candlestick_id" serial NOT NULL,
-	"date" DATE NOT NULL,
+	"for_date" DATE NOT NULL,
 	"open" double precision NOT NULL,
 	"high" double precision NOT NULL,
 	"low" double precision NOT NULL,
@@ -211,7 +211,7 @@ CREATE TABLE "candlesticks" (
 );
 
 CREATE INDEX ON candlesticks (cmc_id);
-CREATE INDEX ON candlesticks (date);
+CREATE INDEX ON candlesticks (for_date);
 
 
 CREATE TABLE "currency_lk" (
