@@ -205,6 +205,7 @@ CREATE TABLE "candlesticks" (
 	"volume" double precision NOT NULL,
 	"currency_id" bigint NOT NULL,
 	"cmc_id" bigint NOT NULL,
+	"source_id" bigint NOT NULL,
 	CONSTRAINT "candlesticks_pk" PRIMARY KEY ("candlestick_id")
 ) WITH (
   OIDS=FALSE

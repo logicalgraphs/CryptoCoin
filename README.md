@@ -37,8 +37,6 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 
 TODOs:
 
-* populate candlesticks for tracked coins
-* create a daily cadence for updating candlesticks
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
 
 OTHER TODOs: 
@@ -71,6 +69,8 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 
 ## Revision History
 ### ... or feeping creatures! AHA!
+
+* 2021-03-31: downloading candlesticks from yahoo! and storing in database.
 
 * 2021-03-27: uploaded coinbase and binance tradeable coins to tracked-coins.
 

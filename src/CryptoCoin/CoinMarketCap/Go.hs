@@ -13,6 +13,7 @@ import CryptoCoin.CoinMarketCap.Types (NewCoinsCtx)
 import CryptoCoin.CoinMarketCap.ETL.JSONFile (extractListings)
 import CryptoCoin.CoinMarketCap.ETL.NewCoinLoader (processFiles, newCoins)
 import CryptoCoin.CoinMarketCap.ETL.SourceFileLoader (uploadFiles)
+import CryptoCoin.CoinMarketCap.ETL.CandlestickLoader (storeAllCandlesticks)
 import CryptoCoin.CoinMarketCap.Reports.Reporter (ranking, tweet, title)
 
 import Data.LookupTable (LookupTable)
@@ -23,21 +24,26 @@ import Store.SQL.Util.Indexed (val)
 import Store.SQL.Util.LookupTable (lookupTable)
 
 go :: IO ()
-go = withECoinReport (\conn srcs ->
-        uploadFiles conn srcs >> processFiles conn srcs)
+go = withECoinReport (\conn srcs currs ->
+        uploadFiles conn srcs                >>
+        storeAllCandlesticks conn srcs currs >>
+        processFiles conn srcs)
 
 -- if we want just the report (because we did the upload, but then SOMEbody
 -- messed up a database-insert and that was done, later, manually) ...
 
 report :: IO ()
-report = withECoinReport (\conn srcs ->
+report = withECoinReport (\conn srcs _currencies ->
    extractListings conn srcs >>=
    traverse (sequence . (id &&& newCoins conn . val)))
 
-withECoinReport :: (Connection -> LookupTable -> IO [NewCoinsCtx]) -> IO ()
+type Proc = Connection -> LookupTable -> LookupTable -> IO [NewCoinsCtx]
+
+withECoinReport :: Proc -> IO ()
 withECoinReport proc =
    today                                >>= \tday ->
    withConnection ECOIN                    (\conn ->
-      lookupTable conn "source_type_lk" >>=
-      proc conn                         >>=
+      lookupTable conn "source_type_lk" >>= \srcLk ->
+      lookupTable conn "currency_lk"    >>=
+      proc conn srcLk                   >>=
       mapM_ (\listings -> ranking tday listings >>= tweet tday >> title tday))
