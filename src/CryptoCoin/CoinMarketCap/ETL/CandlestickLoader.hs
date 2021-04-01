@@ -49,6 +49,8 @@ import Control.Logic.Frege ((-|))
 
 import Control.Scan.CSV (readMaybe, csv)
 
+import CryptoCoin.CoinMarketCap.Types (OCHLV(OCHLV))
+
 import Data.CryptoCurrency.Types (Idx)
 
 import Data.Time.TimeSeries (today)
@@ -138,19 +140,7 @@ maxOr30 conn (addDays (-1) -> yester) trackeds =
 (6892,2021-02-27)
 (7083,2021-02-27)
 (7278,2021-02-27)
---}
 
-data OCHLV = OCHLV { coinId :: Idx, forDay :: Day,
-                     open, close, high, low, adj, volume :: Double }
-   deriving (Eq, Ord, Show)
-
-fromCSV  :: Idx -> [String] -> Maybe OCHLV
-fromCSV i = fc' i . readMaybe . head <*> map readMaybe . tail
-
-fc' :: Idx -> Maybe Day -> [Maybe Double] -> Maybe OCHLV 
-fc' i d [o,c,h,l,a,v] = OCHLV i <$> d <*> o <*> c <*> h <*> l <*> a <*> v
-
-{--
 The url is of this form:
 
 https://query1.finance.yahoo.com/v7/finance/download/BTC-USD
@@ -163,6 +153,12 @@ Date,Open,High,Low,Close,Adj Close,Volume
 2021-03-25,52726.746094,53392.386719,50856.570313,51704.160156,51704.160156,67999812841
 2021-03-26,51683.011719,55137.312500,51579.855469,55137.312500,55137.312500,56652197978
 --}
+
+fromCSV  :: Idx -> [String] -> Maybe OCHLV
+fromCSV i = fc' i . readMaybe . head <*> map readMaybe . tail
+
+fc' :: Idx -> Maybe Day -> [Maybe Double] -> Maybe OCHLV
+fc' i d [o,c,h,l,a,v] = OCHLV i <$> d <*> o <*> c <*> h <*> l <*> a <*> v
 
 fetchOCHLV :: Day -> (Idx, (String, Day)) -> IO (Maybe String)
 fetchOCHLV (addDays (-1) -> yday) (idx, (sym, addDays 1 -> fromDay)) =
