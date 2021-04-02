@@ -49,9 +49,7 @@ import Control.Logic.Frege ((-|))
 
 import Control.Scan.CSV (readMaybe, csv)
 
-import CryptoCoin.CoinMarketCap.Types (OCHLV(OCHLV))
-
-import Data.CryptoCurrency.Types (Idx)
+import Data.CryptoCurrency.Types (Idx, OCHLV(OCHLV))
 
 import Data.Time.TimeSeries (today)
 

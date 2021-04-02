@@ -136,9 +136,3 @@ instance Indexed Listing where
 
 instance Rank Listing where
    rank = rank . coin
-
--- CANDLESTICKS -------------------------------------------------------
-
-data OCHLV = OCHLV { coinId :: Idx, forDay :: Day,
-                     open, close, high, low, adj, volume :: Double }
-   deriving (Eq, Ord, Show)

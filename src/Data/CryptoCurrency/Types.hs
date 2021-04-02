@@ -28,3 +28,23 @@ class Date a where
 
 type RankVector = Map Idx Integer
 type Matrix = TimeSeries RankVector
+
+-- CANDLESTICKS -------------------------------------------------------
+
+data OCHLV = OCHLV { coinId :: Idx, forDay :: Day,
+                     open, close, high, low, adj, volume :: Double }
+   deriving (Eq, Ord, Show)
+
+data Range = Range { begin, end :: Double }
+   deriving (Eq, Ord, Show)
+
+between :: Double -> Range -> Bool
+between val (Range b e) = let lo = min b e
+                              hi = max b e
+                          in  lo <= val && val <= hi
+
+realBody :: OCHLV -> Range
+realBody = Range . open <*> close
+
+shadow :: OCHLV -> Range
+shadow = Range . low <*> high
