@@ -49,6 +49,8 @@ import Control.Logic.Frege ((-|))
 
 import Control.Scan.CSV (readMaybe, csv)
 
+import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
+
 import Data.CryptoCurrency.Types (Idx, OCHLV(OCHLV))
 
 import Data.Time.TimeSeries (today)
@@ -61,34 +63,6 @@ import Store.SQL.Util.Indexed hiding (idx)
 import Store.SQL.Util.LookupTable
 
 import Data.LookupTable (LookupTable, lookdown)
-
-trackedCoinsQuery :: Query
-trackedCoinsQuery = Query . B.pack $ unwords [
-   "SELECT cmc_id,symbol FROM coin",
-   "WHERE cmc_id IN (SELECT DISTINCT tracked_coin_id FROM",
-   "j_tracked_coin_tracked_type)"]
-
-trackedCoins :: Connection -> IO LookupTable
-trackedCoins conn = lookupTableFrom conn trackedCoinsQuery
-
-{--
->>> withConnection ECOIN (\conn -> trackedCoins conn >>= mapM_ print . Map.toList)
-("AAVE",7278)
-("ADA",2010)
-("ALGO",4030)
-("ANKR",3783)
-("ATOM",3794)
-("BAL",5728)
-("BAND",4679)
-("BAT",1697)
-("BCH",1831)
-("BTC",1)
-...
-("XTZ",2011)
-("YFI",5864)
-("ZEC",1437)
-("ZIL",2469)
---}
 
 -- for each of those coins, we need that max(for_date):
 
