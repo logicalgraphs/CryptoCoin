@@ -56,3 +56,32 @@ risingOver yester dayBefore = open yester `between` realBody dayBefore
                            && close yester > high dayBefore
 
 -- TODO: shadow must not be overlong ... how do we measure that?
+
+-- test:
+
+sampleBTC :: [OCHLV]
+sampleBTC = [
+   OCHLV 1 (read "2021-03-31") 58930.277344 59930.027344 57726.417969
+         58918.832031 58918.832031 6.5520826225e10,
+   OCHLV 1 (read "2021-03-30") 57750.132813 59447.222656 57251.550781 
+         58917.691406 58917.691406 5.4414116432e10,
+   OCHLV 1 (read "2021-03-29") 55947.898438 58342.097656 55139.339844 
+         57750.199219 57750.199219 5.7625587027e10,
+   OCHLV 1 (read "2021-03-28") 55874.941406 56610.3125 55071.113281 
+         55950.746094 55950.746094 4.7686580918e10, 
+                    -- changed opening to be below tomorrow's opening
+   OCHLV 1 (read "2021-03-27") 55137.566406 56568.214844 54242.910156 
+         55973.511719 55973.511719 4.7266542233e10]
+
+{--
+>>> threeWhiteKnights sampleBTC 
+True
+
+Data was generated with:
+
+>>> let owrite (OCHLV i d o c h l a v) =
+           putStrLn (unwords (["OCHLV", show i, "(read \"" ++ show d ++ "\")"]
+                              ++ map show [o, c, h, l, a, v]))
+>>> withConnection ECOIN (\conn -> candlesFor conn 1 >>= mapM_ owrite)
+
+--}
