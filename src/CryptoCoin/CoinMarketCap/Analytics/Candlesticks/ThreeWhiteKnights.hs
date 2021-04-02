@@ -47,6 +47,7 @@ threeWhiteKnights :: [OCHLV] -> Bool
 threeWhiteKnights = twk' . take 4
 
 twk' :: [OCHLV] -> Bool
+twk' [] = False
 twk' [_] = True
 twk' (y:t@(db:_)) = y `risingOver` db && twk' t
 
