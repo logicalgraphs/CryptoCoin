@@ -10,6 +10,9 @@ import Control.Arrow ((&&&))
 import Database.PostgreSQL.Simple
 
 import CryptoCoin.CoinMarketCap.Types (NewCoinsCtx)
+
+import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.Patterns (candlesAll)
+import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 import CryptoCoin.CoinMarketCap.ETL.JSONFile (extractListings)
 import CryptoCoin.CoinMarketCap.ETL.NewCoinLoader (processFiles, newCoins)
 import CryptoCoin.CoinMarketCap.ETL.SourceFileLoader (uploadFiles)
@@ -24,26 +27,30 @@ import Store.SQL.Util.Indexed (val)
 import Store.SQL.Util.LookupTable (lookupTable)
 
 go :: IO ()
-go = withECoinReport (\conn srcs currs ->
-        uploadFiles conn srcs                >>
-        storeAllCandlesticks conn srcs currs >>
+go = withECoinReport (\conn srcs currs trackeds ->
+        uploadFiles conn srcs                         >>
+        storeAllCandlesticks conn srcs currs trackeds >>
+        candlesAll conn trackeds                      >>
         processFiles conn srcs)
 
 -- if we want just the report (because we did the upload, but then SOMEbody
 -- messed up a database-insert and that was done, later, manually) ...
 
 report :: IO ()
-report = withECoinReport (\conn srcs _currencies ->
+report = withECoinReport (\conn srcs _currencies trackeds ->
+   candlesAll conn trackeds  >>
    extractListings conn srcs >>=
    traverse (sequence . (id &&& newCoins conn . val)))
 
-type Proc = Connection -> LookupTable -> LookupTable -> IO [NewCoinsCtx]
+type Proc = Connection -> LookupTable -> LookupTable -> LookupTable
+         -> IO [NewCoinsCtx]
 
 withECoinReport :: Proc -> IO ()
 withECoinReport proc =
    today                                >>= \tday ->
    withConnection ECOIN                    (\conn ->
       lookupTable conn "source_type_lk" >>= \srcLk ->
-      lookupTable conn "currency_lk"    >>=
-      proc conn srcLk                   >>=
+      lookupTable conn "currency_lk"    >>= \currLk ->
+      trackedCoins conn                 >>=
+      proc conn srcLk currLk            >>=
       mapM_ (\listings -> ranking tday listings >>= tweet tday >> title tday))

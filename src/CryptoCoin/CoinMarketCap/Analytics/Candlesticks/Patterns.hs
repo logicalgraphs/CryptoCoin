@@ -22,6 +22,8 @@ import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 
 import Data.CryptoCurrency.Types
 
+import Data.LookupTable (LookupTable)
+
 import Data.Percentage
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
@@ -78,8 +80,12 @@ runPatterns :: [OCHLV] -> Patterns -> [(Pattern, Recommendation)]
 runPatterns ctx = map (second snd) . filter (run ctx . fst . snd) . Map.toList
    where run = flip ($)
 
+candlesAll :: Connection -> LookupTable -> IO ()
+candlesAll conn trackedCoins =
+   putStrLn "Running candlestick patterns.\n" >>
+   mapM_ (liftM print . sequence . (id &&& doIt conn . snd))
+         (Map.toList trackedCoins)
+      where doIt conn cmc = flip runPatterns patterns <$> candlesFor conn cmc
+
 go :: IO ()
-go = withConnection ECOIN (\conn ->
-   trackedCoins conn >>=
-   mapM_ (liftM print . sequence . (id &&& doIt conn . snd)) . Map.toList)
-      where doIt conn cmcId = flip runPatterns patterns <$> candlesFor conn cmcId
+go = withConnection ECOIN (\conn -> trackedCoins conn >>= candlesAll conn)

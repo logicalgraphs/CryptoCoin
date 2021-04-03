@@ -68,6 +68,7 @@ connective 0 = ""
 connective _ = " and"
 
 n :: String -> Int -> String
+n _ 0 = ""
 n typ c = ' ':show c ++ " new " ++ typ ++ plural c
 
 title :: Day -> IO ()

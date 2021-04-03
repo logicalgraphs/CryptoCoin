@@ -227,11 +227,11 @@ sccf conn srcLk currencyLk sym tday cmcId file =
        executeMany conn storeCandlesticksQuery rows >>
        putStrLn "...done."
 
-storeAllCandlesticks :: Connection -> LookupTable -> LookupTable -> IO ()
-storeAllCandlesticks conn srcLk currLk =
+storeAllCandlesticks :: Connection -> LookupTable -> LookupTable 
+                     -> LookupTable -> IO ()
+storeAllCandlesticks conn srcLk currLk trackedCoins =
    today                                                         >>= \tday ->
-   trackedCoins conn                                             >>=
-   maxOr30 conn tday                                             >>=
+   maxOr30 conn tday trackedCoins                                >>=
    mapM_ (storeCandlesticks conn currLk srcLk tday) . Map.toList >>
    processedCandlesticks conn srcLk
 
@@ -247,8 +247,9 @@ processedCandlesticks conn srcLk =
 go :: IO ()
 go = withConnection ECOIN (\conn ->
    lookupTable conn "source_type_lk"                             >>= \srcLk ->
-   lookupTable conn "currency_lk"                                >>=
-   storeAllCandlesticks conn srcLk)
+   lookupTable conn "currency_lk"                                >>= \currLk ->
+   trackedCoins conn                                             >>=
+   storeAllCandlesticks conn srcLk currLk)
 
 {--
 >>> go
