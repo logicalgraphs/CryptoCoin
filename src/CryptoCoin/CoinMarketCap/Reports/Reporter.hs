@@ -14,7 +14,9 @@ import qualified Data.ByteString.Lazy.Char8 as BL
 import Data.List (sortOn, splitAt)
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+
 import Data.Time (Day)
+import Data.Time.Calendar (toGregorian)
 
 import Data.CryptoCurrency.Types (rank)
 
@@ -44,7 +46,10 @@ ranking date (IxV _ md@(MetaData status ecoins), newsies) =
 
 tweet :: Day -> NewCoins -> IO ()
 tweet today (coins, tokens) =
-   let url = "http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-"
+   let (yr, mos, _) = toGregorian today
+       showOught m = (if m < 10 then ('0':) else id) (show m)
+       url = concat ["http://logicalgraphs.blogspot.com/", show yr, "/",
+                     showOught mos, "/top-10-e-coins-for-"]
        day = show today
        urlday = url ++ day ++ ".html"
        ncoins = length coins
