@@ -15,7 +15,7 @@ import Data.Maybe (mapMaybe)
 
 import Data.Time (Day)
 
-import Data.CryptoCurrency.Types
+import Data.CryptoCurrency.Types hiding (price)
 
 import CryptoCoin.CoinMarketCap.Types
 import CryptoCoin.CoinMarketCap.Types.Quote

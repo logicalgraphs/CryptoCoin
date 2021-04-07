@@ -14,7 +14,6 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 
 import Database.PostgreSQL.Simple
-import Database.PostgreSQL.Simple.FromRow
 import Database.PostgreSQL.Simple.Types
 
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeWhiteKnights (threeWhiteKnights)
@@ -57,24 +56,6 @@ patterns = Map.fromList [
    (EveningStar,       (undef, Rec BUY $ P 72)),  -- really?
    (AbandonedBaby,     (undef, Rec SELL $ P 50)), -- dunno
    (ThreeWhiteKnights, (threeWhiteKnights, Rec BUY $ P 91))]
-
--- so for some tracked coin, we load in the OCHLV for the last x days
--- and return a set of patterns signaled along with their confidence measures
-
--- ... somehow we also need to link buy-sell recommendations to the above
--- patterns.
-
-instance FromRow OCHLV where
-   fromRow = OCHLV <$> field <*> field <*> field <*> field <*> field
-                   <*> field <*> field <*> field
-
-candlesQuery :: Query
-candlesQuery = Query . B.pack $ unwords [
-   "SELECT cmc_id, for_date, open, close, high, low, adjusted_close, volume",
-   "FROM candlesticks WHERE cmc_id=? ORDER BY for_date DESC LIMIT ?"]
-
-candlesFor :: Connection -> Idx -> IO [OCHLV]
-candlesFor conn cmcId = query conn candlesQuery (cmcId, 5 :: Integer)
 
 runPatterns :: [OCHLV] -> Patterns -> [(Pattern, Recommendation)]
 runPatterns ctx = map (second snd) . filter (run ctx . fst . snd) . Map.toList

@@ -51,7 +51,7 @@ import Control.Scan.CSV (readMaybe, csv)
 
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 
-import Data.CryptoCurrency.Types (Idx, OCHLV(OCHLV))
+import Data.CryptoCurrency.Types (Idx, OCHLV, OCHLVData(OCHLVData), IxRow(IxRow))
 
 import Data.Time.TimeSeries (today)
 
@@ -130,7 +130,9 @@ fromCSV  :: Idx -> [String] -> Maybe OCHLV
 fromCSV i = fc' i . readMaybe . head <*> map readMaybe . tail
 
 fc' :: Idx -> Maybe Day -> [Maybe Double] -> Maybe OCHLV
-fc' i d [o,c,h,l,a,v] = OCHLV i <$> d <*> o <*> c <*> h <*> l <*> a <*> v
+fc' i d [o,c,h,l,a,v] =
+   IxRow i <$> d
+         <*> (OCHLVData <$> o <*> c <*> h <*> l <*> a <*> v)
 
 fetchOCHLV :: Day -> (Idx, (String, Day)) -> IO (Maybe String)
 fetchOCHLV (addDays (-1) -> yday) (idx, (sym, addDays 1 -> fromDay)) =
@@ -195,9 +197,11 @@ storeCandlesticksQuery = Query . B.pack $ unwords [
    "close, adjusted_close, volume, currency_id)",
    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"]
 
-instance ToRow OCHLV where
-   toRow (OCHLV cid fd o c h l ad v) =
-      toField cid:toField fd:map toField [o, h, l, c, ad, v]
+instance ToRow r => ToRow (IxRow r) where
+   toRow (IxRow i d r) = [toField i, toField d] ++ toRow r
+
+instance ToRow OCHLVData where
+   toRow (OCHLVData o c h l ad v) = map toField [o, h, l, c, ad, v]
 
 data OCHLVwithCurrency = OwC OCHLV Integer
 
