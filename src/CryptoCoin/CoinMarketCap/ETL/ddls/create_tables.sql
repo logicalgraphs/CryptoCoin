@@ -235,9 +235,13 @@ CREATE TABLE "trend" (
 	"ema_9_signal_line" double precision,
 	"ema_12" double precision,
 	"ema_26" double precision,
+	"macd" double precision,
 	"rsi_14" double precision,
 	"obv" double precision,
 	CONSTRAINT "trend_pk" PRIMARY KEY ("trend_id")
 ) WITH (
   OIDS=FALSE
 );
+
+CREATE INDEX ON trend (cmc_id);
+CREATE INDEX ON trend (for_date);

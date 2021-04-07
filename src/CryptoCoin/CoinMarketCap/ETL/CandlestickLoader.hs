@@ -51,7 +51,8 @@ import Control.Scan.CSV (readMaybe, csv)
 
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 
-import Data.CryptoCurrency.Types (Idx, OCHLV, OCHLVData(OCHLVData), IxRow(IxRow))
+import Data.CryptoCurrency.Types (Idx, IxRow(IxRow))
+import Data.CryptoCurrency.Types.OCHLV (OCHLVData(OCHLVData), OCHLV)
 
 import Data.Time.TimeSeries (today)
 
