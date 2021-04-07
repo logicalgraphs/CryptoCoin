@@ -19,6 +19,9 @@ OBV just needs the previous day and today.
 
 import qualified Data.ByteString.Char8 as B
 
+import Data.Map (Map)
+import qualified Data.Map as Map
+
 import Data.Time
 
 import Database.PostgreSQL.Simple
@@ -53,23 +56,34 @@ Row {date = 2021-03-05, cmcId = 1, price = 47437.3885719626, vol = 4.90061340250
 There were 27 rows of data.
 --}
 
-data Indicators = SimpleMovingAverage
-                | ExponentialMovingAverage
-                | MovingAverageConvergingDiverging
+data Indicator = SimpleMovingAverage
+               | ExponentialMovingAverage
+               | MovingAverageConvergenceDivergence
+               | RelativeStrengthIndex
+               | OnBalanceVolume
    deriving (Eq, Ord, Show)
 
-guardedIndicator :: (Vector PriceVolume -> Double) -> Vector PriceVolume
-                 -> Int -> Maybe Double
-guardedIndicator f v sz = f <$> vtake sz v
+type IndicatorA = (Int -> Int, Vector PriceVolume -> Double)
+type Indicators = Map Indicator IndicatorA
 
-btc :: (Vector PriceVolume -> Double) -> Int -> IO ()
-btc f i = withConnection ECOIN (\conn ->
-              fetchRows conn 1 >>= print . flip (guardedIndicator f) i)
+indicators :: Indicators
+indicators = Map.fromList [
+   (SimpleMovingAverage, (id, sma)),
+   (ExponentialMovingAverage, (succ, ema))]
+
+guardedIndicator :: Vector PriceVolume -> Int -> IndicatorA -> Maybe Double
+guardedIndicator v sz (nf, f) = f <$> vtake (nf sz) v
+
+btc :: Indicator -> Int -> IO ()
+btc ind i =
+   let mbIndA = Map.lookup ind indicators
+       mbGI v = mbIndA >>= guardedIndicator v i
+   in  withConnection ECOIN (\conn -> fetchRows conn 1 >>= print . mbGI)
 
 {--
->>> btc sma 15
+>>> btc SimpleMovingAverage 15
 Just 56640.03270665875
 
->>> btc sma 200
+>>> btc SimpleMovingAverage 200
 Nothing
 --}
