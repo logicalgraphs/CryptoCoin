@@ -26,6 +26,8 @@ DROP TABLE IF EXISTS "transaction_log";
 
 DROP TABLE IF EXISTS "candlesticks";
 
+DROP TABLE IF EXISTS "trend";
+
 -- LOOKUP TABLES -- (drop with care) ---------------------------------------
 
 DROP TABLE IF EXISTS "currency_lk";

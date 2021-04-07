@@ -224,3 +224,20 @@ CREATE TABLE "currency_lk" (
 );
 
 INSERT INTO currency_lk (currency_id, currency) VALUES (1, 'USD');
+
+
+CREATE TABLE "trend" (
+	"trend_id" serial NOT NULL,
+	"cmc_id" bigint NOT NULL,
+	"for_date" DATE NOT NULL,
+	"sma_50" double precision,
+	"sma_200" double precision,
+	"ema_9_signal_line" double precision,
+	"ema_12" double precision,
+	"ema_26" double precision,
+	"rsi_14" double precision,
+	"obv" double precision,
+	CONSTRAINT "trend_pk" PRIMARY KEY ("trend_id")
+) WITH (
+  OIDS=FALSE
+);
