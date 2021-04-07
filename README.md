@@ -35,6 +35,25 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 
 <img src="src/CryptoCoin/CoinMarketCap/ETL/imgs/e-coin-erd.png"/>
 
+## Patterns used
+
+### Candlesticks
+
+* Three White Knights/Soldiers: https://www.investopedia.com/terms/t/three_white_soldiers.asp
+* Three Black Crows
+* Three Line Strikes
+* Abandoned Baby:
+* Two Black Gapping
+* Evening Star
+
+### Price trends
+
+* Simple Moving Average: https://www.investopedia.com/terms/s/sma.asp
+* Exponential Moving Average: 
+* Moving Average Convergence/Divergence: https://www.investopedia.com/terms/m/macd.asp
+* On Balance Volume: https://www.investopedia.com/terms/o/onbalancevolume.asp
+* Relative Strength Index: https://www.investopedia.com/terms/r/rsi.asp 
+
 TODOs:
 
 * calculate today's trends for tracked coins
