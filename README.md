@@ -38,6 +38,7 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 TODOs:
 
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
+* move recommendations-types to Data.CryptoCurrency.Types
 
 OTHER TODOs: 
 
@@ -69,6 +70,12 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 
 ## Revision History
 ### ... or feeping creatures! AHA!
+
+* 2021-04-07: using trends for trend-computations. Implemented ema (Exponential
+Moving Average).
+
+* 2021-04-04: Created a PriceVolume-type. Implemented sma (Simple Moving 
+Average).
 
 * 2021-03-31: downloading candlesticks from yahoo! and storing in database.
 
