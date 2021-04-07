@@ -20,6 +20,7 @@ import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeWhiteKnights (threeW
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 
 import Data.CryptoCurrency.Types.OCHLV
+import Data.CryptoCurrency.Types.Recommendation
 
 import Data.LookupTable (LookupTable)
 
@@ -39,12 +40,6 @@ type Signal = [OCHLV] -> Bool
 
 undef :: Signal      -- the 'not yet' signal
 undef = const False
-
-data Call = BUY | SELL
-   deriving (Eq, Ord, Show)
-
-data Recommendation = Rec Call Percentage
-   deriving (Eq, Ord, Show)
 
 type Patterns = Map Pattern (Signal, Recommendation)
 

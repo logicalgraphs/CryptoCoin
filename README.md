@@ -38,7 +38,6 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 TODOs:
 
 * calculate today's trends for tracked coins
-* move recommendations-types to Data.CryptoCurrency.Types
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
   * map FCAS coin uuids to cmc_ids
 
