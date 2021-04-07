@@ -48,8 +48,10 @@ fetchRows :: Connection -> Integer -> IO (Vector PriceVolume)
 fetchRows conn coinId = mkVect <$> query conn fetchRowsQuery (Idx coinId)
 
 {--
->>> withConnection ECOIN (\conn -> fetchRows conn 1 >>= mapM print >>= 
+>>> {
+withConnection ECOIN (\conn -> fetchRows conn 1 >>= mapM print >>= 
           putStrLn . ("There were " ++) . (++ " rows of data.") . show . length)
+}
 ...
 Row {date = 2021-03-10, cmcId = 1, price = 56687.8536484267, vol = 5.70546138680779e10}
 Row {date = 2021-03-05, cmcId = 1, price = 47437.3885719626, vol = 4.90061340250151e10}
