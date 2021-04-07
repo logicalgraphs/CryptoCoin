@@ -56,6 +56,16 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 
 TODOs:
 
+* provide links to candlestick patterns
+* offer recommendations on e-coins from price trends
+* record recommendations: recommendation (call), why, ecoin, day
+* update ddls
+
+* for the trends we need a computation phase that just returns a double
+  and a recommendation phase that, well, makes the recommendation off the
+  computed trends. Then we need to store the computations and recommendations.
+
+* build predictive model based off of recommendation
 * calculate today's trends for tracked coins
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
   * map FCAS coin uuids to cmc_ids
