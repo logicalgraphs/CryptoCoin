@@ -12,9 +12,10 @@ sma = sum a / length a
 
 import Data.CryptoCurrency.Types (row)
 import Data.CryptoCurrency.Types.PriceVolume (PriceVolume, price)
+import Data.CryptoCurrency.Types.Trend
 import Data.CryptoCurrency.Types.Vector (Vector)
 
 -- let's pretend the vector is right-sized before it gets here.
 
-sma :: (Maybe Double, Vector PriceVolume) -> Double
-sma (_last, v) = sum (fmap (price . row) v) / fromIntegral (length v)
+sma :: ((Trend, Maybe Double), Vector PriceVolume) -> Double
+sma (_trendctx, v) = sum (fmap (price . row) v) / fromIntegral (length v)

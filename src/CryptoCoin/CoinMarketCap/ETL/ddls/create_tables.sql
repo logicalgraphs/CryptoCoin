@@ -162,7 +162,7 @@ CREATE TABLE "transaction_log" (
 	"purchase_usd" double precision NOT NULL,
 	"surcharge_usd" double precision NOT NULL,
 	"n_coins" double precision NOT NULL,
-	"transaction_type_id" bigint NOT NULL,
+	"call_id" bigint NOT NULL,
 	CONSTRAINT "transaction_log_pk" PRIMARY KEY ("transaction_id")
 ) WITH (
   OIDS=FALSE
@@ -179,20 +179,6 @@ CREATE TABLE "j_transaction_portfolio" (
 ) WITH (
   OIDS=FALSE
 );
-
-
-
-CREATE TABLE "transaction_type_lk" (
-	"transaction_type_id" serial NOT NULL,
-	"transaction_type" TEXT NOT NULL,
-	CONSTRAINT "transaction_type_lk_pk" PRIMARY KEY ("transaction_type_id")
-) WITH (
-  OIDS=FALSE
-);
-
-INSERT INTO transaction_type_lk (transaction_type_id, transaction_type)
-VALUES (1, 'STRONG_BUY'), (2, 'BUY'), (3, 'HOLD'), (4, 'SELL'), (5, 'STRONG_SELL');
-
 
 CREATE TABLE "candlesticks" (
 	"candlestick_id" serial NOT NULL,
@@ -245,3 +231,70 @@ CREATE TABLE "trend" (
 
 CREATE INDEX ON trend (cmc_id);
 CREATE INDEX ON trend (for_date);
+
+CREATE TABLE "recommendation" (
+	"recommendation_id" serial NOT NULL,
+	"cmc_id" bigint NOT NULL,
+	"for_date" DATE NOT NULL,
+	"call_id" bigint NOT NULL,
+	"indicator_id" bigint NOT NULL,
+	CONSTRAINT "recommendation_pk" PRIMARY KEY ("recommendation_id")
+) WITH (
+  OIDS=FALSE
+);
+
+create index on recommendation (cmc_id);
+create index on recommendation (for_date);
+
+CREATE TABLE "call_lk" (
+	"call_id" serial NOT NULL,
+	"call" TEXT NOT NULL,
+	CONSTRAINT "call_lk_pk" PRIMARY KEY ("call_id")
+) WITH (
+  OIDS=FALSE
+);
+
+INSERT INTO call_lk (call_id, call)
+VALUES (1, 'BUY'), (2, 'SELL');
+
+CREATE TABLE "indicator_lk" (
+	"indicator_id" serial NOT NULL,
+	"indicator" TEXT NOT NULL,
+	"basis_id" bigint NOT NULL,
+	CONSTRAINT "indicator_lk_pk" PRIMARY KEY ("indicator_id")
+) WITH (
+  OIDS=FALSE
+);
+
+insert into indicator_lk (indicator_id, indicator, basis_id)
+VALUES (1, 'Three White Knights', 1), (2, 'Three Black Crows', 1),
+       (3, 'Three Line Strikes', 1), (4, 'Abandoned Baby', 1),
+       (5, 'Two Black Gapping', 1), (6, 'Evening Star', 1),
+       (7, 'Simple Moving Average', 2), (8, 'Exponential Moving Average', 2),
+       (9, 'Moving Average Convergence/Divergence', 2),
+       (10, 'On Balance Volume', 3), (11, 'Relative Strength Index', 2);
+
+
+
+CREATE TABLE "basis_lk" (
+	"basis_id" serial NOT NULL,
+	"basis" TEXT NOT NULL,
+	CONSTRAINT "basis_lk_pk" PRIMARY KEY ("basis_id")
+) WITH (
+  OIDS=FALSE
+);
+
+insert into basis_lk (basis_id, basis)
+VALUES (1, 'CANDLESTICK'), (2, 'PRICE'), (3, 'VOLUME');
+
+
+CREATE TABLE "j_transaction_recommendation" (
+	"jtr_id" serial NOT NULL,
+	"transaction_id" bigint NOT NULL,
+	"recommendation_id" bigint NOT NULL,
+	CONSTRAINT "j_transaction_recommendation_pk" PRIMARY KEY ("jtr_id")
+) WITH (
+  OIDS=FALSE
+);
+
+Create index on j_transaction_recommendation (transaction_id);

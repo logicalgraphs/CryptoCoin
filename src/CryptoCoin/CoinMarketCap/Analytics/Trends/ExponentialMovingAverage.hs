@@ -23,6 +23,7 @@ import Data.Maybe (fromMaybe)
 
 import Data.CryptoCurrency.Types (row)
 import Data.CryptoCurrency.Types.PriceVolume (PriceVolume, price)
+import Data.CryptoCurrency.Types.Trend
 import Data.CryptoCurrency.Types.Vector
 
 import CryptoCoin.CoinMarketCap.Analytics.Trends.SimpleMovingAverage (sma)
@@ -33,10 +34,10 @@ smoothing = 2
 ht :: Vector a -> (a, Vector a)
 ht (Vect n (h:t)) = (h, Vect (pred n) t)
 
-ema :: (Maybe Double, Vector PriceVolume) -> Double
-ema (last, v) =
+ema :: ((Trend, Maybe Double), Vector PriceVolume) -> Double
+ema ((_trend, last), v) =
    let (tday, rest) = ht v
-       yest = fromMaybe (sma (Nothing, rest)) last
+       yest = fromMaybe (sma ((mempty, Nothing), rest)) last
        days = fromIntegral (length v)
        smuth = smoothing / days       -- n.b. : days is 1 + days from formula
    in  (price (row tday) * smuth) + (yest * (1 - smuth))

@@ -17,6 +17,8 @@ Need: 50 an 200 for sma, 12 and 26 for EMA / MACD, 15 for RSI,
 OBV just needs the previous day and today.
 --}
 
+import Control.Arrow ((&&&))
+
 import Data.Map (Map)
 import qualified Data.Map as Map
 
@@ -41,7 +43,7 @@ data Indicator = SimpleMovingAverage
    deriving (Eq, Ord, Show)
 
 type PVdom = (Trend, Vector PriceVolume)
-type PVctx = (Maybe Double, Vector PriceVolume)
+type PVctx = ((Trend, Maybe Double), Vector PriceVolume)
 type IndicatorA = (Int -> Int, TrendData -> Maybe Double, PVctx -> Double)
 type Indicators = Map (Indicator, Int) IndicatorA
 
@@ -51,12 +53,13 @@ indicators = Map.fromList [
    ((SimpleMovingAverage, 200), (id, sma200, sma)),
    ((ExponentialMovingAverage, 9), (succ, ema9, ema)),
    ((ExponentialMovingAverage, 12), (succ, ema12, ema)),
-   ((ExponentialMovingAverage, 26), (succ, ema26, ema))
+   ((ExponentialMovingAverage, 26), (succ, ema26, ema)),
+   ((MovingAverageConvergenceDivergence, 26), (succ, macd, macdi))
    ]
 
 guardedIndicator :: PVdom -> Int -> IndicatorA -> Maybe Double
 guardedIndicator (t, v) sz (nf, tf, f) =
-   f <$> sequence (tf $ row t, vtake (nf sz) v)
+   f <$> sequence ((id &&& tf . row) t, vtake (nf sz) v)
 
 btc :: Indicator -> Int -> IO ()
 btc ind i =
