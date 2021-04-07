@@ -37,17 +37,19 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 
 TODOs:
 
-* download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
+* calculate today's trends for tracked coins
 * move recommendations-types to Data.CryptoCurrency.Types
+* download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
+  * map FCAS coin uuids to cmc_ids
 
 OTHER TODOs: 
 
 * create a portfolio: positions held, money invested, current value
 * create a transaction history (you know, for tax purposes)
 
-* apply analytics (WHICH ONES? 3 candlesticks is a start) against coins
+* apply analytics (WHICH ONES? 3 candlesticks is a start) against coins (done:
+we're using the top-5 candlestick patterns and the top 5 price trend indicators)
 
-* get FCAS ids for cmc_id'd coins I want to measure with FCAS
 * get FCAS data for monitored coins
 
 * get d3.js tools working, e.g.s:
