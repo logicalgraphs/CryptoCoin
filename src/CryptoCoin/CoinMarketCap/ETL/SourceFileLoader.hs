@@ -59,8 +59,8 @@ uploadAllFilesAt dir srcTyp conn =
 >>> src <- lookupTable conn "source_type_lk"
 >>> src
 fromList [("FCAS",3),("LISTING",2),("RANKING",1)]
->>> cmcDir <- getEnv "COIN_MARKET_CAP_DIR"
->>> uploadAllFilesAt (cmcDir ++ "/listings") (src Map.! "LISTING") conn
+>>> cmcDir <- getEnv "CRYPTOCOIN_DIR"
+>>> uploadAllFilesAt (cmcDir ++ "/data-files/listings") (src Map.! "LISTING") conn
 Uploaded listings-2021-03-05.json
 [("listings-2021-03-05.json",16)]
 >>> close conn

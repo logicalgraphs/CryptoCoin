@@ -11,9 +11,11 @@ import Data.Aeson
 
 import qualified Data.ByteString.Lazy.Char8 as BL
 
-import qualified Data.Map as Map
+import Data.Char (ord)
 
-import Data.Maybe (mapMaybe)
+import Data.Either (rights)
+
+import qualified Data.Map as Map
 
 import Data.LookupTable
 
@@ -33,17 +35,39 @@ data JSONFile = JSONFile { fileId :: Integer, file :: String }
 instance FromRow JSONFile where
    fromRow = JSONFile <$> field <*> field
 
-extractJSON :: FromJSON a => String -> Connection -> LookupTable
-                          -> IO [IxValue a]
-extractJSON lk conn srcs =
-   query conn extractJSONQuery (False, srcs Map.! lk)             >>=
-   return . mapMaybe (\(JSONFile i f) -> IxV i <$> decode (BL.pack f))
+extractFile :: String -> Connection -> LookupTable -> IO [JSONFile]
+extractFile lk conn srcs =
+   map (\(JSONFile i f) -> JSONFile i (sanitize f))
+   <$> query conn extractJSONQuery (False, srcs Map.! lk)
 
-extractRanks :: Connection -> LookupTable -> IO [IxValue MetaData]
-extractRanks = extractJSON "RANKING"
+sanitize :: String -> String
+sanitize = map unicodeSubstitution
+
+unicodeSubstitution :: Char-> Char
+unicodeSubstitution = us . id <*> ord
+
+us :: Char -> Int -> Char
+us c o | o == 164 = '$'
+       | o == 304 = 'I'
+       | o == 351 = 'S'
+       | o == 964 = 't'  -- tau, actually
+       | o == 932 = 'T'  -- Tau, actually
+       | o >  127 = '*'  -- I dunno
+       | otherwise = c
+
+type ValOrErr a = Either  String a
+type IxValOrErr = ValOrErr (IxValue MetaData)
+
+extractJSON :: String -> Connection -> LookupTable -> IO [IxValOrErr]
+extractJSON lk conn srcs =
+   extractFile lk conn srcs >>=
+   mapM (\(JSONFile i f) -> pure (IxV i <$> eitherDecode (BL.pack f)))
+
+extractJSON' :: String -> Connection -> LookupTable -> IO [(Int, IxValOrErr)]
+extractJSON' lk conn srcs = zip [1..] <$> extractJSON lk conn srcs
 
 extractListings :: Connection -> LookupTable -> IO [IxValue MetaData]
-extractListings = extractJSON "LISTING"
+extractListings conn lk = rights . map snd <$> extractJSON' "LISTING" conn lk
 
 {--
 >>> withConnection ECOIN (\conn -> lookupTable conn "source_type_lk" >>=
@@ -63,3 +87,10 @@ data twice for one day.
 
 TODO!
 --}
+
+try :: Show a => (Connection -> LookupTable -> IO [a]) -> IO ()
+try proc = withConnection ECOIN (\conn ->
+   lookupTable conn "source_type_lk" >>=
+   proc conn                         >>=
+   mapM_ print)
+
