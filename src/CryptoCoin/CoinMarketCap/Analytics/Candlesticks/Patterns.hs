@@ -19,7 +19,7 @@ import Database.PostgreSQL.Simple.Types
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeWhiteKnights (threeWhiteKnights)
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 
-import Data.CryptoCurrency.Types
+import Data.CryptoCurrency.Types.OCHLV
 
 import Data.LookupTable (LookupTable)
 

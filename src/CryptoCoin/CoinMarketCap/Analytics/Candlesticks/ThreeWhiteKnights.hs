@@ -41,6 +41,8 @@ The candlestick also has a wide part, which is called the "real body."
 --}
 
 import Data.CryptoCurrency.Types  -- for the candlesticks/OCHLV
+import Data.CryptoCurrency.Types.Range (between, realBody)
+import Data.CryptoCurrency.Types.OCHLV
 
 -- given a set of rows, starting from yesterday and going back in time,
 -- let's determine if we have 3 white kngiths

@@ -10,10 +10,11 @@ https://www.investopedia.com/terms/s/sma.asp
 sma = sum a / length a
 --}
 
-import Data.CryptoCurrency.Types (PriceVolume, price, row)
-import Data.CryptoCurrency.Types.Vector (Vector, vtake)
+import Data.CryptoCurrency.Types (row)
+import Data.CryptoCurrency.Types.PriceVolume (PriceVolume, price)
+import Data.CryptoCurrency.Types.Vector (Vector)
 
 -- let's pretend the vector is right-sized before it gets here.
 
-sma :: Vector PriceVolume -> Double
-sma v = sum (fmap (price . row) v) / fromIntegral (length v)
+sma :: (Maybe Double, Vector PriceVolume) -> Double
+sma (_last, v) = sum (fmap (price . row) v) / fromIntegral (length v)
