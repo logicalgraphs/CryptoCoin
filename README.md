@@ -56,6 +56,10 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 
 TODOs:
 
+* okay, so the candlesticks currently work only by downloading. What if
+I have historical data that I wish to reupload? I need to separate the download
+phase from the upload phase and do it based upon a file-processed status, not
+from a downloaded status.
 * provide links to candlestick patterns
 * offer recommendations on e-coins from price trends
 * record recommendations: recommendation (call), why, ecoin, day

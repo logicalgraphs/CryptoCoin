@@ -159,6 +159,7 @@ CREATE TABLE "portfolio" (
 CREATE TABLE "transaction_log" (
 	"transaction_id" serial NOT NULL,
 	"cmc_id" bigint NOT NULL,
+	"for_date" DATE NOT NULL DEFAULT now(),
 	"purchase_usd" double precision NOT NULL,
 	"surcharge_usd" double precision NOT NULL,
 	"n_coins" double precision NOT NULL,
@@ -169,6 +170,7 @@ CREATE TABLE "transaction_log" (
 );
 
 CREATE INDEX ON transaction_log (cmc_id);
+create index on transaction_log (for_date);
 
 
 CREATE TABLE "j_transaction_portfolio" (
@@ -182,7 +184,7 @@ CREATE TABLE "j_transaction_portfolio" (
 
 CREATE TABLE "candlesticks" (
 	"candlestick_id" serial NOT NULL,
-	"for_date" DATE NOT NULL,
+	"for_date" DATE NOT NULL DEFAULT now(),
 	"open" double precision NOT NULL,
 	"high" double precision NOT NULL,
 	"low" double precision NOT NULL,
@@ -215,7 +217,7 @@ INSERT INTO currency_lk (currency_id, currency) VALUES (1, 'USD');
 CREATE TABLE "trend" (
 	"trend_id" serial NOT NULL,
 	"cmc_id" bigint NOT NULL,
-	"for_date" DATE NOT NULL,
+	"for_date" DATE NOT NULL DEFAULT now(),
 	"sma_50" double precision,
 	"sma_200" double precision,
 	"ema_9_signal_line" double precision,
@@ -235,7 +237,7 @@ CREATE INDEX ON trend (for_date);
 CREATE TABLE "recommendation" (
 	"recommendation_id" serial NOT NULL,
 	"cmc_id" bigint NOT NULL,
-	"for_date" DATE NOT NULL,
+	"for_date" DATE NOT NULL DEFAULT now(),
 	"call_id" bigint NOT NULL,
 	"indicator_id" bigint NOT NULL,
 	CONSTRAINT "recommendation_pk" PRIMARY KEY ("recommendation_id")
