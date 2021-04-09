@@ -17,20 +17,20 @@ moving average (MA) that places a greater weight and significance on the most
 recent data points.
 --}
 
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, fromJust)
 
 import Data.CryptoCurrency.Types (row)
 import Data.CryptoCurrency.Types.PriceVolume (PriceVolume, price)
 import Data.CryptoCurrency.Types.Trend
-import Data.CryptoCurrency.Types.Vector (Vector)
+import Data.CryptoCurrency.Types.Vector (Vector, vtake)
 
 import CryptoCoin.CoinMarketCap.Analytics.Trends.ExponentialMovingAverage (ema)
 
-ema' :: (TrendData -> Double) -> Trend -> Vector PriceVolume -> Int -> Double
+ema' :: (TrendData -> Maybe Double) -> Trend -> Vector PriceVolume -> Int -> Double
 ema' ef t v i = ema ((t, ef (row t)), fromJust $ vtake i v)
 
 macdi :: ((Trend, Maybe Double), Vector PriceVolume) -> Double
-macdi (yest, _lastMacd), v) =
+macdi ((yest, _lastMacd), v) =
    let e9 = ema' ema9 yest v 9
        e12 = ema' ema12 yest v 12
        e26 = ema' ema26 yest v 26

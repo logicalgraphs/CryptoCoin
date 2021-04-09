@@ -27,6 +27,7 @@ import Database.PostgreSQL.Simple.FromRow
 
 import CryptoCoin.CoinMarketCap.Analytics.Trends.SimpleMovingAverage (sma)
 import CryptoCoin.CoinMarketCap.Analytics.Trends.ExponentialMovingAverage (ema)
+import CryptoCoin.CoinMarketCap.Analytics.Trends.MovingAverageConvergenceDivergence (macdi)
 
 import Data.CryptoCurrency.Types (row)
 import Data.CryptoCurrency.Types.PriceVolume
