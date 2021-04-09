@@ -31,7 +31,6 @@ ema' ef t v i = ema ((t, ef (row t)), fromJust $ vtake i v)
 
 macdi :: ((Trend, Maybe Double), Vector PriceVolume) -> Double
 macdi ((yest, _lastMacd), v) =
-   let e9 = ema' ema9 yest v 9
-       e12 = ema' ema12 yest v 12
+   let e12 = ema' ema12 yest v 12
        e26 = ema' ema26 yest v 26
-   in  undefined
+   in  e12 - e26

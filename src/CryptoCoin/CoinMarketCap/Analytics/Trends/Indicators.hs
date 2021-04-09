@@ -78,3 +78,7 @@ Just 57988.46654227555
 >>> btc SimpleMovingAverage 200
 Nothing
 --}
+
+-- we need, also, to have a function that provides a recommendation on
+-- today's computed values.
+
