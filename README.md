@@ -39,25 +39,30 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 
 ### Candlesticks
 
+First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.com/articles/active-trading/092315/5-most-powerful-candlestick-patterns.asp), according to [investopedia](https://www.investopedia.com/).
+
 * Three White Knights/Soldiers: https://www.investopedia.com/terms/t/three_white_soldiers.asp
-* Three Black Crows
-* Three Line Strikes
-* Abandoned Baby:
-* Two Black Gapping
-* Evening Star
+* Three Black Crows: https://www.investopedia.com/terms/t/three_black_crows.asp
+* Three Line Strike: https://www.investopedia.com/articles/active-trading/092315/5-most-powerful-candlestick-patterns.asp#three-line-strike
+* Abandoned Baby: https://www.investopedia.com/terms/b/bullish-abandoned-baby.asp
+* Two Black Gapping: https://www.investopedia.com/articles/active-trading/092315/5-most-powerful-candlestick-patterns.asp#two-black-gapping
+* Evening Star: https://www.investopedia.com/articles/active-trading/092315/5-most-powerful-candlestick-patterns.asp#evening-star
 
 ### Price trends
 
 * Simple Moving Average: https://www.investopedia.com/terms/s/sma.asp
-* Exponential Moving Average: 
+* Exponential Moving Average: https://www.investopedia.com/terms/e/ema.asp
 * Moving Average Convergence/Divergence: https://www.investopedia.com/terms/m/macd.asp
 * On Balance Volume: https://www.investopedia.com/terms/o/onbalancevolume.asp
 * Relative Strength Index: https://www.investopedia.com/terms/r/rsi.asp 
 
 TODOs:
 
-* provide links to candlestick patterns
+* complete price indicator computations
+  * relative strength index
+  * on balance volume
 * offer recommendations on e-coins from price trends
+* offer recommendations on e-coins from candlesticks
 * record recommendations: recommendation (call), why, ecoin, day
 
 * for the trends we need a computation phase that just returns a double
