@@ -56,14 +56,9 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 
 TODOs:
 
-* okay, so the candlesticks currently work only by downloading. What if
-I have historical data that I wish to reupload? I need to separate the download
-phase from the upload phase and do it based upon a file-processed status, not
-from a downloaded status.
 * provide links to candlestick patterns
 * offer recommendations on e-coins from price trends
 * record recommendations: recommendation (call), why, ecoin, day
-* update ddls
 
 * for the trends we need a computation phase that just returns a double
   and a recommendation phase that, well, makes the recommendation off the
@@ -79,7 +74,7 @@ OTHER TODOs:
 * create a portfolio: positions held, money invested, current value
 * create a transaction history (you know, for tax purposes)
 
-* apply analytics (WHICH ONES? 3 candlesticks is a start) against coins (done:
+* apply analytics against coins (done:
 we're using the top-5 candlestick patterns and the top 5 price trend indicators)
 
 * get FCAS data for monitored coins
@@ -105,6 +100,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-04-09: Moving Averages convergence/divergence (macd)
 * 2021-04-07: using trends for trend-computations. Implemented ema (Exponential
 Moving Average).
 

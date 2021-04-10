@@ -16,7 +16,8 @@ import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 import CryptoCoin.CoinMarketCap.ETL.JSONFile (extractListings)
 import CryptoCoin.CoinMarketCap.ETL.NewCoinLoader (processFiles, newCoins)
 import CryptoCoin.CoinMarketCap.ETL.SourceFileLoader (uploadFiles)
-import CryptoCoin.CoinMarketCap.ETL.CandlestickLoader (storeAllCandlesticks)
+import CryptoCoin.CoinMarketCap.ETL.Candlesticks.Loader (downloadCandlesticks)
+import CryptoCoin.CoinMarketCap.ETL.Candlesticks.Transformer (processAllCandlesticks)
 import CryptoCoin.CoinMarketCap.Reports.Reporter (ranking, tweet, title)
 
 import Data.LookupTable (LookupTable)
@@ -28,9 +29,10 @@ import Store.SQL.Util.LookupTable (lookupTable)
 
 go :: IO ()
 go = withECoinReport (\conn srcs currs trackeds ->
-        uploadFiles conn srcs                         >>
-        storeAllCandlesticks conn srcs currs trackeds >>
-        candlesAll conn trackeds                      >>
+        uploadFiles conn srcs                   >>
+        downloadCandlesticks conn srcs trackeds >>
+        processAllCandlesticks conn srcs currs  >>
+        candlesAll conn trackeds                >>
         processFiles conn srcs)
 
 -- if we want just the report (because we did the upload, but then SOMEbody

@@ -2,7 +2,7 @@
 {-# LANGUAGE TupleSections     #-}
 {-# LANGUAGE ViewPatterns      #-}
 
-module CryptoCoin.CoinMarketCap.ETL.CandlestickLoader where
+module CryptoCoin.CoinMarketCap.ETL.Candlesticks.Loader where
 
 {-- 
 We grab the candlesticks for the tracked coins.
@@ -18,10 +18,16 @@ This means we need to
    utcTimeToPOSIXSeconds max-date to yesterday
 4. we upload each of those 'files' (marked with the cmc_id) to the source table,
    marked as unprocessed.
+
+Okay, and then we're going to
+
+5. process the unprocessed files in the database.
+
+But we're going to do 5. in Candlesticks.Transformer.
 --}
 
-import Control.Arrow ((&&&))
-import Control.Monad.IO.Class
+import Control.Arrow ((&&&), (***))
+import Control.Monad (void)
 
 import qualified Data.ByteString.Char8 as B
 
@@ -30,40 +36,33 @@ import qualified Data.Map as Map
 
 import Data.Maybe (mapMaybe)
 
-import Data.Monoid
+import Data.Monoid ((<>))
 
 import qualified Data.Text as T
 
 import Data.Time (Day, addDays, utctDay, getCurrentTime)
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 
+import Network.HTTP.Req
+
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromRow
-import Database.PostgreSQL.Simple.ToField
-import Database.PostgreSQL.Simple.ToRow
-import Database.PostgreSQL.Simple.Types
-
-import Network.HTTP.Req
+import Database.PostgreSQL.Simple.Types (Query(Query))
 
 import Control.Logic.Frege ((-|))
 
-import Control.Scan.CSV (readMaybe, csv)
-
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
+import CryptoCoin.CoinMarketCap.ETL.Candlesticks.Util (cndlstks)
 
 import Data.CryptoCurrency.Types (Idx, IxRow(IxRow))
-import Data.CryptoCurrency.Types.OCHLV (OCHLVData(OCHLVData), OCHLV)
+
+import Data.LookupTable (LookupTable, lookdown)
 
 import Data.Time.TimeSeries (today)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
-
--- let's get the tracked coins as a LookupTable
-
 import Store.SQL.Util.Indexed hiding (idx)
-import Store.SQL.Util.LookupTable
-
-import Data.LookupTable (LookupTable, lookdown)
+import Store.SQL.Util.LookupTable (lookupTable)
 
 -- for each of those coins, we need that max(for_date):
 
@@ -127,23 +126,16 @@ Date,Open,High,Low,Close,Adj Close,Volume
 2021-03-26,51683.011719,55137.312500,51579.855469,55137.312500,55137.312500,56652197978
 --}
 
-fromCSV  :: Idx -> [String] -> Maybe OCHLV
-fromCSV i = fc' i . readMaybe . head <*> map readMaybe . tail
-
-fc' :: Idx -> Maybe Day -> [Maybe Double] -> Maybe OCHLV
-fc' i d [o,c,h,l,a,v] =
-   IxRow i <$> d
-         <*> (OCHLVData <$> o <*> c <*> h <*> l <*> a <*> v)
-
 fetchOCHLV :: Day -> (Idx, (String, Day)) -> IO (Maybe String)
 fetchOCHLV (addDays (-1) -> yday) (idx, (sym, addDays 1 -> fromDay)) =
   getCurrentTime >>= \shell ->
   let doNothing _ _ _ = Nothing
       noexceptConfig = defaultHttpConfig { httpConfigCheckResponse = doNothing }
   in  runReq noexceptConfig $ do
-  let start, finish :: Integer
-      start = floor (utcTimeToPOSIXSeconds (shell { utctDay = fromDay }))
-      finish = floor (utcTimeToPOSIXSeconds (shell { utctDay = yday }))
+  let getDate :: Day -> Integer
+      getDate date = floor (utcTimeToPOSIXSeconds (shell { utctDay = date }))
+      start = getDate fromDay
+      finish = getDate yday
       symUSD = T.pack (concat [sym, "-USD"])
       hist = T.pack "history"
       int = T.pack "1d"
@@ -175,113 +167,42 @@ Just "Date,Open,High,Low,Close,Adj Close,Volume\n" ++
         adj = 57750.199219, volume = 5.7625587027e10}]
 --}
 
+-- we also need to store the source-file after we read it
+
 storeCandlestickCSVFileQuery :: Query
 storeCandlestickCSVFileQuery = Query . B.pack $ unwords [
    "INSERT INTO source (file_name, for_day, file, source_type_id)",
-   "VALUES (?, ?, ?, ?) returning source_id"]
+   "VALUES (?, ?, ?, ?)"]
 
--- we also need to store the source-file after we read it
+maybeStoreCandlestickCSVFile :: Connection -> LookupTable -> Day 
+                             -> ((Idx, String), Maybe String) -> IO ()
+maybeStoreCandlestickCSVFile conn srcLk tday ((idx, sym), Just file) =
+   void (execute conn storeCandlestickCSVFileQuery
+                  (filename, tday, file, cndlstks srcLk))
+      where filename = concat [sym, '-':show idx, "-candlesticks-",
+                               show tday, ".csv"]
+maybeStoreCandlestickCSVFile _ _ _ ((_, sym), Nothing) =
+   putStrLn (unwords ["Skipping", sym])
 
-cndlstks :: LookupTable -> Integer
-cndlstks srcLk = srcLk Map.! "CANDLESTICKS"
+-- but we don't need no index when we store it if we know the cmc_id. Which
+-- we don't. Ugh. ... adding it to the filename, so we can reparse it out.
 
-storeCandlestickCSVFile :: Connection -> LookupTable -> String -> Day -> String
-                        -> IO Index
-storeCandlestickCSVFile conn srcLk sym tday file =
-   head <$> query conn storeCandlestickCSVFileQuery
-                  (filename, tday, file, cndlstks srcLk)
-      where filename = concat [sym, "-candlesticks-", show tday, ".csv"]
+-- le sigh.
 
-storeCandlesticksQuery :: Query
-storeCandlesticksQuery = Query . B.pack $ unwords [
-   "INSERT INTO candlesticks (source_id, cmc_id, for_date, open, high, low,",
-   "close, adjusted_close, volume, currency_id)",
-   "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"]
+-- Okay, now we need to download these files from the yahoo! REST endpoint
+-- then load these files into our database.
 
-instance ToRow r => ToRow (IxRow r) where
-   toRow (IxRow i d r) = [toField i, toField d] ++ toRow r
-
-instance ToRow OCHLVData where
-   toRow (OCHLVData o c h l ad v) = map toField [o, h, l, c, ad, v]
-
-data OCHLVwithCurrency = OwC OCHLV Integer
-
-instance ToRow OCHLVwithCurrency where
-   toRow (OwC o c) = toRow o ++ [toField c]
-
-mkIxOwC :: Index -> Integer -> Idx -> String
-        -> Maybe (IxValue OCHLVwithCurrency)
-mkIxOwC (Idx srcId) currId cmcId row =
-   IxV srcId . flip OwC currId <$> (fromCSV cmcId . csv) row
-
-storeCandlesticks :: Connection -> LookupTable -> LookupTable
-                  -> Day -> (Idx, (String, Day)) -> IO ()
-storeCandlesticks conn currencyLk srcLk tday row@(cmcId, (sym, _)) =
-   fetchOCHLV tday row >>=
-   maybe (putStrLn (unwords ["Skipping", sym]))
-         (sccf conn srcLk currencyLk sym tday cmcId)
-
-sccf :: Connection -> LookupTable -> LookupTable -> String -> Day -> Idx
-     -> String -> IO ()
-sccf conn srcLk currencyLk sym tday cmcId file =
-   storeCandlestickCSVFile conn srcLk sym tday file >>= \srcId ->
-   let makr = mkIxOwC srcId (currencyLk Map.! "USD") cmcId
-       rows = mapMaybe makr (lines file)
-       msg = unwords ["Storing",show (length rows),"candlesticks for",sym,"..."]
-   in  putStrLn msg                                 >>
-       executeMany conn storeCandlesticksQuery rows >>
-       putStrLn "...done."
-
-storeAllCandlesticks :: Connection -> LookupTable -> LookupTable 
-                     -> LookupTable -> IO ()
-storeAllCandlesticks conn srcLk currLk trackedCoins =
-   today                                                         >>= \tday ->
-   maxOr30 conn tday trackedCoins                                >>=
-   mapM_ (storeCandlesticks conn currLk srcLk tday) . Map.toList >>
-   processedCandlesticks conn srcLk
-
-processedCandlesticksQuery :: Query
-processedCandlesticksQuery =
-   "UPDATE source SET processed=? WHERE source_type_id=?"
-
-processedCandlesticks :: Connection -> LookupTable -> IO ()
-processedCandlesticks conn srcLk =
-   execute conn processedCandlesticksQuery (True, cndlstks srcLk) >>
-   putStrLn "All candlesticks files set to processed."
+downloadCandlesticks :: Connection -> LookupTable -> LookupTable -> IO ()
+downloadCandlesticks conn srcs trackedCoins =
+   putStrLn "Downloading and storing candlestick files."                 >>
+   today                                                        >>= \tday ->
+   maxOr30 conn tday trackedCoins                                        >>=
+   traverse (sequence . ((id *** fst) &&& fetchOCHLV tday)) . Map.toList >>=
+   mapM_  (maybeStoreCandlestickCSVFile conn srcs tday)                  >>
+   putStrLn "... done."
 
 go :: IO ()
-go = withConnection ECOIN (\conn ->
-   lookupTable conn "source_type_lk"                             >>= \srcLk ->
-   lookupTable conn "currency_lk"                                >>= \currLk ->
-   trackedCoins conn                                             >>=
-   storeAllCandlesticks conn srcLk currLk)
-
-{--
->>> go
-Storing 30 candlesticks for BTC ...
-...done.
-Storing 30 candlesticks for LTC ...
-...done.
-Storing 30 candlesticks for DOGE ...
-...done.
-Storing 30 candlesticks for DASH ...
-...done.
-Storing 30 candlesticks for ETH ...
-...done.
-Storing 30 candlesticks for REP ...
-...done.
-Storing 30 candlesticks for WAVES ...
-...done.
-Storing 30 candlesticks for ZEC ...
-...done.
-Skipping MKR
-Storing 30 candlesticks for BAT ...
-...done.
-Skipping NMR
-...
-Storing 30 candlesticks for EGLD ...
-...done.
-Skipping UNI
-Skipping AAVE
-All candlesticks files set to processed.
---}
+go = withConnection ECOIN (\conn -> 
+        lookupTable conn "source_type_lk" >>= \srcs ->
+        trackedCoins conn                 >>=
+        downloadCandlesticks conn srcs)
