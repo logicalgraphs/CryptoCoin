@@ -46,7 +46,6 @@ import Data.Maybe (fromJust)
 
 import Data.CryptoCurrency.Types (row)
 import Data.CryptoCurrency.Types.PriceVolume (PriceVolume, price)
--- import Data.CryptoCurrency.Types.Trend (Trend)
 import Data.CryptoCurrency.Types.Vector (Vector, vals, mkVect, vtake)
 
 rsi :: ((trend, Maybe double), Vector PriceVolume) -> Double
