@@ -28,6 +28,7 @@ import Database.PostgreSQL.Simple.FromRow
 import CryptoCoin.CoinMarketCap.Analytics.Trends.SimpleMovingAverage (sma)
 import CryptoCoin.CoinMarketCap.Analytics.Trends.ExponentialMovingAverage (ema)
 import CryptoCoin.CoinMarketCap.Analytics.Trends.MovingAverageConvergenceDivergence (macdi)
+import CryptoCoin.CoinMarketCap.Analytics.Trends.RelativeStrengthIndex (rsi)
 
 import Data.CryptoCurrency.Types (row)
 import Data.CryptoCurrency.Types.PriceVolume
@@ -55,7 +56,8 @@ indicators = Map.fromList [
    ((ExponentialMovingAverage, 9), (succ, ema9, ema)),
    ((ExponentialMovingAverage, 12), (succ, ema12, ema)),
    ((ExponentialMovingAverage, 26), (succ, ema26, ema)),
-   ((MovingAverageConvergenceDivergence, 26), (succ, macd, macdi))
+   ((MovingAverageConvergenceDivergence, 26), (succ, macd, macdi)),
+   ((RelativeStrengthIndex, 14), (succ, rsi14, rsi))
    ]
 
 guardedIndicator :: PVdom -> Int -> IndicatorA -> Maybe Double
