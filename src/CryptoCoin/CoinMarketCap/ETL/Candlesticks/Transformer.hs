@@ -12,38 +12,6 @@ sym-cmc_id-candlesticks-date.csv
 
 We process the CSV file, extracting the candlestick information, the load those
 entities into the database.
-
-import Control.Arrow ((&&&))
-import Control.Monad.IO.Class
-
-import Data.Map (Map)
-import qualified Data.Map as Map
-
-import Data.Maybe (mapMaybe)
-
-import Data.Monoid
-
-import qualified Data.Text as T
-
-import Data.Time (Day, addDays, utctDay, getCurrentTime)
-import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
-
-import Database.PostgreSQL.Simple
-import Database.PostgreSQL.Simple.FromRow
-import Database.PostgreSQL.Simple.ToField
-import Database.PostgreSQL.Simple.ToRow
-import Database.PostgreSQL.Simple.Types
-
-import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
-import Data.CryptoCurrency.Types (Idx, IxRow(IxRow))
-import Data.CryptoCurrency.Types.OCHLV (OCHLVData(OCHLVData), OCHLV)
-
--- let's get the tracked coins as a LookupTable
-
-import Store.SQL.Util.Indexed
-import Store.SQL.Util.LookupTable
-
-import Data.LookupTable (LookupTable, lookdown)
 --}
 
 import qualified Data.ByteString.Char8 as B
@@ -110,9 +78,6 @@ storeCandlesticksQuery = Query . B.pack $ unwords [
    "INSERT INTO candlesticks (source_id, cmc_id, for_date, open, high, low,",
    "close, adjusted_close, volume, currency_id)",
    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"]
-
-instance ToRow r => ToRow (IxRow r) where
-   toRow (IxRow i d r) = [toField i, toField d] ++ toRow r
 
 instance ToRow OCHLVData where
    toRow (OCHLVData o c h l ad v) = map toField [o, h, l, c, ad, v]

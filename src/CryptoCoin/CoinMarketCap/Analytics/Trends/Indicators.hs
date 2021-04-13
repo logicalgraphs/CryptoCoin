@@ -17,13 +17,20 @@ OBV just needs the previous day and today.
 
 import Control.Arrow ((&&&), first)
 
+import qualified Data.ByteString.Char8 as B
+
 import Data.Map (Map)
 import qualified Data.Map as Map
 
 import Data.Maybe (mapMaybe, maybeToList)
 
+import Data.Time (Day)
+
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromRow
+import Database.PostgreSQL.Simple.ToRow
+import Database.PostgreSQL.Simple.ToField
+import Database.PostgreSQL.Simple.Types
 
 import CryptoCoin.CoinMarketCap.Analytics.Trends.SimpleMovingAverage (sma)
 import CryptoCoin.CoinMarketCap.Analytics.Trends.ExponentialMovingAverage (ema)
@@ -31,7 +38,7 @@ import CryptoCoin.CoinMarketCap.Analytics.Trends.MovingAverageConvergenceDiverge
 import CryptoCoin.CoinMarketCap.Analytics.Trends.RelativeStrengthIndex (rsi)
 import CryptoCoin.CoinMarketCap.Analytics.Trends.OnBalanceVolume (obvi)
 
-import Data.CryptoCurrency.Types (row, Idx)
+import Data.CryptoCurrency.Types (row, Idx, IxRow(IxRow))
 import Data.CryptoCurrency.Types.PriceVolume
 import Data.CryptoCurrency.Types.Trend
 import Data.CryptoCurrency.Types.Vector (Vector, vtake)
@@ -119,21 +126,17 @@ fetchCmcIds :: Connection -> [String] -> IO LookupTable
 fetchCmcIds conn coins =
    Map.fromList <$> query conn fetchCmcIdsQuery (Only (In coins))
 
-runAllIndicatorsOns :: [String] -> IO ()
-runAllIndicatorsOns coins =
-   withConnection ECOIN (\conn ->
-      fetchCmcIds conn coins >>= mapM_ (runAllIndicatorsOn conn) . Map.toList)
+type TrendResults = Map (Indicator, Int) Double
 
-runAllIndicatorsOn :: Connection -> (String, Integer) -> IO ()
+runAllIndicatorsOn :: Connection -> (String, Integer) -> IO TrendResults
 runAllIndicatorsOn conn (sym, idx) =
-   putStrLn ("For e-coin " ++ sym ++ " (CMC ID: " ++ show idx ++ "):") >>
-   fetchDomain conn idx >>=
-   flip mapM_ (pair indies) . runIndicator
+   Map.fromList . flip mapMaybe (pair indies) . runIndicator
+   <$> fetchDomain conn idx
 
-runIndicator :: PVdom -> ((Indicator, Int), IndicatorA) -> IO ()
-runIndicator dom ((ind, i), r) =
-   let res = guardedIndicator dom i r in
-   putStrLn ("   " ++ show ind ++ " (" ++ show i ++ "): " ++ mbshow res)
+runIndicator :: PVdom -> ((Indicator, Int), IndicatorA)
+             -> Maybe ((Indicator, Int), Double)
+runIndicator dom (is@(ind, i), r) =
+   sequence (is, guardedIndicator dom i r)
 
 mbshow :: Show a => Maybe a -> String
 mbshow Nothing = "--"
@@ -199,3 +202,46 @@ For e-coin ETH (CMC ID: 1027):
    RelativeStrengthIndex (1): 63.44754316660384
    OnBalanceVolume (1): -2.4423049124036507e10
 --}
+
+-- Okay, so, now let's run all the indicators and update Trend with the
+-- new values
+
+trendResult :: Day -> Idx -> TrendResults -> Trend
+trendResult tday coinId trendMap =
+   let luk = flip Map.lookup trendMap in
+   IxRow coinId tday
+         (TrendData (luk (SimpleMovingAverage, 50))
+                    (luk (SimpleMovingAverage, 200))
+                    (luk (ExponentialMovingAverage, 9))
+                    (luk (ExponentialMovingAverage, 12))
+                    (luk (ExponentialMovingAverage, 26))
+                    (luk (MovingAverageConvergenceDivergence, 1))
+                    (luk (RelativeStrengthIndex, 1))
+                    (luk (OnBalanceVolume, 1)))
+
+instance ToRow TrendData where
+   toRow (TrendData s5 s2 e9 e1 e2 m r o) =
+      map toField [s5, s2, e9, e1, e2, m, r, o]
+
+storeTrendQuery :: Query
+storeTrendQuery = Query . B.pack $ unwords [
+   "INSERT INTO trend (cmc_id, for_date, sma_50, sma_200,",
+   "ema_9_signal_line, ema_12, ema_26, macd, rsi_14, obv)",
+   "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"]
+
+-- go method: -----
+
+storeTrends :: Connection -> Day -> LookupTable -> IO ()
+storeTrends conn tday tracked =
+   let msg = "Storing indicators for" ++ show (length tracked) ++ "e-coins." in
+   putStrLn msg                                                             >>
+   mapM (sequence . (snd &&& runAllIndicatorsOn conn)) (Map.toList tracked) >>=
+   executeMany conn storeTrendQuery . map (uncurry (trendResult tday))      >>
+   putStrLn "...done."
+
+-- test method: -----
+
+runAllIndicatorsOns :: [String] -> IO ()
+runAllIndicatorsOns coins =
+   withConnection ECOIN (\conn ->
+      fetchCmcIds conn coins >>= mapM_ (runAllIndicatorsOn conn) . Map.toList)
