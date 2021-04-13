@@ -60,7 +60,7 @@ header :: Day -> IO ()
 header (take 10 . show -> date) =
    printContent (p [S (unwords ["The top-10 e-coins for",date,"(ranked by"]),
                     a coinmarketcaphref "coinmarketcap.com",
-                    S "are:"]) 0
+                    S ") are:"]) 0
 
 report :: MetaData -> [ECoin] -> IO ()
 report md =
