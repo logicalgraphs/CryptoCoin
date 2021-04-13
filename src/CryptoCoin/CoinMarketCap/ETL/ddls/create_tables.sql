@@ -240,6 +240,7 @@ CREATE TABLE "recommendation" (
 	"for_date" DATE NOT NULL DEFAULT now(),
 	"call_id" bigint NOT NULL,
 	"indicator_id" bigint NOT NULL,
+	"confidence" double precision,
 	CONSTRAINT "recommendation_pk" PRIMARY KEY ("recommendation_id")
 ) WITH (
   OIDS=FALSE
