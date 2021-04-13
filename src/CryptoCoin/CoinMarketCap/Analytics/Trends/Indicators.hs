@@ -22,6 +22,8 @@ import Control.Arrow ((&&&))
 import Data.Map (Map)
 import qualified Data.Map as Map
 
+import Data.Maybe (mapMaybe, maybeToList)
+
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromRow
 
@@ -29,6 +31,7 @@ import CryptoCoin.CoinMarketCap.Analytics.Trends.SimpleMovingAverage (sma)
 import CryptoCoin.CoinMarketCap.Analytics.Trends.ExponentialMovingAverage (ema)
 import CryptoCoin.CoinMarketCap.Analytics.Trends.MovingAverageConvergenceDivergence (macdi)
 import CryptoCoin.CoinMarketCap.Analytics.Trends.RelativeStrengthIndex (rsi)
+import CryptoCoin.CoinMarketCap.Analytics.Trends.OnBalanceVolume (obvi)
 
 import Data.CryptoCurrency.Types (row)
 import Data.CryptoCurrency.Types.PriceVolume
@@ -46,28 +49,53 @@ data Indicator = SimpleMovingAverage
 
 type PVdom = (Trend, Vector PriceVolume)
 type PVctx = ((Trend, Maybe Double), Vector PriceVolume)
-type IndicatorA = (Int -> Int, TrendData -> Maybe Double, PVctx -> Double)
+type IndicatorBase = (TrendData -> Maybe Double, PVctx -> Double)
+type IndicatorA = (Int -> Int, IndicatorBase)
 type Indicators = Map (Indicator, Int) IndicatorA
 
-indicators :: Indicators
-indicators = Map.fromList [
-   ((SimpleMovingAverage, 50), (id, sma50, sma)),
-   ((SimpleMovingAverage, 200), (id, sma200, sma)),
-   ((ExponentialMovingAverage, 9), (succ, ema9, ema)),
-   ((ExponentialMovingAverage, 12), (succ, ema12, ema)),
-   ((ExponentialMovingAverage, 26), (succ, ema26, ema)),
-   ((MovingAverageConvergenceDivergence, 26), (succ, macd, macdi)),
-   ((RelativeStrengthIndex, 14), (succ, rsi14, rsi))
-   ]
+data Temporal = Temporal (Map (Indicator, Int) IndicatorA)
+data Eternal = Eternal (Map Indicator IndicatorA)
+
+class LookInto a where
+   lookin :: a -> (Indicator, Int) -> Maybe IndicatorA
+
+instance LookInto Temporal where
+   lookin (Temporal m) = flip Map.lookup m
+
+instance LookInto Eternal where
+   lookin (Eternal m) = flip Map.lookup m . fst
+
+temporal :: Temporal
+temporal = Temporal $ Map.fromList [
+   ((SimpleMovingAverage, 50), (id, (sma50, sma))),
+   ((SimpleMovingAverage, 200), (id, (sma200, sma))),
+   ((ExponentialMovingAverage, 9), (succ, (ema9, ema))),
+   ((ExponentialMovingAverage, 12), (succ, (ema12, ema))),
+   ((ExponentialMovingAverage, 26), (succ, (ema26, ema)))]
+
+eternal :: Eternal
+eternal = Eternal $ Map.fromList [
+   (MovingAverageConvergenceDivergence, (const 27, (macd, macdi))),
+   (RelativeStrengthIndex, (const 15, (rsi14, rsi))),
+   (OnBalanceVolume, (const 10, (obv, obvi)))]   -- I DON'T KNOW! :/
+
+data Dependency = T Temporal | E Eternal
+
+instance LookInto Dependency where
+   lookin (T t) = lookin t
+   lookin (E e) = lookin e
 
 guardedIndicator :: PVdom -> Int -> IndicatorA -> Maybe Double
-guardedIndicator (t, v) sz (nf, tf, f) =
+guardedIndicator (t, v) sz (nf, (tf, f)) =
    f <$> sequence ((id &&& tf . row) t, vtake (nf sz) v)
 
 btc :: Indicator -> Int -> IO ()
-btc ind i =
-   let mbIndA = Map.lookup (ind, i) indicators
-       mbG v = mbIndA >>= guardedIndicator v i
+btc = btc' [T temporal, E eternal]
+
+btc' :: LookInto indicators => [indicators] -> Indicator -> Int -> IO ()
+btc' indies ind i =
+   let mbIndA = mapMaybe (flip lookin (ind, i)) indies
+       mbG v = mbIndA >>= maybeToList . guardedIndicator v i
    in  withConnection ECOIN (\conn ->
           fetchLastTrend conn 1     >>= \trend ->
           fetchPricesVolumes conn 1 >>= \pv ->
@@ -75,12 +103,23 @@ btc ind i =
 
 {--
 >>> btc ExponentialMovingAverage 12
-Just 57988.46654227555
+[59134.597811008054]
 
 >>> btc SimpleMovingAverage 200
-Nothing
+[]
+
+and for the ones where the dates are preset:
+
+>>> btc MovingAverageConvergenceDivergence 26
+[1411.982019920164]
+
+>>> btc RelativeStrengthIndex 234234  -- because days don't matter
+[48.53384918758772]
+
+Bitcoin is just chugging along, isn't it.
+
+>>> btc OnBalanceVolume 10
+[-8.32027697067179e10]
+
+But may be oversold?
 --}
-
--- we need, also, to have a function that provides a recommendation on
--- today's computed values.
-

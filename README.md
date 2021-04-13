@@ -58,8 +58,12 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 TODOs:
 
-* complete price indicator computations
-  * on balance volume
+* complete candlestick computations
+  * Three Black Crows
+  * Three Line Strike
+  * Abandoned Baby
+  * Two Black Gapping
+  * Evening Star
 * offer recommendations on e-coins from price trends
 * offer recommendations on e-coins from candlesticks
 * record recommendations: recommendation (call), why, ecoin, day
@@ -68,8 +72,7 @@ TODOs:
   and a recommendation phase that, well, makes the recommendation off the
   computed trends. Then we need to store the computations and recommendations.
 
-* build predictive model based off of recommendation
-* calculate today's trends for tracked coins
+* build predictive model based off of recommendations
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
   * map FCAS coin uuids to cmc_ids
 
