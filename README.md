@@ -58,6 +58,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 TODOs:
 
+* compute all indicators for all tracked stocks
+  * update and store trends
 * complete candlestick computations
   * Three Black Crows
   * Three Line Strike
