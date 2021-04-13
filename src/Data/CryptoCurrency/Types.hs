@@ -6,6 +6,8 @@ import Data.Time (Day)
 
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromRow
+import Database.PostgreSQL.Simple.ToRow
+import Database.PostgreSQL.Simple.ToField
 
 import Data.Time.TimeSeries (TimeSeries)
 import Data.XHTML (Name)
@@ -49,3 +51,6 @@ instance Row IxRow where
 
 instance FromRow r => FromRow (IxRow r) where
    fromRow = IxRow <$> field <*> field <*> fromRow
+
+instance ToRow r => ToRow (IxRow r) where
+   toRow (IxRow i d r) = [toField i, toField d] ++ toRow r
