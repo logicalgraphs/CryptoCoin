@@ -110,6 +110,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 * 2021-04-13: Finished On Balance Volume, switched to list-monad for
 trend-processing.
 
+* 2021-04-12: Transitioned data-store from elephantsql.com to clever-cloud.com
 * 2021-04-11: Relative Strength Index
 * 2021-04-09: Moving Averages convergence/divergence (macd)
 * 2021-04-07: using trends for trend-computations. Implemented ema (Exponential
