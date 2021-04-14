@@ -73,10 +73,13 @@ fetchLastTrend conn idx =
 
 {--
 >>> withConnection ECOIN (\conn -> fetchLastTrend conn 1 >>= print)
-IxRow 1 2021-04-06
-      (TrendData {sma50 = Nothing, sma200 = Nothing, ema9 = Nothing,
-                  ema12 = Nothing, ema26 = Nothing, macd = Nothing,
-                  rsi14 = Nothing, obv = Nothing})
+>>> withConnection ECOIN (\conn -> fetchLastTrend conn 1 >>= print)
+IxRow 1 2021-04-13
+      (TrendData {sma50 = Nothing, sma200 = Nothing, 
+                  ema9 = Just 59752.7187214266, ema12 = Just 59638.1946316937, 
+                  ema26 = Just 58032.2651118535, macd = Just 1689.46979833809, 
+                  rsi14 = Just 54.9598052198206, 
+                  obv = Just (-4.53736153979049e10)})
 --}
 
 updateWith :: Trend -> Trend -> Trend
