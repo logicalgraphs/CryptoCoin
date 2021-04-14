@@ -15,7 +15,7 @@ import Database.PostgreSQL.Simple
 import CryptoCoin.CoinMarketCap.Types (NewCoinsCtx)
 
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.Patterns (candlesAll)
-import CryptoCoin.CoinMarketCap.Analytics.Trends.Indicators (storeTrends)
+import CryptoCoin.CoinMarketCap.Analytics.Trends.Trend (storeTrends)
 
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 

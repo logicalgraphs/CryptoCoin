@@ -15,22 +15,14 @@ Need: 50 an 200 for sma, 12 and 26 for EMA / MACD, 15 for RSI,
 OBV just needs the previous day and today.
 --}
 
-import Control.Arrow ((&&&), first)
-
-import qualified Data.ByteString.Char8 as B
+import Control.Arrow (first, (&&&))
 
 import Data.Map (Map)
 import qualified Data.Map as Map
 
 import Data.Maybe (mapMaybe, maybeToList)
 
-import Data.Time (Day)
-
 import Database.PostgreSQL.Simple
-import Database.PostgreSQL.Simple.FromRow
-import Database.PostgreSQL.Simple.ToRow
-import Database.PostgreSQL.Simple.ToField
-import Database.PostgreSQL.Simple.Types
 
 import CryptoCoin.CoinMarketCap.Analytics.Trends.SimpleMovingAverage (sma)
 import CryptoCoin.CoinMarketCap.Analytics.Trends.ExponentialMovingAverage (ema)
@@ -38,21 +30,15 @@ import CryptoCoin.CoinMarketCap.Analytics.Trends.MovingAverageConvergenceDiverge
 import CryptoCoin.CoinMarketCap.Analytics.Trends.RelativeStrengthIndex (rsi)
 import CryptoCoin.CoinMarketCap.Analytics.Trends.OnBalanceVolume (obvi)
 
-import Data.CryptoCurrency.Types (row, Idx, IxRow(IxRow))
+import Data.CryptoCurrency.Types (Idx, row)
 import Data.CryptoCurrency.Types.PriceVolume
 import Data.CryptoCurrency.Types.Trend
 import Data.CryptoCurrency.Types.Vector (Vector, vtake)
 
 import Data.LookupTable
+import Data.CryptoCurrency.Types.Recommendation
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
-
-data Indicator = SimpleMovingAverage
-               | ExponentialMovingAverage
-               | MovingAverageConvergenceDivergence
-               | RelativeStrengthIndex
-               | OnBalanceVolume
-   deriving (Eq, Ord, Show)
 
 type PVdom = (Trend, Vector PriceVolume)
 type PVctx = ((Trend, Maybe Double), Vector PriceVolume)
@@ -99,6 +85,8 @@ guardedIndicator (t, v) sz (nf, (tf, f)) =
 indies :: [Dependency]
 indies = [T temporal, E eternal]
 
+-- Some testing fun here (that sacrifices context for expediency) ---
+
 type RunCoin = Indicator -> Int -> IO ()
 
 btc, bnb, eth :: RunCoin  -- the big three
@@ -114,6 +102,8 @@ coin' indies idx ind i =
    let mbIndA = mapMaybe (flip lookin (ind, i)) indies
        mbG v = mbIndA >>= maybeToList . guardedIndicator v i
    in  withConnection ECOIN (\conn -> fetchDomain conn idx >>= print . mbG)
+
+-- Okay, back to the coding! ---
 
 fetchDomain :: Connection -> Integer -> IO PVdom
 fetchDomain conn idx =
@@ -202,42 +192,6 @@ For e-coin ETH (CMC ID: 1027):
    RelativeStrengthIndex (1): 63.44754316660384
    OnBalanceVolume (1): -2.4423049124036507e10
 --}
-
--- Okay, so, now let's run all the indicators and update Trend with the
--- new values
-
-trendResult :: Day -> Idx -> TrendResults -> Trend
-trendResult tday coinId trendMap =
-   let luk = flip Map.lookup trendMap in
-   IxRow coinId tday
-         (TrendData (luk (SimpleMovingAverage, 50))
-                    (luk (SimpleMovingAverage, 200))
-                    (luk (ExponentialMovingAverage, 9))
-                    (luk (ExponentialMovingAverage, 12))
-                    (luk (ExponentialMovingAverage, 26))
-                    (luk (MovingAverageConvergenceDivergence, 1))
-                    (luk (RelativeStrengthIndex, 1))
-                    (luk (OnBalanceVolume, 1)))
-
-instance ToRow TrendData where
-   toRow (TrendData s5 s2 e9 e1 e2 m r o) =
-      map toField [s5, s2, e9, e1, e2, m, r, o]
-
-storeTrendQuery :: Query
-storeTrendQuery = Query . B.pack $ unwords [
-   "INSERT INTO trend (cmc_id, for_date, sma_50, sma_200,",
-   "ema_9_signal_line, ema_12, ema_26, macd, rsi_14, obv)",
-   "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"]
-
--- go method: -----
-
-storeTrends :: Connection -> Day -> LookupTable -> IO ()
-storeTrends conn tday tracked =
-   let msg = "Storing indicators for" ++ show (length tracked) ++ "e-coins." in
-   putStrLn msg                                                             >>
-   mapM (sequence . (snd &&& runAllIndicatorsOn conn)) (Map.toList tracked) >>=
-   executeMany conn storeTrendQuery . map (uncurry (trendResult tday))      >>
-   putStrLn "...done."
 
 -- test method: -----
 

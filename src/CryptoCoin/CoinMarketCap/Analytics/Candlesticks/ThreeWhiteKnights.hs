@@ -89,7 +89,7 @@ True
 
 Data was generated with:
 
->>> let owrite (OCHLV i d o c h l a v) =
+>>> let owrite (IxRow i d (OCHLVData o c h l a v)) =
            putStrLn (unwords (["OCHLV", show i, "(read \"" ++ show d ++ "\")"]
                               ++ map show [o, c, h, l, a, v]))
 >>> withConnection ECOIN (\conn -> candlesFor conn 1 >>= mapM_ owrite)
