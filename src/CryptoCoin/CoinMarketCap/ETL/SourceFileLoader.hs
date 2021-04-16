@@ -115,7 +115,7 @@ srcs conn day =
 
 sources :: Connection -> IO ()
 sources conn = getCurrentTime                     >>=
-               srcs conn . addDays (-5) . utctDay >>=
+               srcs conn . addDays (-2) . utctDay >>=
                csvHeader                          >>=
                mapM_ (putStrLn . uncsv)
   where csvHeader s = putStrLn "id,source_type,for_day,file_name,processed" >>
