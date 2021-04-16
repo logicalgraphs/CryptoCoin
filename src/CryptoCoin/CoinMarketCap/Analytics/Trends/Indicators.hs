@@ -232,11 +232,11 @@ storeTrendQuery = Query . B.pack $ unwords [
 -- go method: -----
 
 storeTrends :: Connection -> Day -> LookupTable -> IO ()
-storeTrends conn tday tracked =
-   let msg = "Storing indicators for" ++ show (length tracked) ++ "e-coins." in
-   putStrLn msg                                                             >>
-   mapM (sequence . (snd &&& runAllIndicatorsOn conn)) (Map.toList tracked) >>=
-   executeMany conn storeTrendQuery . map (uncurry (trendResult tday))      >>
+storeTrends conn tday trakt =
+   let msg = "Storing indicators for " ++ show (length trakt) ++ " e-coins." in
+   putStrLn msg                                                           >>
+   mapM (sequence . (snd &&& runAllIndicatorsOn conn)) (Map.toList trakt) >>=
+   executeMany conn storeTrendQuery . map (uncurry (trendResult tday))    >>
    putStrLn "...done."
 
 -- test method: -----
