@@ -12,6 +12,8 @@ import Control.Arrow ((&&&))
 
 import qualified Data.ByteString.Char8 as B
 
+import Data.Char (toUpper)
+
 import Data.Map (Map)
 import qualified Data.Map as Map
 
@@ -24,6 +26,8 @@ import Database.PostgreSQL.Simple.Types
 import System.Environment (getEnv)
 
 import Control.Scan.CSV (rend)
+
+import CryptoCoin.CoinMarketCap.Utils (filesAtDir)
 
 import Data.CryptoCurrency.Types (Idx)
 
@@ -73,8 +77,16 @@ uploadCoinCSV file conn typ =
                mapMaybe (flip Map.lookup coins . toNameSym . rend ',') . lines
             toNameSym = head &&& last
 
-go :: FilePath -> String -> IO ()
-go file typ = withConnection ECOIN (flip (uploadCoinCSV file) typ)
+ucc :: FilePath -> Connection -> IO ()
+ucc dir conn = filesAtDir [".csv"] dir >>= mapM_ uploader 
+   where uploader file = uploadCoinCSV (dir ++ ('/':file)) conn (typeFrom file)
+         typeFrom = map toUpper . fst . break (== '.')
+
+go :: IO ()
+go =
+   getEnv "COIN_MARKET_CAP_DIR"                   >>= \cmcd ->
+   let dir = cmcd ++ "/ETL/trackedCoins" in
+   withConnection ECOIN (ucc dir)
 
 {--
 >>> cmcDir <- getEnv "COIN_MARKET_CAP_DIR"

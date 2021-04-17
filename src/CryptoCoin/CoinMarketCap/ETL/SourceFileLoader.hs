@@ -26,7 +26,7 @@ import Database.PostgreSQL.Simple.Types
 import Control.Presentation
 import Control.Scan.CSV
 
-import CryptoCoin.CoinMarketCap.Utils (pass)
+import CryptoCoin.CoinMarketCap.Utils (pass, filesAtDir)
 
 import Data.LookupTable
 import Data.Time.TimeSeries (today)
@@ -51,10 +51,7 @@ uploadFile sourceType conn filename =
 
 uploadAllFilesAt :: FilePath -> Integer -> Connection -> IO ()
 uploadAllFilesAt dir srcTyp conn =
-   setCurrentDirectory dir >>
-   listDirectory dir       >>=
-   mapM_ (uploadFile srcTyp conn) . filter (suffixes ".json .csv")
-      where suffixes types = or . ([isSuffixOf] <*> (words types) <*>) . return 
+   filesAtDir (words ".json .csv") dir >>= mapM_ (uploadFile srcTyp conn)
 
 {--
 >>> conn <- connection >>= connect
