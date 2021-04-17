@@ -38,20 +38,21 @@ uploadFileQuery :: Query
 uploadFileQuery = Query . B.pack $ unwords [
    "INSERT INTO source (source_type_id, file_name, for_day, file)",
    "VALUES (?, ?, ?, ?)"]
-
-uploadFile :: Integer -> Connection -> FilePath -> IO ()
-uploadFile sourceType conn filename =
-   readFile filename                        >>= \file ->
+ 
+uploadFile :: Integer -> FilePath -> Connection -> FilePath -> IO ()
+uploadFile sourceType dir conn filename =
+   let fullPath = dir ++ ('/':filename) in
+   readFile fullPath                        >>= \file ->
    today                                    >>= \tday ->
    execute conn uploadFileQuery
          (sourceType, filename, tday, file) >>
    putStrLn ("Uploaded " ++ filename)       >>
-   removeFile filename                      >>
+   removeFile fullPath                      >>
    putStrLn ("Removed file " ++ filename)
 
 uploadAllFilesAt :: FilePath -> Integer -> Connection -> IO ()
 uploadAllFilesAt dir srcTyp conn =
-   filesAtDir (words ".json .csv") dir >>= mapM_ (uploadFile srcTyp conn)
+   filesAtDir (words ".json .csv") dir >>= mapM_ (uploadFile srcTyp dir conn)
 
 {--
 >>> conn <- connection >>= connect
