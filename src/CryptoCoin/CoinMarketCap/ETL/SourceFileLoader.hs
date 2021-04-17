@@ -26,6 +26,8 @@ import Database.PostgreSQL.Simple.Types
 import Control.Presentation
 import Control.Scan.CSV
 
+import CryptoCoin.CoinMarketCap.Utils (pass, filesAtDir)
+
 import Data.LookupTable
 import Data.Time.TimeSeries (today)
 
@@ -36,23 +38,21 @@ uploadFileQuery :: Query
 uploadFileQuery = Query . B.pack $ unwords [
    "INSERT INTO source (source_type_id, file_name, for_day, file)",
    "VALUES (?, ?, ?, ?)"]
-
-uploadFile :: Integer -> Connection -> FilePath -> IO ()
-uploadFile sourceType conn filename =
-   readFile filename                        >>= \file ->
+ 
+uploadFile :: Integer -> FilePath -> Connection -> FilePath -> IO ()
+uploadFile sourceType dir conn filename =
+   let fullPath = dir ++ ('/':filename) in
+   readFile fullPath                        >>= \file ->
    today                                    >>= \tday ->
    execute conn uploadFileQuery
          (sourceType, filename, tday, file) >>
    putStrLn ("Uploaded " ++ filename)       >>
-   removeFile filename                      >>
+   removeFile fullPath                      >>
    putStrLn ("Removed file " ++ filename)
 
 uploadAllFilesAt :: FilePath -> Integer -> Connection -> IO ()
 uploadAllFilesAt dir srcTyp conn =
-   setCurrentDirectory dir >>
-   listDirectory dir       >>=
-   mapM_ (uploadFile srcTyp conn) . filter (suffixes ".json .csv")
-      where suffixes types = or . ([isSuffixOf] <*> (words types) <*>) . return 
+   filesAtDir (words ".json .csv") dir >>= mapM_ (uploadFile srcTyp dir conn)
 
 {--
 >>> conn <- connection >>= connect
@@ -78,7 +78,7 @@ uploadFiles conn src =
    in  uploader "listings"     "LISTING"      >>
        uploader "scores"       "FCAS"         >>
        uploader "candlesticks" "CANDLESTICKS" >>
-       sources conn
+       sources conn src
 
 {--
 >>> go
@@ -100,23 +100,38 @@ showBool = (flip (:) . tail <*> toLower . head) . show
 
 -- SQL query to check that the database is populated:
 
-sourceQuery :: Day -> Query
-sourceQuery tday = Query . B.pack $ unlines [
+sourceQuery :: Day -> Integer -> Query
+sourceQuery tday idx = Query . B.pack $ unlines [
    "SELECT a.source_id, b.source_type, a.for_day, a.file_name, a.processed",
    "FROM source a",
    "INNER JOIN source_type_lk b ON b.source_type_id=a.source_type_id",
-   concat ["WHERE a.for_day > '", show tday, "'"],
-   "ORDER BY a.file_name DESC"]
+   concat ["WHERE a.for_day > '", show tday, "' AND a.source_type_id=",
+           show idx],
+   "ORDER BY a.file_name DESC",
+   "LIMIT 3"]
 
-srcs :: Connection -> Day -> IO [Source]
-srcs conn day = 
+srcs :: Connection -> LookupTable -> Day -> IO [Source]
+srcs conn src day = 
    let srcQuery = sourceQuery day in
-   B.putStrLn (fromQuery srcQuery) >> query_ conn srcQuery
+   putStrLn ("Files stored from " ++ show day)   >>
+   mapM (query_ conn . srcQuery) (Map.elems src) >>=
+   return . concat
 
-sources :: Connection -> IO ()
-sources conn = getCurrentTime                     >>=
-               srcs conn . addDays (-5) . utctDay >>=
-               csvHeader                          >>=
-               mapM_ (putStrLn . uncsv)
-  where csvHeader s = putStrLn "id,source_type,for_day,file_name,processed" >>
-                      return s
+sources :: Connection -> LookupTable -> IO ()
+sources conn src = 
+   getCurrentTime                                               >>=
+   srcs conn src . addDays (-2) . utctDay                       >>=
+   pass (putStrLn "id,source_type,for_day,file_name,processed") >>=
+   mapM_ (putStrLn . uncsv)
+
+{--
+>>> withConnection ECOIN (\conn -> lookupTable conn "source_type_lk" >>= 
+                                   sources conn)
+Files stored from 2021-04-14
+id,source_type,for_day,file_name,processed
+562,CANDLESTICKS,2021-04-16,ZIL-2469-candlesticks-2021-04-16.csv,true
+496,CANDLESTICKS,2021-04-15,ZIL-2469-candlesticks-2021-04-15.csv,true
+545,CANDLESTICKS,2021-04-16,ZEC-1437-candlesticks-2021-04-16.csv,true
+537,LISTING,2021-04-16,listings-2021-04-16.json,true
+471,LISTING,2021-04-15,listings-2021-04-15.json,true
+--}

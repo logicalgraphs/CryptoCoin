@@ -17,6 +17,8 @@ OBV just needs the previous day and today.
 
 import Control.Arrow (first, (&&&))
 
+import qualified Data.ByteString.Char8 as B
+
 import Data.Map (Map)
 import qualified Data.Map as Map
 

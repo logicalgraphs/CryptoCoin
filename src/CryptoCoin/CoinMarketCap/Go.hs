@@ -26,6 +26,7 @@ import CryptoCoin.CoinMarketCap.ETL.Candlesticks.Loader (downloadCandlesticks)
 import CryptoCoin.CoinMarketCap.ETL.Candlesticks.Transformer (processAllCandlesticks)
 
 import CryptoCoin.CoinMarketCap.Reports.Reporter (ranking, tweet, title)
+import CryptoCoin.CoinMarketCap.Utils (pass)
 
 import Data.LookupTable (LookupTable)
 import Data.Time.TimeSeries (today)
@@ -42,9 +43,6 @@ go = withECoinReport (\conn srcs currs trackeds tday ->
         candlesAll conn trackeds                     >>
         processFiles conn srcs                       >>=
         pass (storeTrends conn tday trackeds))
-
-pass :: IO a -> b -> IO b
-pass proc ans = proc >> return ans
 
 -- if we want just the report (because we did the upload, but then SOMEbody
 -- messed up a database-insert and that was done, later, manually) ...

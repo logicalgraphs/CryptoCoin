@@ -58,6 +58,7 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* update which coins are tracked, daily.
 * offer recommendations on e-coins from price trends
   * record recommendations: recommendation (call), why, ecoin, day
 
