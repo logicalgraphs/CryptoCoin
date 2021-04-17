@@ -84,8 +84,8 @@ ucc dir conn = filesAtDir [".csv"] dir >>= mapM_ uploader
 
 go :: IO ()
 go =
-   getEnv "COIN_MARKET_CAP_DIR"                   >>= \cmcd ->
-   let dir = cmcd ++ "/ETL/trackedCoins" in
+   getEnv "CRYPTOCOIN_DIR"                   >>= \cmcd ->
+   let dir = cmcd ++ "/data-files/trackedCoins" in
    withConnection ECOIN (ucc dir)
 
 {--
