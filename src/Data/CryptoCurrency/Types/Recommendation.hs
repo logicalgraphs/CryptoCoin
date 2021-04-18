@@ -1,16 +1,16 @@
+{-# LANGUAGE ViewPatterns #-}
+
 module Data.CryptoCurrency.Types.Recommendation where
 
 -- Houses recommendations
 
-import Data.Char (isUpper)
-import Data.List (break, intercalate)
+import Data.Char (isLower)
+import Data.List (groupBy)
 import qualified Data.Map as Map
 import Data.Time (Day)
 
 import Database.PostgreSQL.Simple.ToRow
 import Database.PostgreSQL.Simple.ToField
-
-import Control.DList
 
 import Data.CryptoCurrency.Types
 import Data.LookupTable (LookupTable)
@@ -19,7 +19,8 @@ import Data.Percentage
 data Call = BUY | SELL
    deriving (Eq, Ord, Show)
 
-data RecommendationData = Rekt Idx Idx Percentage
+data RecommendationData = RekT Call Indicator Percentage
+                        | RekP Call Pattern Percentage
    deriving (Eq, Ord, Show)
 
 data Indicator = SimpleMovingAverage
@@ -39,27 +40,40 @@ data Pattern = ThreeWhiteKnights
 
 type Recommendation = IxRow RecommendationData
 
-instance ToRow RecommendationData where
-   toRow (Rekt call ind (P p)) =
-      let d = (fromRational p) :: Double in
+data RektRow = RR' Double Idx Idx
+   deriving (Eq, Ord, Show)
+
+toRektRow :: RecommendationData -> LookupTable -> LookupTable -> Maybe RektRow
+toRektRow (RekT c i (P p)) = trr' c i p
+toRektRow (RekP c pat (P p)) = trr' c pat p
+
+trr' :: Show a => Call -> a -> Rational -> LookupTable -> LookupTable
+     -> Maybe RektRow
+trr' (show -> c) (deCamelCase -> str) (fromRational . (/ 100) -> p) cLk iLk =
+   RR' p <$> Map.lookup c cLk <*> Map.lookup str iLk
+
+{--
+>>> withConnection ECOIN (\conn -> lookupTable conn "call_lk" >>= \cLk -> 
+          lookupTableFrom conn "select indicator_id,indicator FROM indicator_lk"
+                                 >>= \iLk -> 
+          print $ toRektRow (RekT BUY SimpleMovingAverage (P 44)) cLk iLk)
+Just (RR' 0.44 1 7)
+
+>>> withConnection ECOIN (\conn -> lookupTable conn "call_lk" >>= \cLk -> 
+          lookupTableFrom conn "select indicator_id,indicator FROM indicator_lk"
+                                 >>= \iLk -> 
+          print $ toRektRow (RekP SELL AbandonedBaby (P 32)) cLk iLk)
+Just (RR' 0.32 2 4)
+
+... converting the other way will be ... 'fun.'
+--}
+
+instance ToRow RektRow where
+   toRow (RR' d call ind) =
       [toField call, toField ind, toField d]
 
-toRekt :: Show ind => Idx -> Day -> LookupTable -> LookupTable -> Call -> ind
-                   -> Percentage -> Maybe Recommendation
-toRekt coinId day callLk indLk call ind p =
-   IxRow coinId day <$>
-         (Rekt <$> Map.lookup (show call) callLk
-               <*> Map.lookup (deCamelCase ind) indLk
-               <*> Just p)
-
 deCamelCase :: Show a => a -> String
-deCamelCase = intercalate " " . flip dcc' emptyDL . show
-
-dcc' :: String -> DList String -> [String]
-dcc' "" ans = dlToList ans
-dcc' (h:t) acc =
-   let (w1,w2) = break isUpper t
-   in  dcc' w2 (acc <| (h:w1))
+deCamelCase = unwords . groupBy (curry $ isLower . snd) . show
 
 {--
 >>> deCamelCase SimpleMovingAverage 
