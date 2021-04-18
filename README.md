@@ -58,7 +58,6 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* update which coins are tracked, daily.
 * offer recommendations on e-coins from price trends
   * record recommendations: recommendation (call), why, ecoin, day
 
@@ -100,6 +99,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-04-18: Automated uploading which coins we are tracking from CSV files.
 * 2021-04-13: Finished On Balance Volume; switched to list-monad for
 trend-processing; saving today's trends to the data-store.
 
