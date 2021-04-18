@@ -1,8 +1,8 @@
 coin,symbol,cmc_id
 Bitcoin,BTC
 Bitcoin Cash,BCH
-Etherium,ETH
-Etherium Classic,ETC
+Ethereum,ETH
+Ethereum Classic,ETC
 Litecoin,LTC
 Ox,ZRX
 USD Coin,USDC
@@ -25,6 +25,7 @@ Dash,DASH
 Cosmos,ATOM
 Orchid,OXT
 Compound,COMP
+Enjin Coin,ENJ
 Band Protocol,BAND
 Numeraire,NMR
 Celo,CGLD
@@ -48,3 +49,6 @@ SKALE,SKL
 Cardano,ADA
 Ankr,ANKR
 Curve DAO Token,CRV
+NKN,NKN
+Origin Token,OGN
+1inch,1INCH

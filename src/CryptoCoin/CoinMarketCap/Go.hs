@@ -22,6 +22,7 @@ import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 import CryptoCoin.CoinMarketCap.ETL.JSONFile (extractListings)
 import CryptoCoin.CoinMarketCap.ETL.NewCoinLoader (processFiles, newCoins)
 import CryptoCoin.CoinMarketCap.ETL.SourceFileLoader (uploadFiles)
+import CryptoCoin.CoinMarketCap.ETL.TrackedCoinLoader (uploadTrackedCoinsFromCSVs)
 import CryptoCoin.CoinMarketCap.ETL.Candlesticks.Loader (downloadCandlesticks)
 import CryptoCoin.CoinMarketCap.ETL.Candlesticks.Transformer (processAllCandlesticks)
 
@@ -60,6 +61,7 @@ withECoinReport :: Proc -> IO ()
 withECoinReport proc =
    today                                   >>= \tday ->
    withConnection ECOIN                       (\conn ->
+      uploadTrackedCoinsFromCSVs conn      >>
       lookupTable conn "source_type_lk"    >>= \srcLk ->
       lookupTable conn "currency_lk"       >>= \currLk ->
       trackedCoins conn                    >>= \trackeds ->

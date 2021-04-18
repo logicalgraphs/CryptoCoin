@@ -1,3 +1,5 @@
+{-# LANGUAGE ViewPatterns #-}
+
 module CryptoCoin.CoinMarketCap.Utils where
 
 import Data.List (isSuffixOf)
@@ -21,3 +23,14 @@ filesAtDir suffies dir = filter (suffixes suffies) <$> listDirectory dir
 >>> getEnv "COIN_MARKET_CAP_DIR" >>= filesAtDir [".csv"] . (++ "/ETL")
 ["coins_traded_on_binance.csv","coins_traded_on_coinbase.csv"]
 --}
+
+-- I do this often enough now, so:
+
+report :: Int -> String -> IO a -> IO ()
+report (indent -> ind) msg a = ind msg >> a >> ind "...done"
+
+indent :: Int -> String -> IO ()
+indent i = putStrLn . (replicate i ' ' ++)
+
+fake :: Int -> String -> IO a -> IO ()
+fake (indent -> ind) msg _ = ind ("FAKING: " ++ msg)

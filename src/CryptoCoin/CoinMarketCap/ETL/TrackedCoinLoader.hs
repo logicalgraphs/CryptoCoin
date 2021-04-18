@@ -1,12 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TupleSections     #-}
 
 module CryptoCoin.CoinMarketCap.ETL.TrackedCoinLoader where
 
--- converts a CSV (name,symbol) to a coin to track
--- (because we can buy these coins from binance or coinbase)
+{--
+Okay, rewrite:
 
--- This is more of an occasional thing, I think.
+* We need to load what we have in tracked coins data table.
+* We need to load the infos from csv files
+* diff
+* update.
+* integrate into Go.go.
+
+That's what we need to do.
+--}
 
 import Control.Arrow ((&&&))
 
@@ -19,80 +25,153 @@ import qualified Data.Map as Map
 
 import Data.Maybe (mapMaybe)
 
+import Data.Set (Set)
+import qualified Data.Set as Set
+
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromRow
-import Database.PostgreSQL.Simple.Types
+import Database.PostgreSQL.Simple.Types (Query(Query))
 
 import System.Environment (getEnv)
 
-import Control.Scan.CSV (rend)
+import Control.Logic.Frege ((<<-))
+import Control.Scan.CSV (csv)
 
-import CryptoCoin.CoinMarketCap.Utils (filesAtDir)
+import CryptoCoin.CoinMarketCap.Utils (filesAtDir, report)
 
 import Data.CryptoCurrency.Types (Idx)
+import Data.LookupTable (LookupTable)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
-import Store.SQL.Util.LookupTable (lookupTable)
-import Store.SQL.Util.Pivots
+import Store.SQL.Util.LookupTable (lookupTable, lookupTableFrom)
+import Store.SQL.Util.Pivots (Pivot(Pvt))
 
 -- okay, we have a very special lookup table: this lookup table has two-valued
 -- lookups: name,symbol that yields the cmc_id. This is from the coin-table
 
-coinLookupQuery :: Query
-coinLookupQuery = "SELECT name,symbol,cmc_id FROM coin"
+coinLookupQuery :: Idx -> Query
+coinLookupQuery kind = Query . B.pack $ unwords [
+   "SELECT c.cmc_id,c.symbol FROM coin c",
+   "INNER JOIN j_tracked_coin_tracked_type j ON c.cmc_id=j.tracked_coin_id",
+   "WHERE j.tracked_type_id=", show kind]
 
-data CoinName = CN String String Idx
+coinLookup :: Connection -> Idx -> IO LookupTable
+coinLookup conn = lookupTableFrom conn . coinLookupQuery
 
-instance FromRow CoinName where
-   fromRow = CN <$> field <*> field <*> field
+{--
+>>> withConnection ECOIN (\conn -> lookupTable conn "tracked_type_lk"        >>=
+                                   coinLookup conn . flip (Map.!) "COINBASE" >>=
+                                   mapM_ print . Map.toList)
+("AAVE",7278)
+("ADA",2010)
+("ALGO",4030)
+("ANKR",3783)
+("ATOM",3794)
+("BAL",5728)
+("BAND",4679)
+("BAT",1697)
+("BCH",1831)
+("BTC",1)
+...
 
-type NameSym = (String, String)
+>>> withConnection ECOIN (\conn -> lookupTable conn "tracked_type_lk"        >>=
+                                   coinLookup conn . flip (Map.!) "BINANCE"  >>=
+                                   mapM_ print . Map.toList)
+("ADA",2010)
+("ALGO",4030)
+("ATOM",3794)
+("BAND",4679)
+("BAT",1697)
+("BCH",1831)
+("BTC",1)
+...
+--}
 
-toPair :: CoinName -> (NameSym, Integer)
-toPair (CN n s i) = ((n, s), i)
+-- Okay, now load in a CSV file
 
-type CoinLookup = Map NameSym Integer
+loadTrackedCoins :: FilePath -> IO (Set String)
+loadTrackedCoins file =
+   Set.fromList . map (last . csv) . tail . lines <$> readFile file
 
-coinLookup :: Connection -> IO CoinLookup
-coinLookup conn =
-   Map.fromList . map toPair <$> query_ conn coinLookupQuery
+{--
+>>> dir <- (++ "/data-files/tracked-coins") <$> getEnv "CRYPTOCOIN_DIR"
+>>> loadTrackedCoins (dir ++ "/binance.csv")
+fromList ["ADA","ALGO","ATOM","BAND","BAT","BCH","BNB","BTC",...]
 
--- So, from a file, we need to parse the (name, symbol) CSV then upload
--- it based on its type (BINANCE or COINBASE, at present)
+The coins that are the difference one way are the newly tracked coins.
+--}
 
 insertTrackedCoinsQuery :: Query
 insertTrackedCoinsQuery = Query . B.pack $
    unwords ["INSERT INTO j_tracked_coin_tracked_type",
             "(tracked_coin_id, tracked_type_id) VALUES (?, ?)"]
 
-uploadCoinCSV :: FilePath -> Connection -> String -> IO ()
-uploadCoinCSV file conn typ =
-   lookupTable conn "tracked_type_lk" >>= \types ->
-   coinLookup conn                    >>= \coins ->
-   coinIds coins <$> readFile file    >>= \idxs  ->
-   executeMany conn insertTrackedCoinsQuery
-               (map (uncurry Pvt . (,types Map.! typ)) idxs)  >>
-   putStrLn (unwords ["Insert",show (length idxs),"tracked coins."])
-      where coinIds coins =
-               mapMaybe (flip Map.lookup coins . toNameSym . rend ',') . lines
-            toNameSym = head &&& last
+diff :: Set String -> Set String -> [String]
+diff = Set.toList <<- Set.difference
 
-ucc :: FilePath -> Connection -> IO ()
-ucc dir conn = filesAtDir [".csv"] dir >>= mapM_ uploader 
-   where uploader file = uploadCoinCSV (dir ++ ('/':file)) conn (typeFrom file)
-         typeFrom = map toUpper . fst . break (== '.')
+addTrackedCoins :: Connection -> Idx -> LookupTable -> [String] -> IO ()
+addTrackedCoins _ _ _ [] = putStrLn "Tracking no new coins."
+addTrackedCoins conn exchId allCoinz syms =
+   let newIds = mapMaybe (flip Map.lookup allCoinz) syms  -- *
+       ids = zipWith Pvt newIds (repeat exchId)
+   in  report 2 ("Adding new tracked coins: " ++ show syms) $
+              executeMany conn insertTrackedCoinsQuery ids
 
-go :: IO ()
-go =
-   getEnv "CRYPTOCOIN_DIR"                   >>= \cmcd ->
-   let dir = cmcd ++ "/data-files/trackedCoins" in
-   withConnection ECOIN (ucc dir)
+-- * We're going to pretend, for now, that there is one symbol per coin, smh.
+
+-- the coins that are the difference the other way are the coins removed from
+-- being tracked
+
+deleteTrackedCoinsQuery :: Query
+deleteTrackedCoinsQuery = Query . B.pack $ unwords [
+   "DELETE FROM j_tracked_coin_tracked_type",
+   "WHERE tracked_coin_id IN ? AND tracked_type_id=?"]
+
+deleteTrackedCoins :: Connection -> Idx -> LookupTable -> [String] -> IO ()
+deleteTrackedCoins _ _ _ [] = putStrLn "Not untracking any coins."
+deleteTrackedCoins conn exchId dbktz deletes =
+   let ids = mapMaybe (flip Map.lookup dbktz) deletes
+   in  report 2 ("Removing coins from being tracked: " ++ show deletes) $
+       execute conn deleteTrackedCoinsQuery (In ids, exchId)
+
+-- so, now we have all the pieces. Let's assemble them.
+
+allCoinsQuery :: Query
+allCoinsQuery = "SELECT cmc_id,symbol FROM coin"
+
+allCoins :: Connection -> IO LookupTable
+allCoins = flip lookupTableFrom allCoinsQuery
 
 {--
->>> cmcDir <- getEnv "COIN_MARKET_CAP_DIR"
->>> go (cmcDir ++ "/ETL/coins_traded_on_binance.csv") "BINANCE"
-Insert 32 tracked coins.
-
->>> go (cmcDir ++ "/ETL/coins_traded_on_coinbase.csv") "COINBASE"
-Insert 40 tracked coins.
+>>> withConnection ECOIN (\conn -> allCoins conn >>=
+                                   mapM_ print . take 5 . Map.toList)
+("$ANRX",8057)
+("$BASED",6570)
+("$COIN",7796)
+("$KING",7569)
+("$NOOB",7646)
 --}
+
+uploadCoinCSV :: LookupTable -> FilePath -> FilePath -> Connection -> Idx
+              -> IO ()
+uploadCoinCSV allCoins dir file conn typ =
+   let fileName = dir ++ ('/':file) in
+   loadTrackedCoins fileName                            >>= \fileCoins ->
+   coinLookup conn typ                                  >>= \dbCoins   ->
+   let mksDbCoins = Map.keysSet dbCoins in
+   putStrLn ("For " ++ file ++ ":")                              >>
+   addTrackedCoins conn typ allCoins (diff fileCoins mksDbCoins) >>
+   deleteTrackedCoins conn typ dbCoins (diff mksDbCoins fileCoins)
+
+uploadTrackedCoinsFromCSVs :: Connection -> IO ()
+uploadTrackedCoinsFromCSVs conn =
+   getEnv "CRYPTOCOIN_DIR"            >>= \cryptDir ->
+   allCoins conn                      >>= \allCoinz ->
+   lookupTable conn "tracked_type_lk" >>= \types ->
+   let dir = cryptDir ++ "/data-files/tracked-coins"
+       uploader file = uploadCoinCSV allCoinz dir file conn (typeFrom file)
+       typeFrom f = types Map.! map toUpper (fst (break (== '.') f))
+   in  filesAtDir [".csv"] dir >>= mapM_ uploader
+
+go :: IO ()
+go = withConnection ECOIN uploadTrackedCoinsFromCSVs
