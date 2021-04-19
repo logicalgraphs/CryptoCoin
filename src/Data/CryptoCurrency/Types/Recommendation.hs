@@ -31,7 +31,7 @@ data Indicator = SimpleMovingAverage
    deriving (Eq, Ord, Show)
 
 data Pattern = ThreeWhiteKnights
-             | ThreeLineStrikes
+             | ThreeLineStrike
              | ThreeBlackCrows
              | AbandonedBaby
              | TwoBlackGapping
@@ -74,6 +74,7 @@ instance ToRow RektRow where
 
 deCamelCase :: Show a => a -> String
 deCamelCase = unwords . groupBy (curry $ isLower . snd) . show
+   -- via p h z @phaazon_
 
 {--
 >>> deCamelCase SimpleMovingAverage 

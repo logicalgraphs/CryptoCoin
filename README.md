@@ -70,6 +70,9 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
   * Evening Star
 
 * offer recommendations on e-coins from candlesticks
+
+* create a spot-check that runs the numbers on any arbitrary yahoo-symbol
+
 * build predictive model based off of recommendations
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
   * map FCAS coin uuids to cmc_ids

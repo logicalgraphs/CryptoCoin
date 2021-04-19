@@ -41,7 +41,7 @@ type Patterns = Map Pattern (Signal, Rec')
 
 patterns :: Patterns
 patterns = Map.fromList [
-   (ThreeLineStrikes,  (undef, Rec BUY $ P 83)),
+   (ThreeLineStrike,  (undef, Rec BUY $ P 83)),
    (TwoBlackGapping,   (undef, Rec SELL $ P 68)),
    (ThreeBlackCrows,   (undef, Rec SELL $ P 78)),
    (EveningStar,       (undef, Rec BUY $ P 72)),  -- really?
@@ -54,7 +54,10 @@ runPatterns ctx = map (second snd) . filter (run ctx . fst . snd) . Map.toList
 
 candlesAll :: Connection -> LookupTable -> IO ()
 candlesAll conn trackedCoins =
-   putStrLn "Running candlestick patterns.\n" >>
+   let sl :: Foldable f => f a -> String
+       sl = show . length in
+   putStrLn ("Running " ++ sl patterns ++ " candlestick patterns for "
+          ++ sl trackedCoins ++ " tracked coins.") >>
    mapM_ (liftM print . sequence . (id &&& doIt conn . snd))
          (Map.toList trackedCoins)
       where doIt conn cmc = flip runPatterns patterns <$> candlesFor conn cmc
