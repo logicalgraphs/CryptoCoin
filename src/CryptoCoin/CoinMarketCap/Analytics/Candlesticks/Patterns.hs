@@ -1,3 +1,6 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections     #-}
+
 module CryptoCoin.CoinMarketCap.Analytics.Candlesticks.Patterns where
 
 {--
@@ -13,11 +16,14 @@ import qualified Data.ByteString.Char8 as B
 import Data.Map (Map)
 import qualified Data.Map as Map
 
+import Data.Time (Day)
+
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.Types
 
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeWhiteKnights (threeWhiteKnights)
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
+import CryptoCoin.CoinMarketCap.Utils (pass)
 
 import Data.CryptoCurrency.Types
 import Data.CryptoCurrency.Types.OCHLV
@@ -27,7 +33,10 @@ import Data.LookupTable (LookupTable)
 
 import Data.Percentage
 
+import Data.Time.TimeSeries (today)
+
 import Store.SQL.Connection (withConnection, Database(ECOIN))
+import Store.SQL.Util.LookupTable (lookupTable, lookupTableFrom)
 
 type Signal = [OCHLV] -> Bool
 
@@ -41,26 +50,43 @@ type Patterns = Map Pattern (Signal, Rec')
 
 patterns :: Patterns
 patterns = Map.fromList [
-   (ThreeLineStrike,  (undef, Rec BUY $ P 83)),
-   (TwoBlackGapping,   (undef, Rec SELL $ P 68)),
-   (ThreeBlackCrows,   (undef, Rec SELL $ P 78)),
-   (EveningStar,       (undef, Rec BUY $ P 72)),  -- really?
-   (AbandonedBaby,     (undef, Rec SELL $ P 50)), -- dunno
-   (ThreeWhiteKnights, (threeWhiteKnights, Rec BUY $ P 91))]
+   (ThreeLineStrike,  (undef, Rec BUY $ P 0.83)),
+   (TwoBlackGapping,   (undef, Rec SELL $ P 0.68)),
+   (ThreeBlackCrows,   (undef, Rec SELL $ P 0.78)),
+   (EveningStar,       (undef, Rec BUY $ P 0.72)),  -- really?
+   (AbandonedBaby,     (undef, Rec SELL $ P 0.50)), -- dunno
+   (ThreeWhiteKnights, (threeWhiteKnights, Rec BUY $ P 0.91))]
 
 runPatterns :: [OCHLV] -> Patterns -> [(Pattern, Rec')]
 runPatterns ctx = map (second snd) . filter (run ctx . fst . snd) . Map.toList
    where run = flip ($)
 
-candlesAll :: Connection -> LookupTable -> IO ()
+candlesAll :: Connection -> LookupTable -> IO [(Idx, (Pattern, Rec'))]
 candlesAll conn trackedCoins =
    let sl :: Foldable f => f a -> String
        sl = show . length in
    putStrLn ("Running " ++ sl patterns ++ " candlestick patterns for "
           ++ sl trackedCoins ++ " tracked coins.") >>
-   mapM_ (liftM print . sequence . (id &&& doIt conn . snd))
-         (Map.toList trackedCoins)
+   mapM (sequence' . (id &&& doIt conn)) (Map.elems trackedCoins) >>=
+   printP . concat
       where doIt conn cmc = flip runPatterns patterns <$> candlesFor conn cmc
+            printP x = mapM_ print x >> return x
+            sequence' (idx, mlist) = mlist >>= return . sequence . (idx,)
+
+toRec :: Day -> (Idx, (Pattern, Rec')) -> Recommendation
+toRec d (i, (pat, (Rec c p))) = IxRow i d (Rekt c (Pat pat) (Just p))
+
+computeAndStoreCandlestickRecommendations ::
+   Connection -> Day -> LookupTable -> LookupTable -> LookupTable -> IO ()
+computeAndStoreCandlestickRecommendations conn tday trackedCoins callLk indLk =
+   candlesAll conn trackedCoins >>=
+   insertRecommendations conn callLk indLk . map (toRec tday)
 
 go :: IO ()
-go = withConnection ECOIN (\conn -> trackedCoins conn >>= candlesAll conn)
+go = today >>= \tday ->
+   let indQuery = "SELECT indicator_id,indicator FROM indicator_lk" in
+   withConnection ECOIN (\conn ->
+      trackedCoins conn             >>= \tcs ->
+      lookupTable conn "call_lk"    >>= \callLk ->
+      lookupTableFrom conn indQuery >>=
+      computeAndStoreCandlestickRecommendations conn tday tcs callLk)
