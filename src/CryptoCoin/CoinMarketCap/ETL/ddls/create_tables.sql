@@ -1,4 +1,4 @@
--- TABLES --------------------------------------------------------------------------
+-- TABLES ---------------------------------------------------------------------
 
 CREATE TABLE "coin_market_cap_daily_listing" (
 	"cmc_daily_listing_id" serial NOT NULL,
@@ -126,14 +126,20 @@ VALUES (1, 'RANKING'), (2, 'LISTING'), (3, 'FCAS'), (4, 'CANDLESTICKS');
 CREATE TABLE "tracked_type_lk" (
 	"tracked_type_id" serial NOT NULL,
 	"tracked_type" TEXT NOT NULL,
+	"url" TEXT NULL,
 	CONSTRAINT "tracked_type_lk_pk" PRIMARY KEY ("tracked_type_id")
 ) WITH (
   OIDS=FALSE
 );
 
-INSERT INTO tracked_type_lk (tracked_type_id, tracked_type)
-VALUES (1, 'NEW'), (2, 'COINBASE'), (3, 'BINANCE'), (4, 'RANK_VARIANCE'),
-       (5, 'PRICE_VARIANCE'), (6, 'MENTIONED_IN_NEWS');
+INSERT INTO tracked_type_lk (tracked_type_id, tracked_type, url)
+VALUES (1, 'NEW', null),
+       (2, 'COINBASE', 'https://www.coinbase.com'), 
+       (3, 'BINANCE', 'https://www.binance.us/en/home'),
+       (4, 'PHEMEX', 'https://phemex.com/'),
+       (5, 'RANK_VARIANCE', null),
+       (6, 'PRICE_VARIANCE', null), 
+       (7, 'MENTIONED_IN_NEWS', null);
 
 CREATE TABLE "j_tracked_coin_tracked_type" (
 	"jtctt_id" serial NOT NULL,
@@ -263,21 +269,37 @@ VALUES (1, 'BUY'), (2, 'SELL');
 CREATE TABLE "indicator_lk" (
 	"indicator_id" serial NOT NULL,
 	"indicator" TEXT NOT NULL,
+	"tla" TEXT NOT NULL,
+	"url" TEXT NOT NULL,
 	"basis_id" bigint NOT NULL,
 	CONSTRAINT "indicator_lk_pk" PRIMARY KEY ("indicator_id")
 ) WITH (
   OIDS=FALSE
 );
 
-insert into indicator_lk (indicator_id, indicator, basis_id)
-VALUES (1, 'Three White Knights', 1), (2, 'Three Black Crows', 1),
-       (3, 'Three Line Strikes', 1), (4, 'Abandoned Baby', 1),
-       (5, 'Two Black Gapping', 1), (6, 'Evening Star', 1),
-       (7, 'Simple Moving Average', 2), (8, 'Exponential Moving Average', 2),
-       (9, 'Moving Average Convergence/Divergence', 2),
-       (10, 'On Balance Volume', 3), (11, 'Relative Strength Index', 2);
-
-
+insert into indicator_lk (indicator_id, indicator, tla, url, basis_id)
+VALUES (1, 'Three White Knights', 'TWK',
+        'https://www.investopedia.com/terms/t/three_white_soldiers.asp', 1),
+       (2, 'Three Black Crows', 'TBC',
+        'https://www.investopedia.com/terms/t/three_black_crows.asp', 1),
+       (3, 'Three Line Strikes', 'TLS',
+        'https://www.investopedia.com/articles/active-trading/092315/5-most-powerful-candlestick-patterns.asp#three-line-strike', 1),
+       (4, 'Abandoned Baby', 'AB',
+        'https://www.investopedia.com/terms/b/bullish-abandoned-baby.asp', 1),
+       (5, 'Two Black Gapping', 'TBG',
+        'https://www.investopedia.com/articles/active-trading/092315/5-most-powerful-candlestick-patterns.asp#two-black-gapping', 1),
+       (6, 'Evening Star', 'ES',
+        'https://www.investopedia.com/articles/active-trading/092315/5-most-powerful-candlestick-patterns.asp#evening-star', 1),
+       (7, 'Simple Moving Average', 'SMA',
+        'https://www.investopedia.com/terms/s/sma.asp', 2), 
+       (8, 'Exponential Moving Average', 'EMA',
+        'https://www.investopedia.com/terms/e/ema.asp', 2),
+       (9, 'Moving Average Convergence/Divergence', 'MACD',
+        'https://www.investopedia.com/terms/m/macd.asp', 2),
+       (10, 'On Balance Volume', 'OBV',
+        'https://www.investopedia.com/terms/o/onbalancevolume.asp', 3), 
+       (11, 'Relative Strength Index', 'RSA',
+        'https://www.investopedia.com/terms/r/rsi.asp', 2);
 
 CREATE TABLE "basis_lk" (
 	"basis_id" serial NOT NULL,
