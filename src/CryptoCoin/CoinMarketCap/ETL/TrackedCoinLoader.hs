@@ -59,9 +59,11 @@ coinLookup :: Connection -> Idx -> IO LookupTable
 coinLookup conn = lookupTableFrom conn . coinLookupQuery
 
 {--
->>> withConnection ECOIN (\conn -> lookupTable conn "tracked_type_lk"        >>=
-                                   coinLookup conn . flip (Map.!) "COINBASE" >>=
-                                   mapM_ print . Map.toList)
+>>> :set -XOverloadedStrings 
+>>> withConnection ECOIN (\conn ->
+            lookupTableFrom conn trackedCoinsQuery         >>=
+                 coinLookup conn . flip (Map.!) "COINBASE" >>=
+                 mapM_ print . Map.toList)
 ("AAVE",7278)
 ("ADA",2010)
 ("ALGO",4030)
@@ -74,9 +76,10 @@ coinLookup conn = lookupTableFrom conn . coinLookupQuery
 ("BTC",1)
 ...
 
->>> withConnection ECOIN (\conn -> lookupTable conn "tracked_type_lk"        >>=
-                                   coinLookup conn . flip (Map.!) "BINANCE"  >>=
-                                   mapM_ print . Map.toList)
+>>> withConnection ECOIN (\conn ->
+            lookupTableFrom conn trackedCoinsQuery        >>=
+                 coinLookup conn . flip (Map.!) "BINANCE" >>=
+                 mapM_ print . Map.toList)
 ("ADA",2010)
 ("ALGO",4030)
 ("ATOM",3794)
@@ -163,11 +166,14 @@ uploadCoinCSV allCoins dir file conn typ =
    addTrackedCoins conn typ allCoins (diff fileCoins mksDbCoins) >>
    deleteTrackedCoins conn typ dbCoins (diff mksDbCoins fileCoins)
 
+trackedCoinsQuery :: Query
+trackedCoinsQuery = "SELECT tracked_type_id, tracked_type FROM tracked_type_lk"
+
 uploadTrackedCoinsFromCSVs :: Connection -> IO ()
 uploadTrackedCoinsFromCSVs conn =
-   getEnv "CRYPTOCOIN_DIR"            >>= \cryptDir ->
-   allCoins conn                      >>= \allCoinz ->
-   lookupTable conn "tracked_type_lk" >>= \types ->
+   getEnv "CRYPTOCOIN_DIR"                >>= \cryptDir ->
+   allCoins conn                          >>= \allCoinz ->
+   lookupTableFrom conn trackedCoinsQuery >>= \types ->
    let dir = cryptDir ++ "/data-files/tracked-coins"
        uploader file = uploadCoinCSV allCoinz dir file conn (typeFrom file)
        typeFrom f = types Map.! map toUpper (fst (break (== '.') f))
