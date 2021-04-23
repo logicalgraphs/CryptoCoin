@@ -94,14 +94,14 @@ fetchCoinsInfos conn date coins =
 >>> today >>= \tday ->
     withConnection ECOIN (\conn -> 
         fetchCoinsInfos conn tday exCoins >>= mapM_ print . Map.toList)
-(1376,IxRow 1376 2021-04-21 (CoinRow "NEO" "Neo" $102.82 21))
-(1437,IxRow 1437 2021-04-21 (CoinRow "ZEC" "Zcash" $238.92 49))
-(1567,IxRow 1567 2021-04-21 (CoinRow "NANO" "Nano" $8.88 82))
-(1772,IxRow 1772 2021-04-21 (CoinRow "STORJ" "Storj" $1.96 121))
-(1856,IxRow 1856 2021-04-21 (CoinRow "DNT" "district0x" $0.32 267))
-(1966,IxRow 1966 2021-04-21 (CoinRow "MANA" "Decentraland" $1.36 57))
-(2099,IxRow 2099 2021-04-21 (CoinRow "ICX" "ICON" $2.22 79))
-(3783,IxRow 3783 2021-04-21 (CoinRow "ANKR" "Ankr" $0.15 91))
+(1376,IxRow 1376 2021-04-22 (CoinRow "NEO" "Neo" "neo" $101.52 21))
+(1437,IxRow 1437 2021-04-22 (CoinRow "ZEC" "Zcash" "zcash" $243.95 50))
+(1567,IxRow 1567 2021-04-22 (CoinRow "NANO" "Nano" "nano" $8.73 84))
+(1772,IxRow 1772 2021-04-22 (CoinRow "STORJ" "Storj" "storj" $1.86 122))
+(1856,IxRow 1856 2021-04-22 (CoinRow "DNT" "district0x" "district0x" $0.31 275))
+(1966,IxRow 1966 2021-04-22 (CoinRow "MANA" "Decentraland" "decentraland" $1.39 56))
+(2099,IxRow 2099 2021-04-22 (CoinRow "ICX" "ICON" "icon" $2.18 80))
+(3783,IxRow 3783 2021-04-22 (CoinRow "ANKR" "Ankr" "ankr" $0.14 93))
 --}
 
 coinExchangesQuery :: Query
@@ -290,3 +290,5 @@ go :: IO ()
 go = today >>= \tday ->
      withConnection ECOIN (\conn -> 
         collateRecommendations conn tday >>= table thdr . sortOn rank)
+
+-- a sample output is at this directory: sample-recommendations.html
