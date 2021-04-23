@@ -102,6 +102,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-04-23: We can now run recommendation reports (RRR or R3 or Triple-R)
 * 2021-04-18: Automated uploading which coins we are tracking from CSV files.
 * 2021-04-13: Finished On Balance Volume; switched to list-monad for
 trend-processing; saving today's trends to the data-store.
