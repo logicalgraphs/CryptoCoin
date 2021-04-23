@@ -59,8 +59,9 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 ## TODOs:
 
 * represent coins-as-graph
-* offer recommendations on e-coins from price trends
-  * record recommendations: recommendation (call), why, ecoin, day
+
+* create a separate program that runs a report of recommendations, call it
+  Triple-R, lol.
 
 * complete candlestick computations
   * Three Black Crows
@@ -68,8 +69,6 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
   * Abandoned Baby
   * Two Black Gapping
   * Evening Star
-
-* offer recommendations on e-coins from candlesticks
 
 * create a spot-check that runs the numbers on any arbitrary yahoo-symbol
 
