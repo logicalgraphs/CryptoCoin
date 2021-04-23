@@ -9,7 +9,7 @@ import qualified Data.Map as Map
 
 import Data.Maybe (mapMaybe)
 
-import Data.Time
+import Data.Time (Day)
 
 import CryptoCoin.CoinMarketCap.Types hiding (idx)
 import CryptoCoin.CoinMarketCap.Types.Quote
@@ -45,10 +45,13 @@ ci2tr c@(CoinInfo _i name sym slug rank _date) pr ch =
 
 link :: CoinInfo -> Content
 link (CoinInfo _i name _sym slug _rank _date) =
-   a (coinmarketcapcoinlink slug) name
+   E $ linq slug name
 
-a :: String -> String -> Content
-a href = E . Elt "a" [Attrib "href" href] . return . S
+linq :: String -> String -> Element
+linq slug name = a (coinmarketcapcoinlink slug) name
+
+a :: String -> String -> Element
+a href = Elt "a" [Attrib "href" href] . return . S
    
 coinmarketcaphref :: String
 coinmarketcaphref = "https://coinmarketcap.com"
@@ -59,15 +62,17 @@ coinmarketcapcoinlink = ((coinmarketcaphref ++ "/currencies/") ++) . (++ "/")
 header :: Day -> IO ()
 header (take 10 . show -> date) =
    printContent (p [S (unwords ["The top-10 e-coins for",date,"(ranked by"]),
-                    a coinmarketcaphref "coinmarketcap.com",
+                    E $ a coinmarketcaphref "coinmarketcap.com",
                     S ") are:"]) 0
+
+table :: Rasa r => [String] -> [r] -> IO ()
+table hdrs =
+   flip printContent 3 . E
+      . tabulate [Attrib "border" "1"] [thdrs hdrs]
 
 report :: MetaData -> [ECoin] -> IO ()
 report md =
-   flip printContent 3 . E
-      . tabulate [Attrib "border" "1"]
-                 [thdrs (words "Name Symbol Rank Price %Change Basis")]
-      . mapMaybe (ec2cc md)
+   table (words "Name Symbol Rank Price %Change Basis") . mapMaybe (ec2cc md)
 
 p :: [Content] -> Content
 p = E . Elt "p" []

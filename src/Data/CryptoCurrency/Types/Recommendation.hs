@@ -4,37 +4,48 @@ module Data.CryptoCurrency.Types.Recommendation where
 
 -- Houses recommendations
 
+import Control.Monad (join)
+
 import qualified Data.ByteString.Char8 as B
 import Data.Char (isLower)
 import Data.List (groupBy)
 import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
-import Data.Time (Day)
+import Data.Time (Day, addDays)
 
-import Database.PostgreSQL.Simple (Connection, executeMany)
+import Database.PostgreSQL.Simple (Connection, executeMany, query_)
 import Database.PostgreSQL.Simple.ToRow
 import Database.PostgreSQL.Simple.ToField
+import Database.PostgreSQL.Simple.FromRow
 import Database.PostgreSQL.Simple.Types (Query(Query))
 
+import Control.Scan.CSV (readMaybe)
+
 import Data.CryptoCurrency.Types
+import Data.CryptoCurrency.Types.Recommendation.Internal
+
 import Data.LookupTable (LookupTable)
 import Data.Percentage
+import Data.Time.TimeSeries (today)
+
+import Store.SQL.Connection (withConnection, Database(ECOIN))
 
 data Call = BUY | SELL
-   deriving (Eq, Ord, Show)
+   deriving (Eq, Ord, Show, Read)
 
 data Source = Pat Pattern | Ind Indicator
    deriving (Eq, Ord, Show)
 
-data RecommendationData = Rekt Call Source (Maybe Percentage)
-   deriving (Eq, Ord, Show)
+data RecommendationData =
+   Rekt { call :: Call, source :: Source, confidence :: Maybe Percentage }
+      deriving (Eq, Ord, Show)
 
 data Indicator = SimpleMovingAverage
                | ExponentialMovingAverage
                | MovingAverageConvergenceDivergence
                | RelativeStrengthIndex
                | OnBalanceVolume
-   deriving (Eq, Ord, Show)
+   deriving (Eq, Ord, Show, Read)
 
 data Pattern = ThreeWhiteKnights
              | ThreeLineStrike
@@ -42,12 +53,12 @@ data Pattern = ThreeWhiteKnights
              | AbandonedBaby
              | TwoBlackGapping
              | EveningStar
-   deriving (Eq, Ord, Show)
+   deriving (Eq, Ord, Show, Read)
+
+data Basis = CANDLESTICK | PRICE | VOLUME
+   deriving (Eq, Ord, Show, Read)
 
 type Recommendation = IxRow RecommendationData
-
-data RektRow = RR' (Maybe Double) Idx Idx
-   deriving (Eq, Ord, Show)
 
 toIxRektRow :: LookupTable -> LookupTable -> Recommendation
             -> Maybe (IxRow RektRow)
@@ -78,22 +89,13 @@ Just (RR' 0.32 2 4)
 ... converting the other way will be ... 'fun.'
 --}
 
-instance ToRow RektRow where
-   toRow (RR' d call ind) =
-      [toField call, toField ind, toField d]
-
 -- inserting a recommendation
-
-insertRektQuery :: Query
-insertRektQuery = Query . B.pack $ unwords [
-   "INSERT INTO recommendation (cmc_id, for_date, call_id, indicator_id,",
-   "confidence) VALUES (?, ?, ?, ?, ?)"]
 
 insertRecommendations :: Connection -> LookupTable -> LookupTable
                       -> [Recommendation] -> IO ()
-insertRecommendations conn callLk indLk recs =
-   putStrLn ("Inserting " ++ show (length recs) ++ " recommendations.")        >>
-   executeMany conn insertRektQuery (mapMaybe (toIxRektRow callLk indLk) recs) >>
+insertRecommendations conn callLk indLk rex =
+   putStrLn ("Inserting " ++ show (length rex) ++ " recommendations.")        >>
+   executeMany conn insertRektQuery (mapMaybe (toIxRektRow callLk indLk) rex) >>
    putStrLn "...done."
 
 dCamelCase' :: Source -> String
@@ -107,4 +109,45 @@ deCamelCase = unwords . groupBy (curry $ isLower . snd) . show
 {--
 >>> deCamelCase SimpleMovingAverage 
 "Simple Moving Average"
+--}
+
+-- Fetching Recommendation values from the database
+
+fetchRecommendations :: Connection -> Day -> IO [Recommendation]
+fetchRecommendations conn date =
+   mapMaybe toRecsRekts <$> query_ conn (fetchRektsQuery date)
+
+toRecsRekts :: IxRow RektReadRow -> Maybe Recommendation
+toRecsRekts (IxRow i d (RRR' mbprice cal ind bas)) =
+   IxRow i d <$> (Rekt <$> mbr cal <*> toSource ind bas
+             <*> Just (P . toRational <$> mbprice))
+      -- "Just maybe price" ... lol
+      where mbr = readMaybe
+
+toSource :: String -> String -> Maybe Source
+toSource ind bas = join $ readSource ind <$> readMaybe bas
+
+readSource :: String -> Basis -> Maybe Source
+readSource ind CANDLESTICK = Pat <$> readMaybe (smoosh ind)
+readSource ind _           = Ind <$> readMaybe (smoosh ind)
+
+{--
+>>> today >>= \tday -> withConnection ECOIN (\conn -> 
+            fetchRecommendations conn (addDays (-1) tday) >>= mapM_ print)
+IxRow 3783 2021-04-20 (Rekt BUY (Pat ThreeWhiteKnights) (Just 91.00%))
+IxRow 1856 2021-04-20 (Rekt BUY (Pat ThreeWhiteKnights) (Just 91.00%))
+IxRow 2099 2021-04-20 (Rekt BUY (Pat ThreeWhiteKnights) (Just 91.00%))
+IxRow 1966 2021-04-20 (Rekt BUY (Pat ThreeWhiteKnights) (Just 91.00%))
+IxRow 1567 2021-04-20 (Rekt BUY (Pat ThreeWhiteKnights) (Just 91.00%))
+IxRow 1376 2021-04-20 (Rekt BUY (Pat ThreeWhiteKnights) (Just 91.00%))
+IxRow 1772 2021-04-20 (Rekt BUY (Pat ThreeWhiteKnights) (Just 91.00%))
+IxRow 1437 2021-04-20 (Rekt BUY (Pat ThreeWhiteKnights) (Just 91.00%))
+--}
+
+smoosh :: String -> String
+smoosh = concat . words
+
+{--
+>>> smoosh "Simple Moving Averages"
+"SimpleMovingAverages"
 --}
