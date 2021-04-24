@@ -14,7 +14,7 @@ import Data.Time (Day)
 import CryptoCoin.CoinMarketCap.Types hiding (idx)
 import CryptoCoin.CoinMarketCap.Types.Quote
 
-import Data.CryptoCurrency.Types (Idx, rank, idx)
+import Data.CryptoCurrency.Types (Idx, rank, idx, Rank)
 
 import Data.Monetary.USD
 import Data.Percentage
@@ -24,11 +24,17 @@ import Data.XHTML hiding (P)
 data PriceCoin = PC { ecoin :: ECoin, price1 :: Double, delta :: Double }
    deriving (Eq, Ord, Show)
 
+instance Rank PriceCoin where
+   rank = rank . ecoin
+
 l2PC :: Listing -> Maybe PriceCoin
 l2PC l = quote l >>= \q -> PC (coin l) (price q) <$> percentChange24h q
 
 data ContextCoin = CC (Map Idx Listing) PriceCoin
    deriving (Eq, Ord, Show)
+
+instance Rank ContextCoin where
+   rank (CC _ pc) = rank pc
 
 ec2cc :: MetaData -> ECoin -> Maybe ContextCoin
 ec2cc (MetaData _ m) c = CC m <$> (Map.lookup (idx c) m >>= l2PC)
@@ -59,38 +65,46 @@ coinmarketcaphref = "https://coinmarketcap.com"
 coinmarketcapcoinlink :: String -> String
 coinmarketcapcoinlink = ((coinmarketcaphref ++ "/currencies/") ++) . (++ "/")
 
-header :: Day -> IO ()
-header (take 10 . show -> date) =
-   printContent (p [S (unwords ["The top-10 e-coins for",date,"(ranked by"]),
-                    E $ a coinmarketcaphref "coinmarketcap.com",
-                    S ") are:"]) 0
+top10 :: Day -> Content
+top10 (show -> date) =
+   p [S (unwords ["The top-10 e-coins for",date,"(ranked by"]),
+      E $ a coinmarketcaphref "coinmarketcap.com", S ") are:"]
 
 table :: Rasa r => [String] -> [r] -> IO ()
 table hdrs =
    flip printContent 3 . E
       . tabulate [Attrib "border" "1"] [thdrs hdrs]
 
-report :: MetaData -> [ECoin] -> IO ()
-report md =
-   table (words "Name Symbol Rank Price %Change Basis") . mapMaybe (ec2cc md)
+t' :: Rasa r => [r] -> [String] -> IO ()
+t' [] = const $ return ()
+t' rs@(_:_) = flip table rs
+
+report :: Rank r => Rasa r => String -> [String] -> [r] -> IO ()
+report typ hdrs razz =
+   let sz     = length razz
+       header = concat ["There",toBe sz,show sz," new ",typ,plural sz," today"]
+       ranked = sortOn rank razz
+   in  report' (header ++ punct sz) hdrs ranked
+
+report' :: Rank r => Rasa r => String -> [String] -> [r] -> IO ()
+report' msg hdrs razz = printContent (p [S msg]) 0 >> t' razz hdrs
+
+punct :: Int -> String
+punct sz | sz == 0 = "."
+         | otherwise = ":"
 
 p :: [Content] -> Content
 p = E . Elt "p" []
 
-newCoins :: MetaData -> NewCoins -> IO NewCoins
+newCoins :: MetaData -> NewCoins -> IO ()
 newCoins md ncs@(coins, tokens) =
-   newStuff md "coin" coins >> newStuff md "token" tokens >> return ncs
+   mapM_ (uncurry (newStuff md)) [("coin", coins), ("token", tokens)]
+
+coinHeaders :: [String]
+coinHeaders = words "Name Symbol Rank Price %Change Basis"
 
 newStuff :: MetaData -> String -> [ECoin] -> IO ()
-newStuff md typ = ns' md typ . id <*> length
-
-ns' :: MetaData -> String -> [ECoin] -> Int -> IO ()
-ns' _ _ _ 0 = return ()
-ns' md typ coins _ =
-   let sz     = length coins
-       header = concat ["There",toBe sz,show sz," new ",typ,plural sz," today:"]
-       ranked = sortOn rank coins
-   in  printContent (p [S header]) 0 >> report md ranked
+newStuff md typ = report typ coinHeaders . mapMaybe (ec2cc md)
 
 plural :: Int -> String
 plural 1 = ""

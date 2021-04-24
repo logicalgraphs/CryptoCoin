@@ -13,7 +13,6 @@ import Control.Arrow ((&&&))
 
 import qualified Data.ByteString.Char8 as B
 import Data.Foldable (toList)
-import Data.List (intercalate, sortOn)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
@@ -29,7 +28,7 @@ import Database.PostgreSQL.Simple.Types (Query(Query))
 import Control.List (weave)
 import Control.Map (snarf)
 
-import CryptoCoin.CoinMarketCap.Reports.Table (table, linq, a)
+import CryptoCoin.CoinMarketCap.Reports.Table (report, linq, a)
 
 import Data.LookupTable (LookupTable)
 import Data.Monetary.USD
@@ -289,6 +288,6 @@ tupII (II tla url) = (tla, url)
 go :: IO ()
 go = today >>= \tday ->
      withConnection ECOIN (\conn -> 
-        collateRecommendations conn tday >>= table thdr . sortOn rank)
+        collateRecommendations conn tday >>= report "recommendation" thdr)
 
 -- a sample output is at this directory: sample-recommendations.html

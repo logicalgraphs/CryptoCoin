@@ -58,10 +58,20 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* represent coins-as-graph
-
 * create a separate program that runs a report of recommendations, call it
   Triple-R, lol.
+
+* separate monolith into programs:
+  * load listings
+  * load candlesticks
+  * process coins
+  * process candlesticks
+  * process trends
+  * process recommendations
+  * report top 10 coins
+  * report recommendations
+
+* represent coins-as-graph
 
 * complete candlestick computations
   * Three Black Crows
