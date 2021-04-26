@@ -66,10 +66,6 @@ Uploaded listings-2021-03-05.json
 >>> close conn
 --}
 
-go :: IO ()
-go = withConnection ECOIN (\conn ->
-         lookupTable conn "source_type_lk" >>= uploadFiles conn)
-
 uploadFiles :: Connection -> LookupTable -> IO ()
 uploadFiles conn src =
    getEnv "CRYPTOCOIN_DIR"                    >>= \cmcDir ->
@@ -135,3 +131,7 @@ id,source_type,for_day,file_name,processed
 537,LISTING,2021-04-16,listings-2021-04-16.json,true
 471,LISTING,2021-04-15,listings-2021-04-15.json,true
 --}
+
+go :: IO ()
+go = withConnection ECOIN (\conn ->
+         lookupTable conn "source_type_lk" >>= uploadFiles conn)
