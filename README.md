@@ -35,6 +35,28 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 
 <img src="src/CryptoCoin/CoinMarketCap/ETL/imgs/e-coin-erd.png"/>
 
+## Architecture
+
+<img src="src/CryptoCoin/CoinMarketCap/design/ecoins.png"/>
+
+The component architecture is straightforward. 
+
+* We have loaders the pull the data from from various sources and then load 
+those data to the data-store (data model, above). 
+* We have processors that transform the raw (CSV and JSON), stored, data to 
+entities and relations.
+* We have business logic that runs patterns and detect trends in the stored
+entities, then distills the results with recommendations, which are then saved
+to the data-store.
+* Finally, we generate reports against the entities and the recommendations
+in the data store.
+
+TODO: 
+
+* we need to build portfolios from the trades executed from recommendations.
+* we need to analyze the trades vis-à-vis recommendations and find which ones
+are effective and which ones aren't, or combinations, or what.
+
 ## Patterns used
 
 ### Candlesticks
