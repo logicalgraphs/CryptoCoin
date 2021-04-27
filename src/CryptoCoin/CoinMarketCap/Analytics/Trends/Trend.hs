@@ -12,12 +12,16 @@ import Database.PostgreSQL.Simple.ToField
 import Database.PostgreSQL.Simple.Types
 
 import CryptoCoin.CoinMarketCap.Analytics.Trends.Indicators
+import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 
 import Data.CryptoCurrency.Types (Idx, IxRow(IxRow))
 import Data.CryptoCurrency.Types.Recommendation
 import Data.CryptoCurrency.Types.Trend
 
 import Data.LookupTable (LookupTable)
+import Data.Time.TimeSeries (today)
+
+import Store.SQL.Connection (withConnection, Database(ECOIN))
 
 -- Okay, so, now let's run all the indicators and update Trend with the
 -- new values
@@ -45,8 +49,6 @@ storeTrendQuery = Query . B.pack $ unwords [
    "ema_9_signal_line, ema_12, ema_26, macd, rsi_14, obv)",
    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"]
 
--- go method: -----
-
 storeTrends :: Connection -> Day -> LookupTable -> IO ()
 storeTrends conn tday tracked =
    let msg = "Storing indicators for " ++ show (length tracked) ++ " e-coins" in
@@ -54,3 +56,8 @@ storeTrends conn tday tracked =
    mapM (sequence . (snd &&& runAllIndicatorsOn conn)) (Map.toList tracked) >>=
    executeMany conn storeTrendQuery . map (uncurry (trendResult tday))      >>
    putStrLn "...done."
+
+go :: IO ()
+go = today >>= \tday ->
+     withConnection ECOIN (\conn ->
+        trackedCoins conn >>= storeTrends conn tday)

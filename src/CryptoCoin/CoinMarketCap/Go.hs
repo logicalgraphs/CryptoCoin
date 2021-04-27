@@ -26,7 +26,7 @@ import CryptoCoin.CoinMarketCap.ETL.TrackedCoinLoader (uploadTrackedCoinsFromCSV
 import CryptoCoin.CoinMarketCap.ETL.Candlesticks.Loader (downloadCandlesticks)
 import CryptoCoin.CoinMarketCap.ETL.Candlesticks.Transformer (processAllCandlesticks)
 
-import CryptoCoin.CoinMarketCap.Reports.Reporter (ranking, tweet, title)
+import CryptoCoin.CoinMarketCap.Reports.Coins (ranking, tweet, title)
 import CryptoCoin.CoinMarketCap.Utils (pass)
 
 import Data.LookupTable (LookupTable)
@@ -66,4 +66,4 @@ withECoinReport proc =
       lookupTable conn "currency_lk"       >>= \currLk ->
       trackedCoins conn                    >>= \trackeds ->
       proc conn srcLk currLk trackeds tday >>=
-      mapM_ (\listings -> ranking tday listings >>= tweet tday >> title tday))
+      mapM_ (\ls -> ranking tday ls >> tweet tday (snd ls) >> title tday))
