@@ -60,6 +60,7 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 * create a separate program that runs a report of recommendations, call it
   Triple-R, lol.
+  * we need to derive recommendations from trends
 
 * separate monolith into programs:
   * load listings

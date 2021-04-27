@@ -40,6 +40,8 @@ import Data.CryptoCurrency.Types.Vector (Vector, vtake)
 import Data.LookupTable
 import Data.CryptoCurrency.Types.Recommendation
 
+import Data.Time.TimeSeries (today)
+
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 
 type PVdom = (Trend, Vector PriceVolume)
