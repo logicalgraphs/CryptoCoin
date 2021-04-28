@@ -21,13 +21,16 @@ import Data.Time (Day)
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.Types
 
-import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeWhiteKnights (threeWhiteKnights)
+import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeWhiteKnights (twk)
+import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeLineStrike (tls)
+import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.TwoBlackGapping (tbg)
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 import CryptoCoin.CoinMarketCap.Utils (pass)
 
 import Data.CryptoCurrency.Types
 import Data.CryptoCurrency.Types.OCHLV
 import Data.CryptoCurrency.Types.Recommendation
+import Data.CryptoCurrency.Types.Vector
 
 import Data.LookupTable (LookupTable)
 
@@ -38,7 +41,7 @@ import Data.Time.TimeSeries (today)
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 import Store.SQL.Util.LookupTable (lookupTable, lookupTableFrom)
 
-type Signal = [OCHLV] -> Bool
+type Signal = Vector OCHLV -> Bool
 
 undef :: Signal      -- the 'not yet' signal
 undef = const False
@@ -50,14 +53,14 @@ type Patterns = Map Pattern (Signal, Rec')
 
 patterns :: Patterns
 patterns = Map.fromList [
-   (ThreeLineStrike,  (undef, Rec BUY $ P 0.83)),
-   (TwoBlackGapping,   (undef, Rec SELL $ P 0.68)),
+   (ThreeLineStrike,   (tls, Rec BUY $ P 0.83)),
+   (TwoBlackGapping,   (tbg, Rec SELL $ P 0.68)),
    (ThreeBlackCrows,   (undef, Rec SELL $ P 0.78)),
    (EveningStar,       (undef, Rec BUY $ P 0.72)),  -- really?
    (AbandonedBaby,     (undef, Rec SELL $ P 0.50)), -- dunno
-   (ThreeWhiteKnights, (threeWhiteKnights, Rec BUY $ P 0.91))]
+   (ThreeWhiteKnights, (twk, Rec BUY $ P 0.91))]
 
-runPatterns :: [OCHLV] -> Patterns -> [(Pattern, Rec')]
+runPatterns :: Vector OCHLV -> Patterns -> [(Pattern, Rec')]
 runPatterns ctx = map (second snd) . filter (run ctx . fst . snd) . Map.toList
    where run = flip ($)
 
