@@ -1,4 +1,5 @@
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ViewPatterns      #-}
 
 module Data.CryptoCurrency.Types.Recommendation where
 
@@ -29,6 +30,7 @@ import Data.Percentage
 import Data.Time.TimeSeries (today)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
+import Store.SQL.Util.LookupTable (lookupTableFrom)
 
 data Call = BUY | SELL
    deriving (Eq, Ord, Show, Read)
@@ -39,6 +41,10 @@ data Source = Pat Pattern | Ind Indicator
 data RecommendationData =
    Rekt { call :: Call, source :: Source, confidence :: Maybe Percentage }
       deriving (Eq, Ord, Show)
+
+instance Monoid RecommendationData where
+   mempty = undefined
+   a `mappend` b = b
 
 data Indicator = SimpleMovingAverage
                | ExponentialMovingAverage
@@ -90,6 +96,10 @@ Just (RR' 0.32 2 4)
 --}
 
 -- inserting a recommendation
+
+lookupInds :: Connection -> IO LookupTable
+lookupInds =
+   flip lookupTableFrom "SELECT indicator_id, indicator FROM indicator_lk"
 
 insertRecommendations :: Connection -> LookupTable -> LookupTable
                       -> [Recommendation] -> IO ()

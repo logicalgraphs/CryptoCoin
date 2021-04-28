@@ -40,22 +40,23 @@ and lowest prices at which a security has traded over a specific time period.
 The candlestick also has a wide part, which is called the "real body."
 --}
 
-import Data.CryptoCurrency.Types  -- for the candlesticks/OCHLV
+import Data.CryptoCurrency.Types (row, IxRow(IxRow))
 import Data.CryptoCurrency.Types.Range (between, realBody)
 import Data.CryptoCurrency.Types.OCHLV
+import Data.CryptoCurrency.Types.Vector (Vector, vtake, vals)
 
 -- given a set of rows, starting from yesterday and going back in time,
--- let's determine if we have 3 white kngiths
+-- let's determine if we have 3 white knights
 
-threeWhiteKnights :: [OCHLV] -> Bool
-threeWhiteKnights = twk' . take 4
+twk :: Vector OCHLV -> Bool
+twk = maybe False (twk' . vals) . vtake 4
 
 twk' :: [OCHLV] -> Bool
 twk' [] = False
 twk' [_] = True
 twk' (y:t@(db:_)) = y `risingOver` db && twk' t
 
-risingOver :: OCHLV -> OCHLV -> Bool
+risingOver :: CmpOCHLV
 risingOver (row -> yester) (row -> dayBefore) =
    open yester `between` realBody dayBefore
         && close yester > high dayBefore
