@@ -50,7 +50,7 @@ $(CANDLESTICK_PATTERNS): $(CANDLESTICK_PROCESSOR)
 $(TREND_PATTERNS): $(TREND_PROCESSOR)
 	$(TREND_PATTERNS)
 
-COIN_REPORT=$(SCRIPTS_DIR)/run-report-top10coins.exp
+COIN_REPORT=$(SCRIPTS_DIR)/run-report-coin.exp
 RECOMMENDATIONS_REPORT=$(SCRIPTS_DIR)/run-report-recommendations.exp
 
 reports: coin_reports recommendations
