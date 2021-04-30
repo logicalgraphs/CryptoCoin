@@ -80,6 +80,10 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* save today's top-10 coins as 'new'-coins ... no, don't do that. F.
+  * actually, do this: write a query to fetch the top 10 coins from today's
+    listings.
+
 * represent coins-as-graph
 
 * complete candlestick computations

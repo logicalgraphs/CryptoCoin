@@ -69,16 +69,26 @@ instance FromRow ListingDB where
    fromRow = ListingDB <$> field <*> field <*> field
                        <*> field <*> field <*> fromRow
 
-fetchListingDBsQuery :: Day -> Query
-fetchListingDBsQuery date = Query . B.pack $ unlines [
+fetchListingsBase :: Day -> [String]
+fetchListingsBase date = [
    "SELECT cmc_id, for_date, num_pairs, max_supply, circulating_supply,",
    "total_supply, rank, quote_price, volume_24h, percent_change_1h,",
    "percent_change_24h, percent_change_7d, percent_change_30d,",
    "percent_change_60d, percent_change_90d, market_cap",
    "FROM coin_market_cap_daily_listing",
-   "WHERE for_date='" ++ show date ++ "' AND cmc_id IN ?"]
+   "WHERE for_date='" ++ show date ++ "' "]
+
+fetchListingDBsQuery :: Day -> Query
+fetchListingDBsQuery date =
+   Query . B.pack $ unlines (fetchListingsBase date ++ ["AND cmc_id IN ?"])
 
 type IxListingDB = IxRow ListingDB
 
 fetchListingDBs :: Connection -> Day -> [Idx] -> IO [IxListingDB]
 fetchListingDBs conn date = query conn (fetchListingDBsQuery date) . Only . In
+
+fetchTop10ListingDBs :: Connection -> Day -> IO [IxListingDB]
+fetchTop10ListingDBs conn date = query_ conn (fetchTop10Query date)
+
+fetchTop10Query :: Day -> Query
+fetchTop10Query date = Query . B.pack $ unlines ["ORDER BY rank LIMIT 10"]

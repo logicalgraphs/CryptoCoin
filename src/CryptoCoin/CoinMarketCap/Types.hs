@@ -2,6 +2,8 @@
 
 module CryptoCoin.CoinMarketCap.Types where
 
+-- Types specific to CoinMarketCap data analysis
+
 import Control.Arrow ((&&&))
 
 import Data.Aeson
@@ -45,11 +47,6 @@ instance FromJSON MetaData where
    parseJSON = withObject "Metadata" $ \v ->
       MetaData <$> v .: "status" <*> (mapIndexed <$> v .: "data")
 
-{--
-instance Date MetaData where
-   date (MetaData (Status d _ _ _ _ _) _) = d
---}
-
 data Status = Status Day Integer (Maybe String) Integer Integer (Maybe String)
    deriving (Eq, Ord, Show)
 
@@ -70,14 +67,6 @@ class CoinData a where
 
 instance Rank CoinInfo where
    rank (CoinInfo _ _ _ _ r _) = r
-
-{--
-instance Named CoinInfo where
-   namei (CoinInfo _ n _ _ _ _) = n
-
-instance Cymbal CoinInfo where
-   sym (CoinInfo _ _ s _ _ _) = s
---}
 
 instance Indexed CoinInfo where
    idx (CoinInfo i _ _ _ _ _) = i
@@ -118,14 +107,6 @@ instance CoinData ECoin where
 
 instance Rank ECoin where
    rank = rank . info
-
-{--
-instance Named ECoin where
-   namei = namei . info
-
-instance Cymbal ECoin where
-   sym = sym . info
---}
 
 instance Indexed ECoin where
    idx = idx . info
@@ -230,9 +211,22 @@ mkc :: IxRow RanklessCoinInfo -> IxListingDB -> CoinInfo
 mkc (IxRow i _ (RCI nm sy sl)) (IxRow _ d (ListingDB _ _ _ _ rnk _)) =
    CoinInfo i nm sy sl rnk d
 
-fetchListings :: Connection -> Day -> TokenMap -> [Idx] -> IO Listings
-fetchListings conn tday toks ixn =
+fetchTop10Listings :: Connection -> Day -> TokenMap -> CoinMap -> IO [Listing]
+fetchTop10Listings conn tday tm cm =
+   fetchTop10ListingDBs conn tday >>= \top10 ->
+   fetchTags conn (map idx top10) >>= \tags ->
+   return (mapMaybe (ldb2l tm cm tags) top10)
+
+fetchListings' :: Connection -> Day -> TokenMap -> CoinMap -> [Idx]
+               -> IO [Listing]
+fetchListings' conn tday toks coins ixn =
    fetchTags conn ixn            >>= \tags ->
-   fetchCoins conn               >>= \coins ->
    fetchListingDBs conn tday ixn >>= \ldbs ->
-   return (mapIndexed (mapMaybe (ldb2l toks coins tags) ldbs))
+   return (mapMaybe (ldb2l toks coins tags) ldbs)
+
+fetchListingsAndTop10 :: Connection -> Day -> TokenMap -> [Idx] -> IO Listings
+fetchListingsAndTop10 conn tday toks ixn =
+   fetchCoins conn                         >>= \coins ->
+   fetchListings' conn tday toks coins ixn >>= \news ->
+   fetchTop10Listings conn tday toks coins >>=
+   return . mapIndexed . (news ++)

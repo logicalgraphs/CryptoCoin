@@ -28,7 +28,7 @@ import Data.CryptoCurrency.Types (rank, Indexed, idx)
 
 import CryptoCoin.CoinMarketCap.Types 
             (NewCoins, NewCoinsCtx, MetaData(MetaData), coin, Listings,
-             fetchTokens, fetchListings)
+             fetchTokens, fetchListingsAndTop10)
 import CryptoCoin.CoinMarketCap.Reports.Table (report', newCoins,
          plural, top10, coinHeaders, ec2cc)
 
@@ -122,7 +122,7 @@ runReport conn tday =
    let tokIds = Set.map Idx (Map.keysSet toks) in
    fetchNewCoinsAndTokens conn tday tokIds                     >>= \news ->
    let idxn = map idx (Set.toList (uncurry Set.union news)) in
-   fetchListings conn tday toks idxn                           >>= \lists ->
+   fetchListingsAndTop10 conn tday toks idxn                   >>= \lists ->
    ranking tday lists news >> tweet tday news >> title tday
 
 go :: IO ()
