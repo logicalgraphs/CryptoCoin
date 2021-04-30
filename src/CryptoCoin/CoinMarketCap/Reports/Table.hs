@@ -2,6 +2,7 @@
 
 module CryptoCoin.CoinMarketCap.Reports.Table where
 
+import Data.Foldable (toList)
 import Data.List (sortOn)
 
 import Data.Map (Map)
@@ -14,7 +15,7 @@ import Data.Time (Day)
 import CryptoCoin.CoinMarketCap.Types hiding (idx)
 import CryptoCoin.CoinMarketCap.Types.Quote
 
-import Data.CryptoCurrency.Types (Idx, rank, idx, Rank)
+import Data.CryptoCurrency.Types (Idx, rank, idx, Rank, Indexed)
 
 import Data.Monetary.USD
 import Data.Percentage
@@ -36,7 +37,7 @@ data ContextCoin = CC Listings PriceCoin
 instance Rank ContextCoin where
    rank (CC _ pc) = rank pc
 
-ec2cc :: Listings -> ECoin -> Maybe ContextCoin
+ec2cc :: Indexed i => Listings -> i -> Maybe ContextCoin
 ec2cc m c = CC m <$> (Map.lookup (idx c) m >>= l2PC)
 
 instance Rasa ContextCoin where
@@ -99,15 +100,15 @@ punct sz | sz == 0 = "."
 p :: [Content] -> Content
 p = E . Elt "p" []
 
-newCoins :: Listings -> NewCoins -> IO ()
+newCoins :: Foldable t => Indexed i => Listings -> (t i, t i) -> IO ()
 newCoins ls ncs@(coins, tokens) =
    mapM_ (uncurry (newStuff ls)) [("coin", coins), ("token", tokens)]
 
 coinHeaders :: [String]
 coinHeaders = words "Name Symbol Rank Price %Change Basis"
 
-newStuff :: Listings -> String -> [ECoin] -> IO ()
-newStuff ls typ = report typ coinHeaders . mapMaybe (ec2cc ls)
+newStuff :: Foldable t => Indexed i => Listings -> String -> t i -> IO ()
+newStuff ls typ = report typ coinHeaders . mapMaybe (ec2cc ls) . toList
 
 plural :: Int -> String
 plural 1 = ""

@@ -6,10 +6,23 @@ import Control.Arrow ((&&&))
 
 import Data.Aeson
 
+import qualified Data.ByteString.Char8 as B
+
 import Data.Map (Map)
 import qualified Data.Map as Map
 
+import Data.Maybe (mapMaybe)
+
+import Data.Set (Set)
+import qualified Data.Set as Set
+
 import Data.Time
+
+import Database.PostgreSQL.Simple
+import Database.PostgreSQL.Simple.FromRow
+import Database.PostgreSQL.Simple.Types
+
+import Control.Map (snarf)
 
 import CryptoCoin.CoinMarketCap.Types.Internal hiding (id)
 import CryptoCoin.CoinMarketCap.Types.Quote
@@ -18,22 +31,24 @@ import Data.CryptoCurrency.Types
 
 import Data.XHTML (Name)
 
-import Store.SQL.Util.Indexed (IxValue)
+import Store.SQL.Util.Indexed (IxValue(IxV), ix, val)
 
 type Listings = Map Idx Listing
 
 data MetaData = MetaData Status Listings
    deriving (Eq, Ord, Show)
 
-mapListings :: [Listing] -> Map Idx Listing
-mapListings = Map.fromList . map (idx &&& id)
+mapIndexed :: Indexed i => [i] -> Map Idx i
+mapIndexed = Map.fromList . map (idx &&& id)
 
 instance FromJSON MetaData where
    parseJSON = withObject "Metadata" $ \v ->
-      MetaData <$> v .: "status" <*> (mapListings <$> v .: "data")
+      MetaData <$> v .: "status" <*> (mapIndexed <$> v .: "data")
 
+{--
 instance Date MetaData where
    date (MetaData (Status d _ _ _ _ _) _) = d
+--}
 
 data Status = Status Day Integer (Maybe String) Integer Integer (Maybe String)
    deriving (Eq, Ord, Show)
@@ -56,14 +71,33 @@ class CoinData a where
 instance Rank CoinInfo where
    rank (CoinInfo _ _ _ _ r _) = r
 
+{--
 instance Named CoinInfo where
    namei (CoinInfo _ n _ _ _ _) = n
 
 instance Cymbal CoinInfo where
    sym (CoinInfo _ _ s _ _ _) = s
+--}
 
 instance Indexed CoinInfo where
    idx (CoinInfo i _ _ _ _ _) = i
+
+data RanklessCoinInfo = RCI Name Symbol String
+
+type CoinMap = Map Idx (IxRow RanklessCoinInfo)
+
+instance FromRow RanklessCoinInfo where
+   fromRow = RCI <$> field <*> field <*> field
+
+fetchCoinsQuery :: Query
+fetchCoinsQuery =
+   "SELECT cmc_id, date_added, name, symbol, slug FROM coin"
+
+fetchCoins' :: Connection -> IO [IxRow RanklessCoinInfo]
+fetchCoins' = flip query_ fetchCoinsQuery
+
+fetchCoins :: Connection -> IO CoinMap
+fetchCoins conn = mapIndexed <$> fetchCoins' conn
 
 data Coin = Coin CoinInfo
    deriving (Eq, Ord, Show)
@@ -85,14 +119,16 @@ instance CoinData ECoin where
 instance Rank ECoin where
    rank = rank . info
 
+{--
 instance Named ECoin where
    namei = namei . info
 
-instance Indexed ECoin where
-   idx = idx . info
-
 instance Cymbal ECoin where
    sym = sym . info
+--}
+
+instance Indexed ECoin where
+   idx = idx . info
 
 raw2coin :: Listing' -> ECoin
 raw2coin l = r2c l (plat l)
@@ -116,19 +152,36 @@ data Supplies =
               maxSupply         :: Maybe Double }
       deriving (Eq, Ord, Show)
 
-type Tag = String
+data Tag = Tag { tag :: String }
+   deriving (Eq, Ord, Show)
+
+instance FromRow Tag where
+   fromRow = Tag <$> field
+
+fetchTagsQuery :: Query
+fetchTagsQuery = Query . B.pack $ unlines [
+   "SELECT jtc.cmc_id, t.tag_name FROM tag t",
+   "INNER JOIN j_tag_coin jtc ON jtc.tag_id=t.tag_id",
+   "WHERE jtc.cmc_id IN ?"]
+
+type TagMap = Map Idx (Set Tag)
+
+fetchTags :: Connection -> [Idx] -> IO TagMap
+fetchTags conn idxn =
+   snarf (return . (idx &&& val)) <$> query conn fetchTagsQuery (Only (In idxn))
       
 data Listing =
    Listing { coin        :: ECoin,
              marketPairs :: Integer,
              supplies    :: Supplies,
-             tags        :: [Tag],
+             tags        :: Set Tag,
              quote       :: Maybe Quote }
       deriving (Eq, Ord, Show)
 
 l2l :: Listing' -> Listing
 l2l l@(Listing' _id _name _sym _slug num dt cs ts ms tgs _plat _rank qt) =
-   Listing (raw2coin l) num (Supplies cs ts ms) tgs (Map.lookup "USD" qt)
+   Listing (raw2coin l) num (Supplies cs ts ms) (Set.fromList (map Tag tgs))
+           (Map.lookup "USD" qt)
 
 instance FromJSON Listing where
    parseJSON v = l2l <$> parseJSON v
@@ -138,3 +191,48 @@ instance Indexed Listing where
 
 instance Rank Listing where
    rank = rank . coin
+
+-- Database extraction --------------------------------------------------
+
+data TokenRow = TokenRow Idx TokenAddress
+   deriving (Eq, Ord, Show)
+
+instance FromRow TokenRow where
+   fromRow = TokenRow <$> field <*> field
+
+instance Indexed (IxValue a) where
+   idx = ix
+
+fetchTokenRowsQuery :: Query
+fetchTokenRowsQuery = "SELECT token_id,parent_id,token_address FROM token"
+
+fetchTokens' :: Connection -> IO [IxValue TokenRow]
+fetchTokens' = flip query_ fetchTokenRowsQuery
+
+type TokenMap = Map Idx TokenRow
+
+fetchTokens :: Connection -> IO TokenMap
+fetchTokens conn = Map.map val . mapIndexed <$> fetchTokens' conn
+
+ldb2l :: TokenMap -> CoinMap -> TagMap -> IxListingDB -> Maybe Listing
+ldb2l tm cm tagm l@(IxRow idx _ (ListingDB np mbms cs ts _rnk q)) =
+   tokenize (Map.lookup idx tm) (Map.lookup idx cm) l >>= \ecoin ->
+   Map.lookup idx tagm >>= \tags ->
+   return (Listing ecoin np (Supplies cs ts mbms) tags (Just q))
+
+tokenize :: Maybe TokenRow -> Maybe (IxRow RanklessCoinInfo)
+         -> IxListingDB -> Maybe ECoin
+tokenize (Just (TokenRow pid ta)) c l =
+   c >>= \c' -> return (T (Token (mkc c' l) pid ta))
+tokenize Nothing c l = c >>= \c' -> return (C (Coin (mkc c' l)))
+
+mkc :: IxRow RanklessCoinInfo -> IxListingDB -> CoinInfo
+mkc (IxRow i _ (RCI nm sy sl)) (IxRow _ d (ListingDB _ _ _ _ rnk _)) =
+   CoinInfo i nm sy sl rnk d
+
+fetchListings :: Connection -> Day -> TokenMap -> [Idx] -> IO Listings
+fetchListings conn tday toks ixn =
+   fetchTags conn ixn            >>= \tags ->
+   fetchCoins conn               >>= \coins ->
+   fetchListingDBs conn tday ixn >>= \ldbs ->
+   return (mapIndexed (mapMaybe (ldb2l toks coins tags) ldbs))

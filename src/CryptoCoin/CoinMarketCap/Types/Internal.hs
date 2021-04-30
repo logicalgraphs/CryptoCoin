@@ -1,15 +1,23 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections     #-}
 
 module CryptoCoin.CoinMarketCap.Types.Internal where
 
--- translates raw-JSON structures to our Haskell-y types
+-- translates raw-JSON structures or database rows to our Haskell-y types
 
 import Data.Aeson
 
 import Data.ByteString.Lazy.Char8 (ByteString)
+import qualified Data.ByteString.Char8 as B
 import qualified Data.ByteString.Lazy.Char8 as BL
 
 import Data.Map (Map)
+
+import Data.Time (Day)
+
+import Database.PostgreSQL.Simple
+import Database.PostgreSQL.Simple.FromRow
+import Database.PostgreSQL.Simple.Types
 
 import System.Environment (getEnv)
 
@@ -40,21 +48,37 @@ plat (Listing' _ _ _ _ _ _ _ _ _ _ p _ _) = p
 
 instance FromJSON Listing' where
    parseJSON = withObject "listing" $ \v ->
-      Listing' <$> v .: "id" 
-               <*> v .: "name"
-               <*> v .: "symbol"
-               <*> v .: "slug"
-               <*> v .: "num_market_pairs" 
-               <*> v .: "date_added"
-               <*> v .: "circulating_supply"
-               <*> v .: "total_supply"
-               <*> v .:? "max_supply"
-               <*> v .: "tags"
-               <*> v .:? "platform"
-               <*> v .: "cmc_rank"
-               <*> v .: "quote"
+      Listing' <$> v .: "id" <*> v .: "name" <*> v .: "symbol" <*> v .: "slug"
+               <*> v .: "num_market_pairs" <*> v .: "date_added"
+               <*> v .: "circulating_supply" <*> v .: "total_supply"
+               <*> v .:? "max_supply" <*> v .: "tags" <*> v .:? "platform"
+               <*> v .: "cmc_rank" <*> v .: "quote"
 
 sample :: String -> IO ByteString
 sample thing =
    getEnv "COIN_MARKET_CAP_DIR" >>=
    BL.readFile . (++ "/ETL/sample" ++ thing ++ ".json")
+
+-- and the database-side ---------------------------------------------
+
+data ListingDB =
+   ListingDB Integer (Maybe Double) Double Double Integer Quote
+      deriving (Eq, Ord, Show)
+
+instance FromRow ListingDB where
+   fromRow = ListingDB <$> field <*> field <*> field
+                       <*> field <*> field <*> fromRow
+
+fetchListingDBsQuery :: Day -> Query
+fetchListingDBsQuery date = Query . B.pack $ unlines [
+   "SELECT cmc_id, for_date, num_pairs, max_supply, circulating_supply,",
+   "total_supply, rank, quote_price, volume_24h, percent_change_1h,",
+   "percent_change_24h, percent_change_7d, percent_change_30d,",
+   "percent_change_60d, percent_change_90d, market_cap",
+   "FROM coin_market_cap_daily_listing",
+   "WHERE for_date='" ++ show date ++ "' AND cmc_id IN ?"]
+
+type IxListingDB = IxRow ListingDB
+
+fetchListingDBs :: Connection -> Day -> [Idx] -> IO [IxListingDB]
+fetchListingDBs conn date = query conn (fetchListingDBsQuery date) . Only . In

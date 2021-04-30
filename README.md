@@ -80,17 +80,11 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-  * process coins (TODO: put new coins into new_coin table) ... (done) (... but
-    now I need to pick them on on the other side)
-  * report top 10 coins (TODO: pick up new coins from data-store)
-
 * represent coins-as-graph
 
 * complete candlestick computations
   * Three Black Crows
-  * Three Line Strike, done
   * Abandoned Baby
-  * Two Black Gapping, done
   * Evening Star
 
 * create a spot-check that runs the numbers on any arbitrary yahoo-symbol
@@ -125,6 +119,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-04-30: reports on coins now integrated into pipeline
 * 2021-04-29: Separated monolith into loader, processor, patterns, reports
   pipelines.
 * 2021-04-23: We can now run recommendation reports (RRR or R3 or Triple-R)
