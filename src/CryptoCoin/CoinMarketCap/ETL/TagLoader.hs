@@ -36,7 +36,7 @@ import CryptoCoin.CoinMarketCap.ETL.JSONFile
 
 processTags :: Connection -> IxValue MetaData -> IO ()
 processTags conn (IxV _ (MetaData _ listings)) =
-   fetchTags conn >>= \(lk, nxt) ->
+   fetchAllTags conn >>= \(lk, nxt) ->
    let workingTags = matchTags listings
        n00bz       = newTags' nxt (newTags workingTags lk) in
    loadNewTags conn n00bz           >>
@@ -45,8 +45,8 @@ processTags conn (IxV _ (MetaData _ listings)) =
 
 -- step 1: get the tags from the database, including the next index
 
-fetchTags :: Connection -> IO (LookupTable, Idx)
-fetchTags conn = (id &&& nextIndex) <$> lookupTable conn "tag"
+fetchAllTags :: Connection -> IO (LookupTable, Idx)
+fetchAllTags conn = (id &&& nextIndex) <$> lookupTable conn "tag"
 
 -- step 2: get the tags associated to each listing
 
