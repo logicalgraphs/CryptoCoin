@@ -80,14 +80,14 @@ data DayRow = DR { idx :: Integer, day :: Day }
 instance FromRow DayRow where
    fromRow = DR <$> field <*> field
 
-maxOr30 :: Connection -> Day -> LookupTable -> IO DayTable
-maxOr30 conn (addDays (-1) -> yester) trackeds =
-   let thirty sym = (sym, addDays (-30) yester)
+maxOr250 :: Connection -> Day -> LookupTable -> IO DayTable
+maxOr250 conn (addDays (-1) -> yester) trackeds =
+   let twoFifty sym = (sym, addDays (-250) yester)
        sdekcart   = lookdown trackeds
        symsIdxs = Map.toList trackeds
        idxs   = map snd symsIdxs
        thenMerge dmap = foldr inserter dmap symsIdxs
-       inserter (s, i) m = maybe (Map.insert i (thirty s) m) (const m)
+       inserter (s, i) m = maybe (Map.insert i (twoFifty s) m) (const m)
                                  (Map.lookup i m)
        tup = sequence . (idx &&& pooh)
        pooh dr = (, day dr) <$> Map.lookup (idx dr) sdekcart
@@ -99,7 +99,7 @@ maxOr30 conn (addDays (-1) -> yester) trackeds =
 
 {--
 >>> withConnection ECOIN (\conn -> trackedCoins conn >>= \tc -> 
-       today >>= \tday -> maxOr30 conn (addDays (-1) tday) tc >>=
+       today >>= \tday -> maxOr250 conn (addDays (-1) tday) tc >>=
        mapM_ print . Map.toList)
 (1,2021-02-27)
 (2,2021-02-27)
@@ -196,7 +196,7 @@ downloadCandlesticks :: Connection -> LookupTable -> LookupTable -> IO ()
 downloadCandlesticks conn srcs trackedCoins =
    putStrLn "Downloading and storing candlestick files."                 >>
    today                                                        >>= \tday ->
-   maxOr30 conn tday trackedCoins                                        >>=
+   maxOr250 conn tday trackedCoins                                       >>=
    traverse (sequence . ((id *** fst) &&& fetchOCHLV tday)) . Map.toList >>=
    mapM_  (maybeStoreCandlestickCSVFile conn srcs tday)                  >>
    putStrLn "... done."
