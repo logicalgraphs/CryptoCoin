@@ -47,6 +47,9 @@ instance FromJSON MetaData where
    parseJSON = withObject "Metadata" $ \v ->
       MetaData <$> v .: "status" <*> (mapIndexed <$> v .: "data")
 
+instance Date MetaData where
+   date (MetaData (Status d _ _ _ _ _) _) = d
+
 data Status = Status Day Integer (Maybe String) Integer Integer (Maybe String)
    deriving (Eq, Ord, Show)
 
