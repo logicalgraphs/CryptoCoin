@@ -108,6 +108,7 @@ rsi30 t = const $ rsi14 (row t) >>= \rsi14t ->
    rsi14t < 30 -| mkRec t BUY RelativeStrengthIndex
 
 -- not gonna touch On Balance Volume just now.
+-- ... but it will be useful for bayesian analysis down the road, maybe?
 
 -- runners
 

@@ -30,19 +30,22 @@ instance Rank PriceCoin where
 l2PC :: Listing -> Maybe PriceCoin
 l2PC l = quote l >>= \q -> PC (coin l) (price q) <$> percentChange24h q
 
-data ContextCoin = CC (Map Idx Listing) PriceCoin
+data ContextCoin = CC Listings PriceCoin
    deriving (Eq, Ord, Show)
 
 instance Rank ContextCoin where
    rank (CC _ pc) = rank pc
 
-ec2cc :: MetaData -> ECoin -> Maybe ContextCoin
-ec2cc (MetaData _ m) c = CC m <$> (Map.lookup (idx c) m >>= l2PC)
+ec2cc :: Listings -> ECoin -> Maybe ContextCoin
+ec2cc m c = CC m <$> (Map.lookup (idx c) m >>= l2PC)
 
 instance Rasa ContextCoin where
-   printRow (CC _ pc@(PC (C (Coin ci)) p ch)) = tr (ci2tr ci p ch ++ [S "--"])
-   printRow (CC m pc@(PC (T (Token ci i _)) p ch)) =
-      tr (ci2tr ci p ch ++ [link . info . coin $ m Map.! i])
+   printRow (CC m (PC ecoin p ch)) =
+      tr (ci2tr (info ecoin) p ch ++ [addlInfo m ecoin])
+
+addlInfo :: Listings -> ECoin -> Content
+addlInfo _ (C _) = S "--"
+addlInfo m (T (Token _ci i _)) = link . info . coin $ m Map.! i
    
 ci2tr :: CoinInfo -> Double -> Double -> [Content]
 ci2tr c@(CoinInfo _i name sym slug rank _date) pr ch =
@@ -96,15 +99,15 @@ punct sz | sz == 0 = "."
 p :: [Content] -> Content
 p = E . Elt "p" []
 
-newCoins :: MetaData -> NewCoins -> IO ()
-newCoins md ncs@(coins, tokens) =
-   mapM_ (uncurry (newStuff md)) [("coin", coins), ("token", tokens)]
+newCoins :: Listings -> NewCoins -> IO ()
+newCoins ls ncs@(coins, tokens) =
+   mapM_ (uncurry (newStuff ls)) [("coin", coins), ("token", tokens)]
 
 coinHeaders :: [String]
 coinHeaders = words "Name Symbol Rank Price %Change Basis"
 
-newStuff :: MetaData -> String -> [ECoin] -> IO ()
-newStuff md typ = report typ coinHeaders . mapMaybe (ec2cc md)
+newStuff :: Listings -> String -> [ECoin] -> IO ()
+newStuff ls typ = report typ coinHeaders . mapMaybe (ec2cc ls)
 
 plural :: Int -> String
 plural 1 = ""

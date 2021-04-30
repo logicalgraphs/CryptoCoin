@@ -1,44 +1,46 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TupleSections     #-}
+{-# LANGUAGE ViewPatterns      #-}
 
-module CryptoCoin.CoinMarketCap.ETL.NewCoinLoader where
+module CryptoCoin.CoinMarketCap.ETL.NewCoinTransformer where
 
-import Control.Arrow (second, (&&&))
-import Control.Monad (forM_)
+{--
+Takes the listing files, processes them into ECoin values, and saves those
+values to the data-store.
+--}
+
+import Control.Monad (forM_, void)
 
 import Database.PostgreSQL.Simple
-import Database.PostgreSQL.Simple.ToRow
 import Database.PostgreSQL.Simple.ToField
+import Database.PostgreSQL.Simple.ToRow
 import Database.PostgreSQL.Simple.Types
 
 import qualified Data.ByteString.Char8 as B
 
-import Data.Int (Int64)
-
-import Data.List (partition)
-
-import Data.Map (Map)
 import qualified Data.Map as Map
 
-import CryptoCoin.CoinMarketCap.Types
-import CryptoCoin.CoinMarketCap.ETL.JSONFile
+import Data.Time (Day)
+
+import Data.CryptoCurrency.Types hiding (Date)      -- Idx
+
+import CryptoCoin.CoinMarketCap.ETL.Coins.NewCoins (newCoins)
+import CryptoCoin.CoinMarketCap.ETL.JSONFile (extractListings)
 import CryptoCoin.CoinMarketCap.ETL.ListingLoader (insertListings)
 import CryptoCoin.CoinMarketCap.ETL.TagLoader (processTags)
+import CryptoCoin.CoinMarketCap.Types
 
-import Data.CryptoCurrency.Types hiding (idx)      -- Idx
+import Data.LookupTable (LookupTable)
 
-import Data.LookupTable
-
-import Store.SQL.Connection
-import Store.SQL.Util.Indexed
-import Store.SQL.Util.LookupTable
+import Store.SQL.Connection (withConnection, Database(ECOIN))
+import Store.SQL.Util.Indexed (IxValue(IxV))
+import Store.SQL.Util.LookupTable (lookupTable)
 
 {-- 
 The coin table is a lookup table ... with multicolumns for the value against
 the index. The only lookupTable construct I have (so far) is a string against
 an index, so that's not working, but I need the same functionality for coin
-... except I know the index, a priori, because it's assigned from
-CoinMarketCap.
+... except I know the index, a priori, because it's assigned from CoinMarketCap.
 
 So. Here we go. From scratch.
 
@@ -48,21 +50,6 @@ No. Because we have the indices already, we just need to do a set-diff
 with the indices in the database vs the indices here. The indices here
 are the new coins, which we archive.
 --}
-
-newCoins :: Connection -> MetaData -> IO NewCoins
-newCoins conn (MetaData _ m) =
-   partition (not . isToken)
-   . map coin
-   . Map.elems
-   . foldr Map.delete m
-   . map idx
-   <$> coins conn
-
--- to do that, we need to extract the indices from the database, ... with
--- (any other) value
-
-coins :: Connection -> IO [Index]
-coins conn = query_ conn "SELECT cmc_id FROM coin"
 
 -- now that we've got the new coins, we can insert them into our coin-table
 -- (and token-table) (and rank-table)
@@ -92,12 +79,15 @@ insertTokenQuery :: Query
 insertTokenQuery = 
    "INSERT INTO token (token_id, parent_id, token_address) VALUES (?,?,?)"
 
+insertNewCoinsQuery :: Query
+insertNewCoinsQuery = "INSERT INTO new_coin (cmc_id, for_date) VALUES (?, ?)"
+
 insertCoin :: Connection -> ECoin -> IO ()
 insertCoin conn ecoin =
    insertCoinInfo conn (info ecoin) >> thenInsertCoin conn ecoin
 
-insertCoinInfo :: Connection -> CoinInfo -> IO Int64
-insertCoinInfo conn = execute conn insertCoinInfoQuery
+insertCoinInfo :: Connection -> CoinInfo -> IO ()
+insertCoinInfo conn = void . execute conn insertCoinInfoQuery
 
 thenInsertCoin :: Connection -> ECoin -> IO ()
 thenInsertCoin _ (C _) = return ()
@@ -107,24 +97,32 @@ thenInsertCoin conn (T tok) = execute conn insertTokenQuery tok >> return ()
 
 -- We insert all the coins first, then we insert the tokens
 
-insertAllCoins :: Connection -> NewCoins -> IO NewCoins
-insertAllCoins conn nc@(coins, tokens) =
-   putStrLn ("Inserting " ++ show (length coins) ++ " coins.")   >>
-   forM_ coins (insertCoin conn)                                 >>
-   putStrLn "...done."                                           >>
-   putStrLn ("Inserting " ++ show (length tokens) ++ " tokens.") >>
-   forM_ tokens (insertCoin conn)                                >>
-   putStrLn "...done."                                           >>
-   return nc
+insertAllCoins :: Connection -> Day -> NewCoins -> IO ()
+insertAllCoins conn date nc@(coins, tokens) =
+   putStrLn ("Inserting " ++ show (length coins) ++ " coins.")                >>
+   forM_ coins (insertCoin conn)                                              >>
+   putStrLn "...done."                                                        >>
+   putStrLn ("Inserting " ++ show (length tokens) ++ " tokens.")              >>
+   forM_ tokens (insertCoin conn)                                             >>
+   putStrLn "Inserting all new coins and tokens into new_coin table"          >>
+   executeMany conn insertNewCoinsQuery (map (toDate date) (coins ++ tokens)) >>
+   putStrLn "...done."
 
-processOneListingFile :: Connection -> IxValue MetaData -> IO NewCoinsCtx
+toDate :: Indexed i => Day -> i -> Date
+toDate d (idx -> i) = Dt i d
+
+data Date = Dt Integer Day
+
+instance ToRow Date where
+   toRow (Dt i d) = [toField i, toField d]
+
+processOneListingFile :: Connection -> IxValue MetaData -> IO ()
 processOneListingFile conn i@(IxV _ md) =
    putStrLn ("\n\nFor listing file " ++ show (date md) ++ ":") >>
    newCoins conn md                                            >>=
-   insertAllCoins conn                                         >>= \ans ->
+   insertAllCoins conn (date md)                               >>
    insertListings conn i                                       >>
-   processTags conn i                                          >>
-   return (i, ans)
+   processTags conn i
 
 setProcessed :: Connection -> LookupTable -> IO ()
 setProcessed conn srcs =
@@ -134,14 +132,14 @@ setProcessed conn srcs =
 
 -- Process all of them:
 
+processFiles :: Connection -> LookupTable -> IO ()
+processFiles conn srcs =
+   putStrLn "Processing coin listings." >>   
+   extractListings conn srcs            >>=
+   mapM_ (processOneListingFile conn)   >>
+   setProcessed conn srcs
+
 go :: IO ()
 go =
    withConnection ECOIN (\conn ->
       lookupTable conn "source_type_lk" >>= processFiles conn)
-
-processFiles :: Connection -> LookupTable -> IO [NewCoinsCtx]
-processFiles conn srcs =
-      extractListings conn srcs                                 >>=
-      mapM (processOneListingFile conn)                         >>= \newsies ->
-      setProcessed conn srcs                                    >>
-      return newsies

@@ -31,6 +31,8 @@ DROP TABLE IF EXISTS "trend";
 
 DROP TABLE IF EXISTS "recommendation";
 
+DROP TABLE IF EXISTS "new_coin";
+
 -- LOOKUP TABLES -- (drop with care) ---------------------------------------
 
 DROP TABLE IF EXISTS "currency_lk";

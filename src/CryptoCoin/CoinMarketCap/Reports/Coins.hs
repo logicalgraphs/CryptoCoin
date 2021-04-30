@@ -24,14 +24,14 @@ import CryptoCoin.CoinMarketCap.Types
 import CryptoCoin.CoinMarketCap.Reports.Table (report', newCoins,
          plural, top10, coinHeaders, ec2cc)
 
-import Store.SQL.Util.Indexed (IxValue(IxV))
+import Data.Time.TimeSeries (today)
 
 ranking :: Day -> NewCoinsCtx -> IO ()
-ranking date (IxV _ md@(MetaData status ecoins), newsies) =
-   let sortCoins = sortOn rank . mapMaybe (ec2cc md . coin) in
+ranking date (ecoins, newsies) =
+   let sortCoins = sortOn rank . mapMaybe (ec2cc ecoins . coin) in
    report' (show $ top10 date) coinHeaders 
            (take 10 (sortCoins $ Map.elems ecoins)) >>
-   newCoins md newsies
+   newCoins ecoins newsies
 
 {--
 >>> let date = (read "2021-02-22") :: Day
@@ -79,4 +79,16 @@ n _ 0 = ""
 n typ c = ' ':show c ++ " new " ++ typ ++ plural c
 
 title :: Day -> IO ()
-title = putStrLn . unwords . ("Top-10 E-coins for":) . return . show 
+title = putStrLn . ("Top-10 E-coins for " ++) . show
+
+{--
+Okay.
+
+Now we need to reimagine this reporting tool to be an independent component.
+
+How?
+
+We extract new_coin (ids), token (as a coin-lookup table), and the coin-infos,
+maybe? ... for today, partition the new coins into coins and tokens by the
+token-lookup table, then run the above functions.
+--}

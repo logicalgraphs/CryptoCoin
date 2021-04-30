@@ -112,6 +112,17 @@ create table "source" (
   OIDS=FALSE
 );
 
+create table "new_coin" (
+	"new_coin_id" serial NOT NULL,
+	"cmc_id" bigint NOT NULL,
+	"for_date" DATE NOT NULL DEFAULT now(),
+	CONSTRAINT "new_coin_pk" PRIMARY KEY ("new_coin_id")
+) WITH (
+  OIDS=FALSE
+);
+
+CREATE INDEX ON new_coin (for_date);
+
 create table "source_type_lk" (
 	"source_type_id" serial NOT NULL,
 	"source_type" TEXT NOT NULL,

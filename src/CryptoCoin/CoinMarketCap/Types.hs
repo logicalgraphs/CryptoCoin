@@ -20,7 +20,9 @@ import Data.XHTML (Name)
 
 import Store.SQL.Util.Indexed (IxValue)
 
-data MetaData = MetaData Status (Map Idx Listing)
+type Listings = Map Idx Listing
+
+data MetaData = MetaData Status Listings
    deriving (Eq, Ord, Show)
 
 mapListings :: [Listing] -> Map Idx Listing
@@ -100,7 +102,7 @@ r2c l Nothing = C (Coin (mkci l))
 r2c l (Just (CR' i tok)) = T (Token (mkci l) i tok)
 
 type NewCoins = ([ECoin], [ECoin])
-type NewCoinsCtx = (IxValue MetaData, NewCoins)
+type NewCoinsCtx = (Listings, NewCoins)
 
 -- FOR LISTINGS AND QUOTES --------------------------------------------
 

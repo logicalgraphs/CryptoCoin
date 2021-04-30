@@ -80,27 +80,17 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* create a separate program that runs a report of recommendations, call it
-  Triple-R, lol.
-  * we need to derive recommendations from trends
-
-* separate monolith into programs:
-  * load listings
-  * load candlesticks
-  * process coins
-  * process candlesticks
-  * process trends
-  * process recommendations
-  * report top 10 coins
-  * report recommendations
+  * process coins (TODO: put new coins into new_coin table) ... (done) (... but
+    now I need to pick them on on the other side)
+  * report top 10 coins (TODO: pick up new coins from data-store)
 
 * represent coins-as-graph
 
 * complete candlestick computations
   * Three Black Crows
-  * Three Line Strike
+  * Three Line Strike, done
   * Abandoned Baby
-  * Two Black Gapping
+  * Two Black Gapping, done
   * Evening Star
 
 * create a spot-check that runs the numbers on any arbitrary yahoo-symbol
@@ -135,6 +125,8 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-04-29: Separated monolith into loader, processor, patterns, reports
+  pipelines.
 * 2021-04-23: We can now run recommendation reports (RRR or R3 or Triple-R)
 * 2021-04-18: Automated uploading which coins we are tracking from CSV files.
 * 2021-04-13: Finished On Balance Volume; switched to list-monad for

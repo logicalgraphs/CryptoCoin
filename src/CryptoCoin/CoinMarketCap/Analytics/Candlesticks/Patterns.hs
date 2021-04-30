@@ -69,7 +69,7 @@ candlesAll conn trackedCoins =
    let sl :: Foldable f => f a -> String
        sl = show . length in
    putStrLn ("Running " ++ sl patterns ++ " candlestick patterns for "
-          ++ sl trackedCoins ++ " tracked coins.") >>
+          ++ sl trackedCoins ++ " tracked coins.")                >>
    mapM (sequence' . (id &&& doIt conn)) (Map.elems trackedCoins) >>=
    printP . concat
       where doIt conn cmc = flip runPatterns patterns <$> candlesFor conn cmc
