@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ViewPatterns      #-}
 
 module CryptoCoin.CoinMarketCap.Types where
 
@@ -9,6 +10,8 @@ import Control.Arrow ((&&&))
 import Data.Aeson
 
 import qualified Data.ByteString.Char8 as B
+
+import Data.Foldable (toList)
 
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -22,6 +25,7 @@ import Data.Time
 
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromRow
+import Database.PostgreSQL.Simple.ToField
 import Database.PostgreSQL.Simple.Types
 
 import Control.Map (snarf)
@@ -142,6 +146,9 @@ data Tag = Tag { tag :: String }
 instance FromRow Tag where
    fromRow = Tag <$> field
 
+instance ToField Tag where
+   toField (Tag t) = toField t
+
 fetchTagsQuery :: Query
 fetchTagsQuery = Query . B.pack $ unlines [
    "SELECT jtc.cmc_id, t.tag_name FROM tag t",
@@ -150,9 +157,10 @@ fetchTagsQuery = Query . B.pack $ unlines [
 
 type TagMap = Map Idx (Set Tag)
 
-fetchTags :: Connection -> [Idx] -> IO TagMap
+fetchTags :: Foldable t => Connection -> t Idx -> IO TagMap
 fetchTags conn idxn =
-   snarf (return . (idx &&& val)) <$> query conn fetchTagsQuery (Only (In idxn))
+   snarf (return . (idx &&& val))
+   <$> query conn fetchTagsQuery (Only (In (toList idxn)))
       
 data Listing =
    Listing { coin        :: ECoin,
@@ -217,19 +225,36 @@ mkc (IxRow i _ (RCI nm sy sl)) (IxRow _ d (ListingDB _ _ _ _ rnk _)) =
 fetchTop10Listings :: Connection -> Day -> TokenMap -> CoinMap -> IO [Listing]
 fetchTop10Listings conn tday tm cm =
    fetchTop10ListingDBs conn tday >>= \top10 ->
-   fetchTags conn (map idx top10) >>= \tags ->
-   return (mapMaybe (ldb2l tm cm tags) top10)
+   fetchTags conn (map idx top10) >>=
+   return . flip mapMaybe top10 . ldb2l tm cm
 
-fetchListings' :: Connection -> Day -> TokenMap -> CoinMap -> [Idx]
-               -> IO [Listing]
+fetchListings' :: Foldable t => Connection -> Day -> TokenMap -> CoinMap
+               -> t Idx -> IO [Listing]
 fetchListings' conn tday toks coins ixn =
-   fetchTags conn ixn            >>= \tags ->
-   fetchListingDBs conn tday ixn >>= \ldbs ->
-   return (mapMaybe (ldb2l toks coins tags) ldbs)
+   fetchTags conn ixn                   >>= \tags ->
+   fetchListingDBs conn tday ixn        >>=
+   return . mapMaybe (ldb2l toks coins tags)
 
-fetchListingsAndTop10 :: Connection -> Day -> TokenMap -> [Idx] -> IO Listings
+fetchListingsAndTop10 :: Foldable t => Connection -> Day -> TokenMap -> t Idx
+                      -> IO Listings
 fetchListingsAndTop10 conn tday toks ixn =
    fetchCoins conn                         >>= \coins ->
    fetchListings' conn tday toks coins ixn >>= \news ->
    fetchTop10Listings conn tday toks coins >>=
-   return . mapIndexed . (news ++)
+   fetchTokenParents conn tday toks coins . mapIndexed . (news ++)
+
+fetchTokenParents :: Connection -> Day -> TokenMap -> CoinMap -> Listings
+                  -> IO Listings
+fetchTokenParents conn date tm cm ls =
+   let tokIds = Set.intersection (Map.keysSet tm) (Map.keysSet ls)
+       tokIdsL = Set.toList tokIds
+       parentId (coin -> (T (Token _ci pi _))) = pi
+       pid idx = Map.lookup idx ls
+       parentIds = Set.fromList (mapMaybe (\k -> parentId <$> pid k) tokIdsL)
+       newIds = Set.difference parentIds tokIds
+   in  if newIds == Set.empty
+       then return ls
+       else Map.mergeWithKey (\k a -> return) id id ls . mapIndexed
+            <$> fetchListings' conn date tm cm newIds
+
+-- I was gonna recurse to fetchTokenParents, but why, ya know.

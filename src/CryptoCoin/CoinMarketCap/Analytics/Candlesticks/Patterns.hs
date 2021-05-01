@@ -25,7 +25,6 @@ import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeWhiteKnights (twk)
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeLineStrike (tls)
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.TwoBlackGapping (tbg)
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
-import CryptoCoin.CoinMarketCap.Utils (pass)
 
 import Data.CryptoCurrency.Types
 import Data.CryptoCurrency.Types.OCHLV
@@ -87,9 +86,8 @@ computeAndStoreCandlestickRecommendations conn tday trackedCoins callLk indLk =
 
 go :: IO ()
 go = today >>= \tday ->
-   let indQuery = "SELECT indicator_id,indicator FROM indicator_lk" in
    withConnection ECOIN (\conn ->
       trackedCoins conn             >>= \tcs ->
       lookupTable conn "call_lk"    >>= \callLk ->
-      lookupTableFrom conn indQuery >>=
+      lookupInds conn               >>=
       computeAndStoreCandlestickRecommendations conn tday tcs callLk)

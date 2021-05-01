@@ -10,6 +10,7 @@ import Data.Aeson
 import Data.ByteString.Lazy.Char8 (ByteString)
 import qualified Data.ByteString.Char8 as B
 import qualified Data.ByteString.Lazy.Char8 as BL
+import Data.Foldable (toList)
 
 import Data.Map (Map)
 
@@ -69,26 +70,28 @@ instance FromRow ListingDB where
    fromRow = ListingDB <$> field <*> field <*> field
                        <*> field <*> field <*> fromRow
 
-fetchListingsBase :: Day -> [String]
-fetchListingsBase date = [
+fetchListingDBsQuery :: Day -> Query
+fetchListingDBsQuery date =
+   Query . B.pack $ unlines (fetchListingsBase date "AND cmc_id IN ?")
+
+fetchListingsBase :: Day -> String -> [String]
+fetchListingsBase date continuation = [
    "SELECT cmc_id, for_date, num_pairs, max_supply, circulating_supply,",
    "total_supply, rank, quote_price, volume_24h, percent_change_1h,",
    "percent_change_24h, percent_change_7d, percent_change_30d,",
    "percent_change_60d, percent_change_90d, market_cap",
    "FROM coin_market_cap_daily_listing",
-   "WHERE for_date='" ++ show date ++ "' "]
-
-fetchListingDBsQuery :: Day -> Query
-fetchListingDBsQuery date =
-   Query . B.pack $ unlines (fetchListingsBase date ++ ["AND cmc_id IN ?"])
+   "WHERE for_date='" ++ show date ++ "' " ++ continuation]
 
 type IxListingDB = IxRow ListingDB
 
-fetchListingDBs :: Connection -> Day -> [Idx] -> IO [IxListingDB]
-fetchListingDBs conn date = query conn (fetchListingDBsQuery date) . Only . In
+fetchListingDBs :: Foldable t => Connection -> Day -> t Idx -> IO [IxListingDB]
+fetchListingDBs conn date =
+   query conn (fetchListingDBsQuery date) . Only . In . toList
 
 fetchTop10ListingDBs :: Connection -> Day -> IO [IxListingDB]
 fetchTop10ListingDBs conn date = query_ conn (fetchTop10Query date)
 
 fetchTop10Query :: Day -> Query
-fetchTop10Query date = Query . B.pack $ unlines ["ORDER BY rank LIMIT 10"]
+fetchTop10Query date =
+   Query . B.pack $ unlines (fetchListingsBase date "ORDER BY rank LIMIT 10")

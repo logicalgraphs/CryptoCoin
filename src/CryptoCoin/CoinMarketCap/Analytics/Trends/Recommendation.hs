@@ -7,6 +7,8 @@ module CryptoCoin.CoinMarketCap.Analytics.Trends.Recommendation where
 
 import qualified Data.ByteString.Char8 as B
 
+import qualified Data.Map as Map
+
 import Data.Maybe (listToMaybe, mapMaybe)
 import Data.Time (Day, addDays)
 
@@ -49,11 +51,6 @@ patterns (t0:tz) =
 
 runRec :: Trend -> [Trend] -> RunRec -> Maybe Recommendation
 runRec tday yests fn = fn tday (listToMaybe yests)
-
-{--
-runRec' :: Trend -> [Trend] -> RunRec' -> Maybe Recommendation
-runRec' tday yests = runRec tday yests . liftR
---}
 
 mkRec :: Trend -> Call -> Indicator -> Maybe Recommendation
 mkRec (IxRow ix tday _) c ind = Just (IxRow ix tday (Rekt c (Ind ind) Nothing))
@@ -118,8 +115,22 @@ rsi30 t = const $ rsi14 (row t) >>= \rsi14t ->
 go :: IO ()
 go = today >>= \tday ->
      withConnection ECOIN (\conn ->
-        lookupInds conn >>= \indLk ->
-        lookupTable conn "call_lk" >>= \callLk ->
-        trackedCoins conn >>=
-        mapM (buySell conn tday) >>=
+        lookupInds conn                      >>= \indLk ->
+        lookupTable conn "call_lk"           >>= \callLk ->
+        trackedCoins conn                    >>=
+        mapM (buySell conn tday) . Map.elems >>=
         insertRecommendations conn callLk indLk . concat)
+
+{--
+Here's a fun delete statement:
+
+DELETE FROM
+   trend a
+     USING trend b
+   WHERE
+      a.trend_id > b.trend_id
+      AND a.cmc_id = b.cmc_id
+      AND a.for_date = b.for_date
+
+... deletes duplicate rows of data
+--}

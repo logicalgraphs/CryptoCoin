@@ -45,33 +45,35 @@ processTags conn (IxV _ (MetaData _ listings)) =
 
 -- step 1: get the tags from the database, including the next index
 
-fetchAllTags :: Connection -> IO (LookupTable, Idx)
-fetchAllTags conn = (id &&& nextIndex) <$> lookupTable conn "tag"
+type MapTag = Map Tag Idx
+
+fetchAllTags :: Connection -> IO (MapTag, Idx)
+fetchAllTags conn = (Map.mapKeys Tag &&& nextIndex) <$> lookupTable conn "tag"
 
 -- step 2: get the tags associated to each listing
 
 matchTags :: Map Idx Listing -> Map Tag (Set Idx)
 matchTags = snarf return
           . map swap
-          . (>>= traverse id)
+          . (>>= traverse Set.toList)
           . map (second tags)
           . Map.toList
 
 -- step 3: new tags
 
-newTags :: Map Tag (Set Idx) -> LookupTable -> Map Tag (Set Idx)
+newTags :: Map Tag (Set Idx) -> MapTag -> Map Tag (Set Idx)
 newTags tday = foldr Map.delete tday . Map.keys
 
 -- step 4: add the new tags to the database and to the lookup-table.
 
 -- step 4a: create the new tags-ids
 
-newTags' :: Idx -> Map Tag (Set Idx) -> LookupTable
+newTags' :: Idx -> Map Tag (Set Idx) -> MapTag
 newTags' nextIdx = Map.fromList . map swap . zip [nextIdx ..] . Map.keys
 
 -- step 4b: load these N00bz into the database
 
-loadNewTags :: Connection -> LookupTable -> IO ()
+loadNewTags :: Connection -> MapTag -> IO ()
 loadNewTags conn newTags =
    executeMany conn "INSERT INTO tag (tag_name, tag_id) VALUES (?, ?)"
                (Map.toList newTags) >>
@@ -80,7 +82,7 @@ loadNewTags conn newTags =
 -- step 4c: Now merge the results into a new lookup table (Map.union)
 -- and use that to form the pivot results for upload
 
-tagPivotValues :: LookupTable -> LookupTable -> Map Tag (Set Idx) -> [Pivot]
+tagPivotValues :: MapTag -> MapTag -> Map Tag (Set Idx) -> [Pivot]
 tagPivotValues big news =
    map (uncurry Pvt)
    . (>>= traverse Set.toList)

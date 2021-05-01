@@ -104,9 +104,10 @@ lookupInds =
 insertRecommendations :: Connection -> LookupTable -> LookupTable
                       -> [Recommendation] -> IO ()
 insertRecommendations conn callLk indLk rex =
-   putStrLn ("Inserting " ++ show (length rex) ++ " recommendations.")        >>
-   executeMany conn insertRektQuery (mapMaybe (toIxRektRow callLk indLk) rex) >>
-   putStrLn "...done."
+   putStrLn ("Inserting " ++ show (length rex) ++ " recommendations.") >>
+   let recs2insert = mapMaybe (toIxRektRow callLk indLk) rex in
+   executeMany conn insertRektQuery recs2insert                        >>
+   putStrLn ("...done (inserted " ++ show (length recs2insert) ++ "rows).")
 
 dCamelCase' :: Source -> String
 dCamelCase' (Ind i) = deCamelCase i
