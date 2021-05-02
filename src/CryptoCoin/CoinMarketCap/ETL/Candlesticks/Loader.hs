@@ -177,8 +177,9 @@ storeCandlestickCSVFileQuery = Query . B.pack $ unwords [
 maybeStoreCandlestickCSVFile :: Connection -> LookupTable -> Day 
                              -> ((Idx, String), Maybe String) -> IO ()
 maybeStoreCandlestickCSVFile conn srcLk tday ((idx, sym), Just file) =
-   void (execute conn storeCandlestickCSVFileQuery
-                  (filename, tday, file, cndlstks srcLk))
+   execute conn storeCandlestickCSVFileQuery
+                (filename, tday, file, cndlstks srcLk) >>
+   putStrLn ("Saving candlesticks for " ++ sym)
       where filename = concat [sym, '-':show idx, "-candlesticks-",
                                show tday, ".csv"]
 maybeStoreCandlestickCSVFile _ _ _ ((_, sym), Nothing) =
