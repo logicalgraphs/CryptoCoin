@@ -123,7 +123,9 @@ processedCandlesticks conn srcLk =
 go :: IO ()
 go = withConnection ECOIN (\conn ->
    let lk = lookupTable conn in
-   processAllCandlesticks conn <$> lk "source_type_lk" <*> lk "currency_lk")
+   lk "source_type_lk" >>= \srcs ->
+   lk "currency_lk"    >>=
+   processAllCandlesticks conn srcs)
 
 {--
 >>> go
