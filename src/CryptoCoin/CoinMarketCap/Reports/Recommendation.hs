@@ -201,7 +201,7 @@ fooey (TLAR' ind bas ii) = (,ii) <$> toSource ind bas
 (Ind SimpleMovingAverage,II "SMA" "https://www.investopedia.com/terms/s/sma.asp")
 (Ind ExponentialMovingAverage,II "EMA" "https://www.investopedia.com/terms/e/ema.asp")
 (Ind MovingAverageConvergenceDivergence,II "MACD" "https://www.investopedia.com/terms/m/macd.asp")
-(Ind RelativeStrengthIndex,II "RSA" "https://www.investopedia.com/terms/r/rsi.asp")
+(Ind RelativeStrengthIndex,II "RSI" "https://www.investopedia.com/terms/r/rsi.asp")
 (Ind OnBalanceVolume,II "OBV" "https://www.investopedia.com/terms/o/onbalancevolume.asp")
 --}
 
