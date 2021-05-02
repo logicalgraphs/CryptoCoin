@@ -8,6 +8,7 @@ module Data.CryptoCurrency.Types.Recommendation where
 import Control.Monad (join)
 
 import qualified Data.ByteString.Char8 as B
+
 import Data.Char (isLower)
 import Data.List (groupBy)
 import qualified Data.Map as Map

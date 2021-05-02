@@ -82,12 +82,6 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* for any listing we bring in, if it's a token, we need to bring in its 
-  parent, as well, for name-resolution, DONE.
-* save today's top-10 coins as 'new'-coins ... no, don't do that. 
-  * actually, do this: write a query to fetch the top 10 coins from today's
-    listings: DONE!
-
 * represent coins-as-graph
 
 * complete candlestick computations
