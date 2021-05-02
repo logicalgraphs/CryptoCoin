@@ -309,7 +309,7 @@ VALUES (1, 'Three White Knights', 'TWK',
         'https://www.investopedia.com/terms/m/macd.asp', 2),
        (10, 'On Balance Volume', 'OBV',
         'https://www.investopedia.com/terms/o/onbalancevolume.asp', 3), 
-       (11, 'Relative Strength Index', 'RSA',
+       (11, 'Relative Strength Index', 'RSI',
         'https://www.investopedia.com/terms/r/rsi.asp', 2);
 
 CREATE TABLE "basis_lk" (
