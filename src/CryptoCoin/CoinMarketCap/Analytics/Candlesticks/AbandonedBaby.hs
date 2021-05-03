@@ -34,3 +34,8 @@ ab' [a,b,c,d] =
    && doji (row c)
    && hollow d
    && d `gapsHigher` c
+
+{--
+https://www.investopedia.com/terms/b/bullish-abandoned-baby.asp goes into
+more detail, including exit strategies.
+--}
