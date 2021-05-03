@@ -53,11 +53,9 @@ in the data store.
 
 TODO: 
 
-* loading candlesticks isn't happening? Fix this.
-* Correct 'RSA' to 'RSI' lol
 * we need to build portfolios from the trades executed from recommendations.
 * we need to analyze the trades vis-à-vis recommendations and find which ones
-are effective and which ones aren't, or combinations, or what.
+are effective and which ones aren't, or combinations, or what. ... Bayes?
 
 ## Patterns used
 
