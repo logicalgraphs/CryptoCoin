@@ -24,6 +24,7 @@ import Database.PostgreSQL.Simple.Types
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeWhiteKnights (twk)
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeLineStrike (tls)
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.TwoBlackGapping (tbg)
+import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeBlackCrows (tbc)
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 
 import Data.CryptoCurrency.Types
@@ -54,7 +55,7 @@ patterns :: Patterns
 patterns = Map.fromList [
    (ThreeLineStrike,   (tls, Rec BUY $ P 0.83)),
    (TwoBlackGapping,   (tbg, Rec SELL $ P 0.68)),
-   (ThreeBlackCrows,   (undef, Rec SELL $ P 0.78)),
+   (ThreeBlackCrows,   (tbc, Rec SELL $ P 0.78)),
    (EveningStar,       (undef, Rec BUY $ P 0.72)),  -- really?
    (AbandonedBaby,     (undef, Rec SELL $ P 0.50)), -- dunno
    (ThreeWhiteKnights, (twk, Rec BUY $ P 0.91))]
