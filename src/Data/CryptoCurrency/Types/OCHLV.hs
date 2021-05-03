@@ -42,3 +42,32 @@ lowerLow (row -> tday) (row -> yest) =
 closesHigher :: CmpOCHLV
 closesHigher (row -> tday) (row -> wayBack) =
    close tday > high wayBack
+
+gapsLower, gapsHigher :: CmpOCHLV
+gapsLower (row -> lower) (row -> higher) =
+   high lower < low higher
+
+gapsHigher (row -> higher) (row -> lower) =
+   low higher > high lower
+
+black, red, bearish :: OCHLV -> Bool
+black = ((<) . close <*> open) . row
+red = black
+bearish = black
+
+hollow, green, bullish :: OCHLV -> Bool
+hollow = ((>) . close <*> open) . row
+green = hollow
+bullish = hollow
+
+{--
+>>> import Data.Time.TimeSeries (today)
+>>> tday <- today
+>>> import Data.CryptoCurrency.Types
+>>> black (IxRow 1 tday (OCHLVData 55000 54000 1 2 3 4))
+True
+>>> hollow (IxRow 1 tday (OCHLVData 55000 54000 1 2 3 4))
+False
+>>> hollow (IxRow 1 tday (OCHLVData 55000 56000 1 2 3 4))
+True
+--}

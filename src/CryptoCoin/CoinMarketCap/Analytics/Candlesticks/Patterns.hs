@@ -25,6 +25,7 @@ import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeWhiteKnights (twk)
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeLineStrike (tls)
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.TwoBlackGapping (tbg)
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeBlackCrows (tbc)
+import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.AbandonedBaby (ab)
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 
 import Data.CryptoCurrency.Types
@@ -57,7 +58,7 @@ patterns = Map.fromList [
    (TwoBlackGapping,   (tbg, Rec SELL $ P 0.68)),
    (ThreeBlackCrows,   (tbc, Rec SELL $ P 0.78)),
    (EveningStar,       (undef, Rec BUY $ P 0.72)),  -- really?
-   (AbandonedBaby,     (undef, Rec SELL $ P 0.50)), -- dunno
+   (AbandonedBaby,     (ab, Rec BUY $ P 0.50)),
    (ThreeWhiteKnights, (twk, Rec BUY $ P 0.91))]
 
 runPatterns :: Vector OCHLV -> Patterns -> [(Pattern, Rec')]

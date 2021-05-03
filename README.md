@@ -82,16 +82,18 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* true pipeline with jobs starting on the signal of a job's completion.
+
+* finish recommendations.
+
 * represent coins-as-graph
 
 * complete candlestick computations
-  * Three Black Crows
-  * Abandoned Baby
+  * Three Black Crows: done!
+  * Abandoned Baby: done!
   * Evening Star
 
 * create a spot-check that runs the numbers on any arbitrary yahoo-symbol
-
-* offer recommendations on e-coins from candlesticks
 
 * build predictive model based off of recommendations
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
@@ -123,6 +125,9 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-05-02: Today was the first day the system ran end-to-end from ingesting
+  coin-raw data to rendering recommendation reports (that weren't wrong, so,
+  that's a plus).
 * 2021-04-30: reports on coins now integrated into pipeline
 * 2021-04-29: Separated monolith into loader, processor, patterns, reports
   pipelines.
