@@ -1,5 +1,3 @@
-{-# LANGUAGE ViewPatterns #-}
-
 module CryptoCoin.CoinMarketCap.Analytics.Candlesticks.TwoBlackGapping where
 
 {--
@@ -14,16 +12,18 @@ perhaps triggering a broader-scale downtrend. According to Bulkowski, this
 pattern predicts lower prices with a 68% accuracy rate.
 --}
 
-import Data.CryptoCurrency.Types (row, IxRow(IxRow))
 import Data.CryptoCurrency.Types.OCHLV
 import Data.CryptoCurrency.Types.Vector (Vector, vtake, vals)
 
 tbg :: Vector OCHLV -> Bool
-tbg = maybe False (tbg' . vals) . vtake 5
+tbg = maybe False (tbg' . reverse . vals) . vtake 5
 
 tbg' :: [OCHLV] -> Bool
-tbg' (reverse -> [basis, top, down, gap, lower]) =
-      top `closesHigher` basis
+tbg' [basis, top, down, gap, lower] =
+      top `closesHigher` basis    -- 'uptrend'
    && down `lowerLow` top
-   && high (row gap) < low (row down)
+   && black down
+   && gap `gapsLower` down
+   && black gap
    && lower `lowerLow` gap
+   && black lower

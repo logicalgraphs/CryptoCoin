@@ -91,7 +91,7 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 * complete candlestick computations
   * Three Black Crows: done!
   * Abandoned Baby: done!
-  * Evening Star
+  * Evening Star: done!
 
 * create a spot-check that runs the numbers on any arbitrary yahoo-symbol
 
