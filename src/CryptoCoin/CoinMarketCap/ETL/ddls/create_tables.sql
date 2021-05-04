@@ -166,7 +166,8 @@ CREATE TABLE "portfolio" (
 	"portfolio_id" serial NOT NULL,
 	"portfolio_name" TEXT NOT NULL,
 	"cash" double precision NOT NULL,
-	CONSTRAINT "Portfolio_pk" PRIMARY KEY ("portfolio_id")
+	"tracked_type_id" bigint NULL,
+	CONSTRAINT "portfolio_pk" PRIMARY KEY ("portfolio_id")
 ) WITH (
   OIDS=FALSE
 );
