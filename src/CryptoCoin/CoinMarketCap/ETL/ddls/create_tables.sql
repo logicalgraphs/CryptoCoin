@@ -165,14 +165,17 @@ CREATE TABLE "j_tracked_coin_tracked_type" (
 CREATE TABLE "portfolio" (
 	"portfolio_id" serial NOT NULL,
 	"portfolio_name" TEXT NOT NULL,
-	"cash" double precision NOT NULL,
+	"cash" double precision NOT NULL DEFAULT 0,
 	"tracked_type_id" bigint NULL,
 	CONSTRAINT "portfolio_pk" PRIMARY KEY ("portfolio_id")
 ) WITH (
   OIDS=FALSE
 );
 
+-- let's start us out with two portfolii
 
+INSERT INTO portfolio (portfolio_id, portfolio_name, tracked_type_id)
+VALUES (1, 'COINBASE', 2), (2, 'BINANCE', 3);
 
 CREATE TABLE "transaction_log" (
 	"transaction_id" serial NOT NULL,
