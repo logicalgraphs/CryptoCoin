@@ -94,6 +94,19 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+
+```
+<p>
+ There are 0 new coins today.
+</p>
+<p>
+ There are 0 new tokens today.
+</p>
+The top-10 e-coins for 2021-05-04 with 2 new coins and 12 new tokens for today are archived at http://logicalgraphs.blogspot.com/2021/05/top-10-e-coins-for-2021-05-04.html #cryptocurrency 
+```
+
+okay. wut.
+
 * true pipeline with jobs starting on the signal of a job's completion.
 
 * finish recommendations.
