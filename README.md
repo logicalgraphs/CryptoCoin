@@ -36,6 +36,7 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 <img src="src/CryptoCoin/CoinMarketCap/ETL/imgs/e-coin-erd.png"/>
 
 ## Architecture
+### Recommendation Architecture
 
 <img src="src/CryptoCoin/CoinMarketCap/design/ecoins.png"/>
 
@@ -50,6 +51,19 @@ entities, then distills the results with recommendations, which are then saved
 to the data-store.
 * Finally, we generate reports against the entities and the recommendations
 in the data store.
+
+### Portfolio Architecture
+
+<img src="/src/CryptoCoin/CoinMarketCap/design/portfolio.png"/>
+
+The portfolio is a little dance between the transactions, the recommendations
+associated with the transcations, culminating into a trading portfolio. There
+can be multiple portfolii, and I'm thinking one per e-coin exchange. A buy/sell
+transaction has an associated set of recommendations that prompted that 
+transaction (indexed by the coin transacted). The price and surcharges are
+transaction-based (not price-of-the-day for the coin, as the buy/sell price
+fluctuates per transaction). The portfolio is the sum of the costs of the 
+transactions verses the current values of the holdings.
 
 TODO: 
 
