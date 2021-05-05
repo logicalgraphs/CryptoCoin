@@ -1,4 +1,4 @@
-module Data.CryptoCurrency.Types.Recommendation.Internal where
+module Data.CryptoCurrency.Types.Recommendations.Internal where
 
 {--
 Because recommendations are across prices, volumes, and candlesticks, AND

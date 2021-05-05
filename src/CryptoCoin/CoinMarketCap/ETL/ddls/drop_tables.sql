@@ -2,7 +2,6 @@
 
 DROP TABLE IF EXISTS "j_tag_coin";
 DROP TABLE IF EXISTS "j_tracked_coin_tracked_type";
-DROP TABLE IF EXISTS "j_transaction_portfolio";
 DROP TABLE IF EXISTS "j_transaction_recommendation";
 
 -- TABLES ------------------------------------------------------------------

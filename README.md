@@ -109,14 +109,7 @@ okay. wut.
 
 * true pipeline with jobs starting on the signal of a job's completion.
 
-* finish recommendations.
-
 * represent coins-as-graph
-
-* complete candlestick computations
-  * Three Black Crows: done!
-  * Abandoned Baby: done!
-  * Evening Star: done!
 
 * create a spot-check that runs the numbers on any arbitrary yahoo-symbol
 
@@ -124,8 +117,11 @@ okay. wut.
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
   * map FCAS coin uuids to cmc_ids
 
-* create a portfolio: positions held, money invested, current value
-* create a transaction history (you know, for tax purposes)
+* create a portfolio: positions held, money invested, current value: IN PROGRESS
+* create a transaction history (you know, for tax purposes): IN PROGRESS
+
+* convert `(-|)` to `:: Bool -> a -> Maybe a`
+* add `(=|) :: Maybe Bool -> a -> Maybe a`
 
 * get FCAS data for monitored coins
 

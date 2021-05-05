@@ -24,7 +24,7 @@ import Database.PostgreSQL.Simple.Types (Query(Query))
 import Control.Scan.CSV (readMaybe)
 
 import Data.CryptoCurrency.Types
-import Data.CryptoCurrency.Types.Recommendation.Internal
+import Data.CryptoCurrency.Types.Recommendations.Internal
 
 import Data.LookupTable (LookupTable)
 import Data.Percentage

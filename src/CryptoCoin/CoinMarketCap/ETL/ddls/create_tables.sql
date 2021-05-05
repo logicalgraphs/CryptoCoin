@@ -47,8 +47,6 @@ CREATE TABLE "token" (
   OIDS=FALSE
 );
 
-
-
 CREATE TABLE "tag" (
 	"tag_id" serial NOT NULL,
 	"tag_name" TEXT NOT NULL,
@@ -56,8 +54,6 @@ CREATE TABLE "tag" (
 ) WITH (
   OIDS=FALSE
 );
-
-
 
 CREATE TABLE "j_tag_coin" (
 	"j_tag_cmc_id" serial NOT NULL,
@@ -88,8 +84,6 @@ CREATE TABLE "flipside_crypto_daily" (
 ) WITH (
   OIDS=FALSE
 );
-
-
 
 CREATE TABLE "score" (
 	"score_id" serial NOT NULL,
@@ -161,7 +155,6 @@ CREATE TABLE "j_tracked_coin_tracked_type" (
   OIDS=FALSE
 );
 
-
 CREATE TABLE "portfolio" (
 	"portfolio_id" serial NOT NULL,
 	"portfolio_name" TEXT NOT NULL,
@@ -185,23 +178,15 @@ CREATE TABLE "transaction_log" (
 	"surcharge_usd" double precision NOT NULL,
 	"n_coins" double precision NOT NULL,
 	"call_id" bigint NOT NULL,
+	"portfolio_id" bigint NULL,
 	CONSTRAINT "transaction_log_pk" PRIMARY KEY ("transaction_id")
 ) WITH (
   OIDS=FALSE
 );
 
 CREATE INDEX ON transaction_log (cmc_id);
-create index on transaction_log (for_date);
-
-
-CREATE TABLE "j_transaction_portfolio" (
-	"jtp_id" serial NOT NULL,
-	"portfolio_id" bigint NOT NULL,
-	"transaction_id" bigint NOT NULL,
-	CONSTRAINT "j_transaction_portfolio_pk" PRIMARY KEY ("jtp_id")
-) WITH (
-  OIDS=FALSE
-);
+CREATE INDEX ON transaction_log (for_date);
+CREATE INDEX ON transaction_log (portfolio_id);
 
 CREATE TABLE "candlesticks" (
 	"candlestick_id" serial NOT NULL,
