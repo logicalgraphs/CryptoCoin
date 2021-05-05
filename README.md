@@ -105,7 +105,11 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 The top-10 e-coins for 2021-05-04 with 2 new coins and 12 new tokens for today are archived at http://logicalgraphs.blogspot.com/2021/05/top-10-e-coins-for-2021-05-04.html #cryptocurrency 
 ```
 
-okay. wut.
+okay: I think I see what the issue is. The coin may be new to coin-market-cap
+as of today, but its incept-date is more than likely a prior day. That means
+new coins and tokens I count today do not appear as such in the database.
+
+Whatever. I think the new-coin-reporter phase has passed.
 
 * update Recommendation to include its numerical indicator(s)
 
