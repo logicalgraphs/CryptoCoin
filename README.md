@@ -107,6 +107,8 @@ The top-10 e-coins for 2021-05-04 with 2 new coins and 12 new tokens for today a
 
 okay. wut.
 
+* update Recommendation to include its numerical indicator(s)
+
 * true pipeline with jobs starting on the signal of a job's completion.
 
 * represent coins-as-graph
