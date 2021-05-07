@@ -132,6 +132,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-05-07: added `verify`-target to Makefile, verifying every haskell file.
 * 2021-05-02: Today was the first day the system ran end-to-end from ingesting
   coin-raw data to rendering recommendation reports (that weren't wrong, so,
   that's a plus).

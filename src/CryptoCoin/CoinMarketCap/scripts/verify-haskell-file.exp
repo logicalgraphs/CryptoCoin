@@ -1,0 +1,19 @@
+#!/usr/bin/env expect
+
+set file [lindex $argv 0];
+
+log_user 0
+spawn ghci
+log_user 1
+
+expect ".*> "
+send ":set prompt \"ghci> \"\n"
+
+expect "ghci> "
+send ":set -i$::env(CRYPTOCOIN_DIR)/src:$::env(GHC_HOME)\n"
+expect "ghci> "
+send ":load $file\n"
+expect "ghci> "
+send ":q\n"
+
+interact

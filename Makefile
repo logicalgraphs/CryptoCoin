@@ -8,6 +8,17 @@ SCRIPTS_DIR=$(COIN_MARKET_CAP_DIR)/scripts
 ecoins: loaders reports
 	@echo "ecoins: didst runneth."
 
+EXCLUDE=-path ./src/Data/BlockChain -prune -false -o
+VERIFIER=$(SCRIPTS_DIR)/verify-haskell-file.exp
+ERR_FILE=errs.txt
+
+verify: verify1 FORCE
+	grep error $(ERR_FILE)
+	rm $(ERR_FILE)
+
+verify1: FORCE
+	find . $(EXCLUDE) -name "*.hs" -exec $(VERIFIER) {} \; > $(ERR_FILE)
+
 CANDLESTICK_LOADER=$(SCRIPTS_DIR)/run-load-candlesticks.exp
 TRACKED_COIN_LOADER=$(SCRIPTS_DIR)/run-load-tracked-coins.exp
 LISTINGS_LOADER=$(SCRIPTS_DIR)/run-load-listings.sh 
@@ -51,7 +62,7 @@ $(TREND_PATTERNS): $(TREND_PROCESSOR) FORCE
 	$(TREND_PATTERNS)
 
 COIN_REPORT=$(SCRIPTS_DIR)/run-report-coin.exp
-RECOMMENDATIONS_REPORT=$(SCRIPTS_DIR)/run-report-recommendations.exp
+RECOMMENDATION_REPORT=$(SCRIPTS_DIR)/run-report-recommendations.exp
 
 reports: coin_reports recommendations
 	@echo "Ran the reports"
@@ -59,13 +70,13 @@ reports: coin_reports recommendations
 coin_reports: $(COIN_REPORT)
 	true
 
-recommendations: $(RECOMMENDATIONS_REPORT)
+recommendations: $(RECOMMENDATION_REPORT)
 	true
 
 $(COIN_REPORT): $(COIN_PROCESSOR) FORCE
 	$(COIN_REPORT)
 
-$(RECOMMENDATIONS_REPORT): $(TREND_PATTERNS) $(CANDLESTICK_PATTERNS) FORCE
+$(RECOMMENDATION_REPORT): $(TREND_PATTERNS) $(CANDLESTICK_PATTERNS) FORCE
 	$(RECOMMENDATIONS_REPORT)
 
 FORCE:
