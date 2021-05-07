@@ -65,11 +65,6 @@ transaction-based (not price-of-the-day for the coin, as the buy/sell price
 fluctuates per transaction). The portfolio is the sum of the costs of the 
 transactions verses the current values of the holdings.
 
-TODO: 
-
-* we need to analyze the trades vis-à-vis recommendations and find which ones
-are effective and which ones aren't, or combinations, or what. ... Bayes?
-
 ## Patterns used
 
 ### Candlesticks
@@ -93,6 +88,9 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* we need to analyze the trades vis-à-vis recommendations and find which ones
+are effective and which ones aren't, or combinations, or what. ... Bayes?
+
 * true pipeline with jobs starting on the signal of a job's completion.
 
 * represent coins-as-graph
@@ -105,9 +103,6 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 * create a portfolio: positions held, money invested, current value: IN PROGRESS
 * create a transaction history (you know, for tax purposes): IN PROGRESS
-
-* convert `(-|)` to `:: Bool -> a -> Maybe a`
-* add `(=|) :: Maybe Bool -> a -> Maybe a`
 
 * get FCAS data for monitored coins
 
