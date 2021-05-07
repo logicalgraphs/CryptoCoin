@@ -47,12 +47,8 @@ instance Traversable Vector where
 
 -- Now that we have Vector, let's declare a safe-take function
 
-instance Monoid (Vector a) where
-   mempty = vempty
-   mappend = vappend
-
 vtake :: Int -> Vector a -> Maybe (Vector a)
-vtake n (Vect m v) = n <= m -| Just (Vect n (take n v))
+vtake n (Vect m v) = n <= m -| Vect n (take n v)
 
 {--
 >>> vtake 50 (mkVect [1,2,3])
@@ -60,13 +56,11 @@ Nothing
 
 >>> vtake 1 (mkVect [1,2,3])
 Just (Vect {sz = 1, vals = [1]})
---}
 
--- What does this function return?
+What does this function return?
 
 hey = mapM print (mkVect [1,2,3])
 
-{--
 >>> hey 
 1
 2

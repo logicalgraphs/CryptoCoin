@@ -144,7 +144,7 @@ fetchOCHLV (addDays (-1) -> yday) (idx, (sym, addDays 1 -> fromDay)) =
             NoReqBody bsResponse
           $ "period1" =: start <> "period2" =: finish <> "interval" =: int
             <> "events" =: hist <> "includeAdjustedClose" =: True
-  return (responseStatusCode bs == 200 -| Just (B.unpack (responseBody bs)))
+  return (responseStatusCode bs == 200 -| B.unpack (responseBody bs))
 
 {--
 >>> today >>= \tday -> fetchOCHLV tday (1, ("BTC", addDays (-5) tday))

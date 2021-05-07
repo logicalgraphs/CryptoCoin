@@ -52,8 +52,8 @@ patterns (t0:tz) =
 runRec :: Trend -> [Trend] -> RunRec -> Maybe Recommendation
 runRec tday yests fn = fn tday (listToMaybe yests)
 
-mkRec :: Trend -> Call -> Indicator -> Maybe Recommendation
-mkRec (IxRow ix tday _) c ind = Just (IxRow ix tday (Rekt c (Ind ind) Nothing))
+mkRec :: Trend -> Call -> Indicator -> Recommendation
+mkRec (IxRow ix tday _) c ind = IxRow ix tday (Rekt c (Ind ind) Nothing)
 
 liftR :: RunRec' -> RunRec
 liftR fn t0 mbt1 = mbt1 >>= fn t0
