@@ -17,6 +17,7 @@ coin at this date bought or sold in this transaction.
 --}
 
 import Control.Arrow ((&&&))
+import Control.Monad (join)
 
 import qualified Data.ByteString.Char8 as B
 
@@ -31,6 +32,9 @@ import Data.Time (Day)
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.Types
 
+import Control.Map (snarf)
+import Control.Scan.CSV (readMaybe)
+
 import Data.CryptoCurrency.Types
 import Data.CryptoCurrency.Types.Recommendation
 import Data.CryptoCurrency.Types.Transactions.Internal
@@ -41,6 +45,8 @@ import Store.SQL.Util.Pivots (Pivot(Pvt))
 
 data Transaction = Transaction Symbol Day USD USD Double Call String
    deriving (Eq, Ord, Show)
+
+-- STORE FUNCTIONS -------------------------------------------------------
 
 toTrans' :: LookupTable -> LookupTable -> LookupTable -> Transaction
          -> Maybe Trans'
@@ -61,8 +67,8 @@ gather f = Set.fromList . map f . toList
 
 pvt :: Query
 pvt = Query . B.pack $ unlines [
-   "INSERT INTO j_transaction_recommendation (transaction_id, recommendation_id)",
-   "VALUES (?, ?)"]
+   "INSERT INTO j_transaction_recommendation (transaction_id,",
+   "recommendation_id) VALUES (?, ?)"]
 
 -- joinRecs has the gaping hole-across-days, so we should focus on using
 -- this function within the span of no more than one day
@@ -79,3 +85,32 @@ joinRecommendations conn cdts =
 
 pvtCoin2Trans :: Map Integer Integer -> Pivot -> Maybe Pivot
 pvtCoin2Trans c2t (Pvt i j) = flip Pvt j <$> Map.lookup i c2t
+
+-- FETCH FUNCTIONS -------------------------------------------------------
+
+type LookDownS = LookDown String
+
+fromTrans' :: LookDownS -> LookDownS -> LookDownS -> Trans' -> Maybe Transaction
+fromTrans' symLk callLk portLk (Trans' dt amt sur cns callId portId symId) =
+   let lk = Map.lookup in
+   lk symId symLk >>= \sym ->
+   Transaction sym dt amt sur cns <$> join (readMaybe <$> lk callId callLk)
+                                  <*> lk portId portLk
+
+instance Indexed Trans' where
+   idx (Trans' _ _ _ _ _ _ symId) = symId
+
+type CoinTransactions = Map Idx (Set Transaction)
+
+fetchTransactions :: Connection -> LookupTable -> LookupTable -> LookupTable
+                  -> String -> IO CoinTransactions
+fetchTransactions conn symLk callLk portLk portfolio =
+   let whereClause = ("WHERE portfolio_id=" ++) . show
+                     <$> Map.lookup portfolio portLk
+       symld = lookdown symLk
+       callld = lookdown callLk
+       portld = lookdown portLk
+   in  maybe (return Map.empty) 
+             (\wc -> snarf (sequence . (idx &&& fromTrans' symld callld portld))
+                           <$> fetchTrans conn wc)
+             whereClause
