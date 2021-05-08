@@ -142,9 +142,10 @@ VALUES (1, 'NEW', null),
        (2, 'COINBASE', 'https://www.coinbase.com'), 
        (3, 'BINANCE', 'https://www.binance.us/en/home'),
        (4, 'PHEMEX', 'https://phemex.com/'),
-       (5, 'RANK_VARIANCE', null),
-       (6, 'PRICE_VARIANCE', null), 
-       (7, 'MENTIONED_IN_NEWS', null);
+       (5, 'GEMINI', 'https://exchange.gemini.com/'),
+       (6, 'RANK_VARIANCE', null),
+       (7, 'PRICE_VARIANCE', null), 
+       (8, 'MENTIONED_IN_NEWS', null);
 
 CREATE TABLE "j_tracked_coin_tracked_type" (
 	"jtctt_id" serial NOT NULL,
