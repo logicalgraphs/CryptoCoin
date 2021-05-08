@@ -235,6 +235,13 @@ fetchListings' conn tday toks coins ixn =
    fetchListingDBs conn tday ixn        >>=
    return . mapMaybe (ldb2l toks coins tags)
 
+fetchListings :: Foldable t => Connection -> Day -> t Idx -> IO Listings
+fetchListings conn tday idxn =
+   fetchTokens conn                         >>= \toks ->
+   fetchCoins conn                          >>= \coins ->
+   fetchListings' conn tday toks coins idxn >>=
+   fetchTokenParents conn tday toks coins . mapIndexed
+
 fetchListingsAndTop10 :: Foldable t => Connection -> Day -> TokenMap -> t Idx
                       -> IO Listings
 fetchListingsAndTop10 conn tday toks ixn =
