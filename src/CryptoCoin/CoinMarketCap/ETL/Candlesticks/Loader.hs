@@ -55,6 +55,7 @@ import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 import CryptoCoin.CoinMarketCap.ETL.Candlesticks.Util (cndlstks)
 
 import Data.CryptoCurrency.Types (Idx, IxRow(IxRow))
+import Data.CryptoCurrency.Utils (report)
 
 import Data.LookupTable (LookupTable, lookdown)
 
@@ -195,12 +196,13 @@ maybeStoreCandlestickCSVFile _ _ _ ((_, sym), Nothing) =
 
 downloadCandlesticks :: Connection -> LookupTable -> LookupTable -> IO ()
 downloadCandlesticks conn srcs trackedCoins =
-   putStrLn "Downloading and storing candlestick files."                 >>
-   today                                                        >>= \tday ->
-   maxOr250 conn tday trackedCoins                                       >>=
-   traverse (sequence . ((id *** fst) &&& fetchOCHLV tday)) . Map.toList >>=
-   mapM_  (maybeStoreCandlestickCSVFile conn srcs tday)                  >>
-   putStrLn "... done."
+   today                                                   >>= \tday ->
+   let ts f = traverse (sequence . f)
+       candlesF = ((id *** fst) &&& fetchOCHLV tday) in
+   report 0 ("Downloading and storing candlestick files.")
+            (maxOr250 conn tday trackedCoins               >>=
+             ts candlesF . Map.toList                      >>=
+             mapM_  (maybeStoreCandlestickCSVFile conn srcs tday))
 
 go :: IO ()
 go = withConnection ECOIN (\conn -> 

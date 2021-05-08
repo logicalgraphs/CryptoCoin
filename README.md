@@ -88,6 +88,9 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* singulars and plurals, are so different, bless my soul. Has it ever occured
+  to you, that the plural of half, is whole? ~ Alan Sherman
+
 * we need to analyze the trades vis-à-vis recommendations and find which ones
 are effective and which ones aren't, or combinations, or what. ... Bayes?
 

@@ -24,13 +24,15 @@ import Data.Time.Calendar (toGregorian)
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.Types
 
-import Data.CryptoCurrency.Types (rank, Indexed, idx)
-
 import CryptoCoin.CoinMarketCap.Types 
             (NewCoins, NewCoinsCtx, MetaData(MetaData), coin, Listings,
              fetchTokens, fetchListingsAndTop10)
 import CryptoCoin.CoinMarketCap.Reports.Table (report', newCoins,
-         plural, top10, coinHeaders, ec2cc)
+         top10, coinHeaders, ec2cc)
+import CryptoCoin.CoinMarketCap.Reports.Utils (connective, tweet)
+
+import Data.CryptoCurrency.Types (rank, Indexed, idx)
+import Data.CryptoCurrency.Utils (plural)
 
 import Data.Time.TimeSeries (today)
 
@@ -57,38 +59,19 @@ ranking date ecoins newsies =
 ...
 --}
 
-tweet :: Foldable t => Day -> (t a, t b) -> IO ()
-tweet today (length -> coins, length -> tokens) =
-   let (yr, mos, _) = toGregorian today
-       showOught m = (if m < 10 then ('0':) else id) (show m)
-       url = concat ["http://logicalgraphs.blogspot.com/", show yr, "/",
-                     showOught mos, "/top-10-e-coins-for-"]
-       day = show today
-       urlday = url ++ day ++ ".html"
-   in  putStrLn ("The top-10 e-coins for " ++ day ++ coinsNtokens coins tokens
-                 ++ " are archived at " ++ urlday ++ " #cryptocurrency ")
-
 -- Looking at the below arithmetic, I can see that George Boole was onto 
 -- something!
 
-coinsNtokens :: Int -> Int -> String
-coinsNtokens c t = c' (c + t) c t
+coinsNtokens :: Foldable t => t a -> t b  -> String
+coinsNtokens (length -> c) (length -> t) = c' (c + t) c t
 
 c' :: Int -> Int -> Int -> String
 c' 0 _ _ = ""
-c' _ c t =
-    " with" ++ n "coin" c ++ connective (c * t) ++ n "token" t ++ " for today"
-
-connective :: Int -> String
-connective 0 = ""
-connective _ = " and"
+c' _ c t = " with" ++ n "coin" c ++ connective (c * t) ++ n "token" t
 
 n :: String -> Int -> String
 n _ 0 = ""
 n typ c = ' ':show c ++ " new " ++ typ ++ plural c
-
-title :: Day -> IO ()
-title = putStrLn . ("Top-10 E-coins for " ++) . show
 
 {--
 Okay.
@@ -118,12 +101,16 @@ fetchNewCoinsAndTokens conn date toks =
 
 runReport :: Connection -> Day -> IO ()
 runReport conn tday =
-   fetchTokens conn                                            >>= \toks ->
+   fetchTokens conn                               >>= \toks ->
    let tokIds = Set.map Idx (Map.keysSet toks) in
-   fetchNewCoinsAndTokens conn tday tokIds                     >>= \news ->
-   let idxn = map idx (Set.toList (uncurry Set.union news)) in
-   fetchListingsAndTop10 conn tday toks idxn                   >>= \lists ->
-   ranking tday lists news >> tweet tday news >> title tday
+   fetchNewCoinsAndTokens conn tday tokIds        >>= \news ->
+   let ucf = flip uncurry news
+       idxn = map idx (Set.toList (ucf Set.union))
+       msg = "The top-10 e-coins " ++ ucf coinsNtokens in
+   fetchListingsAndTop10 conn tday toks idxn      >>= \lists ->
+   ranking tday lists news                        >>
+   tweet tday "top-10-e-coins-for-" msg           >>
+   putStrLn ("Top-10 E-coins for " ++ show tday)
 
 go :: IO ()
-go = today >>= \tday -> withConnection ECOIN (flip runReport tday)
+go = today >>= withConnection ECOIN . flip runReport

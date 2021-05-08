@@ -25,6 +25,7 @@ import Control.Scan.CSV (readMaybe)
 
 import Data.CryptoCurrency.Types
 import Data.CryptoCurrency.Types.Recommendations.Internal
+import Data.CryptoCurrency.Utils (report, plural)
 
 import Data.LookupTable (LookupTable)
 import Data.Percentage
@@ -105,10 +106,11 @@ lookupInds =
 insertRecommendations :: Connection -> LookupTable -> LookupTable
                       -> [Recommendation] -> IO ()
 insertRecommendations conn callLk indLk rex =
-   putStrLn ("Inserting " ++ show (length rex) ++ " recommendations.") >>
-   let recs2insert = mapMaybe (toIxRektRow callLk indLk) rex in
-   executeMany conn insertRektQuery recs2insert                        >>
-   putStrLn ("...done (inserted " ++ show (length recs2insert) ++ "rows).")
+   let sz = length rex in
+   report 0
+          (unwords ["Inserting", show sz, "recommendation" ++ plural sz ++ "."])
+          (let recs2insert = mapMaybe (toIxRektRow callLk indLk) rex in
+           executeMany conn insertRektQuery recs2insert)
 
 dCamelCase' :: Source -> String
 dCamelCase' (Ind i) = deCamelCase i

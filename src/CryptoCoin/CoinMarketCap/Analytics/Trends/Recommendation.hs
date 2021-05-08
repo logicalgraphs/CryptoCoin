@@ -23,6 +23,7 @@ import Data.CryptoCurrency.Types (Idx, IxRow(IxRow), row)
 import Data.CryptoCurrency.Types.Recommendation
 import Data.CryptoCurrency.Types.Trend (fetchTrends, Trend, sma50, sma200,
              macd, rsi14, ema9)
+import Data.CryptoCurrency.Utils (plural, toBe, pass)
 
 import Data.Time.TimeSeries (today)
 
@@ -34,14 +35,15 @@ type RunRec' = Trend -> Trend -> Maybe Recommendation
 
 buySell :: Connection -> Day -> Idx -> IO [Recommendation]
 buySell conn tday coinId =
-   patterns <$> fetchTrends conn (addDays (-3) tday) coinId 2 >>= reportOn
+   patterns <$> fetchTrends conn (addDays (-3) tday) coinId 2 >>= pass reportOn
 
-reportOn :: [Recommendation] -> IO [Recommendation]
-reportOn [] = return []
+reportOn :: [Recommendation] -> IO ()
+reportOn [] = return ()
 reportOn ls@(IxRow i _ _:r) =
-   putStrLn (unwords ["There are", show (succ (length r)), "trend indicators",
-                      "for", show i]) >>
-   return ls
+   let trndz = succ (length r) in
+   putStrLn (unwords ["There" ++ toBe trndz, show trndz,
+                      "trend indicator" ++ plural trndz,
+                      "for", show i])
 
 patterns :: [Trend] -> [Recommendation]
 patterns [] = []

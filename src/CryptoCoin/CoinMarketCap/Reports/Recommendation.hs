@@ -29,6 +29,7 @@ import Control.List (weave)
 import Control.Map (snarf)
 
 import CryptoCoin.CoinMarketCap.Reports.Table (report, linq, a)
+import CryptoCoin.CoinMarketCap.Reports.Utils (tweet)
 
 import Data.LookupTable (LookupTable)
 import Data.Monetary.USD
@@ -288,6 +289,12 @@ tupII (II tla url) = (tla, url)
 go :: IO ()
 go = today >>= \tday ->
      withConnection ECOIN (\conn -> 
-        collateRecommendations conn tday >>= report "recommendation" thdr)
+        collateRecommendations conn tday           >>= \recs ->
+        report "recommendation" thdr recs          >>
+        let sz = length recs
+            route = show sz ++ "-e-coin-recommendations-for-"
+            message = show sz ++ " E-Coin recommendations" in
+        tweet tday route message                   >>
+        putStrLn (message ++ " for " ++ show tday))
 
 -- a sample output is at this directory: sample-recommendations.html
