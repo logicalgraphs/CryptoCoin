@@ -75,6 +75,9 @@ class CoinData a where
 instance Rank CoinInfo where
    rank (CoinInfo _ _ _ _ r _) = r
 
+instance Cymbal CoinInfo where
+   sym (CoinInfo _ _ symb _ _ _) = symb
+
 instance Indexed CoinInfo where
    idx (CoinInfo i _ _ _ _ _) = i
 
@@ -117,6 +120,9 @@ instance Rank ECoin where
 
 instance Indexed ECoin where
    idx = idx . info
+
+instance Cymbal ECoin where
+   sym = sym . info
 
 raw2coin :: Listing' -> ECoin
 raw2coin l = r2c l (plat l)
