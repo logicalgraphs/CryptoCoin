@@ -88,9 +88,6 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* singulars and plurals, are so different, bless my soul. Has it ever occured
-  to you, that the plural of half, is whole? ~ Alan Sherman
-
 * we need to analyze the trades vis-à-vis recommendations and find which ones
 are effective and which ones aren't, or combinations, or what. ... Bayes?
 
@@ -103,9 +100,6 @@ are effective and which ones aren't, or combinations, or what. ... Bayes?
 * build predictive model based off of recommendations
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
   * map FCAS coin uuids to cmc_ids
-
-* create a portfolio: positions held, money invested, current value: IN PROGRESS
-* create a transaction history (you know, for tax purposes): IN PROGRESS
 
 * get FCAS data for monitored coins
 
@@ -130,6 +124,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-05-12: Transaction management and portfolio reports.
 * 2021-05-07: added `verify`-target to Makefile, verifying every haskell file;
   added gemini exchange.
 * 2021-05-02: Today was the first day the system ran end-to-end from ingesting
