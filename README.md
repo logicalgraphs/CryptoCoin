@@ -88,6 +88,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* provide year-to-date transaction history with the portfolio report
+
 * we need to analyze the trades vis-à-vis recommendations and find which ones
 are effective and which ones aren't, or combinations, or what. ... Bayes?
 
