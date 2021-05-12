@@ -37,7 +37,7 @@ import System.Environment (getEnv)
 import Control.Logic.Frege ((<<-))
 import Control.Scan.CSV (csv)
 
-import CryptoCoin.CoinMarketCap.Utils (filesAtDir, report)
+import Data.CryptoCurrency.Utils (filesAtDir, report)
 
 import Data.CryptoCurrency.Types (Idx)
 import Data.LookupTable (LookupTable)

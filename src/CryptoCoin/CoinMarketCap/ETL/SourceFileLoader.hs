@@ -26,7 +26,7 @@ import Database.PostgreSQL.Simple.Types
 import Control.Presentation
 import Control.Scan.CSV
 
-import CryptoCoin.CoinMarketCap.Utils (pass, filesAtDir)
+import Data.CryptoCurrency.Utils (pass', filesAtDir)
 
 import Data.LookupTable
 import Data.Time.TimeSeries (today)
@@ -115,9 +115,9 @@ srcs conn src day =
 
 sources :: Connection -> LookupTable -> IO ()
 sources conn src = 
-   getCurrentTime                                               >>=
-   srcs conn src . addDays (-2) . utctDay                       >>=
-   pass (putStrLn "id,source_type,for_day,file_name,processed") >>=
+   getCurrentTime                                                >>=
+   srcs conn src . addDays (-2) . utctDay                        >>=
+   pass' (putStrLn "id,source_type,for_day,file_name,processed") >>=
    mapM_ (putStrLn . uncsv)
 
 {--
