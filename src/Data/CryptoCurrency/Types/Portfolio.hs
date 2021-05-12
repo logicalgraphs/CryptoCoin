@@ -12,6 +12,8 @@ import Control.Arrow ((&&&))
 import qualified Data.ByteString.Char8 as B
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Set (Set)
+import qualified Data.Set as Set
 
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromRow
@@ -20,7 +22,7 @@ import Database.PostgreSQL.Simple.Types
 import Data.Monetary.USD
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
-import Store.SQL.Util.Indexed (IxValue, val)
+import Store.SQL.Util.Indexed (IxValue(IxV), val, Index, idx)
 
 data Portfolio =
    Portfolio { portfolioName :: String, cash :: USD, raison :: Maybe String }
@@ -46,10 +48,25 @@ fetchPortfoliiQuery = Query . B.pack $ unlines [
    "FROM portfolio p",
    "INNER JOIN tracked_type_lk ttlk ON ttlk.tracked_type_id=p.tracked_type_id"]
 
+fetchCoinsQuery :: Integer -> Query
+fetchCoinsQuery portId = Query $ B.pack
+   ("SELECT DISTINCT cmc_id FROM transaction_log WHERE portfolio_id="
+     ++ show portId)
+
+fetchCoinIdsFor' :: Connection -> IxValue a -> IO (Set Index)
+fetchCoinIdsFor' conn (IxV ix _) =
+   Set.fromList <$> query_ conn (fetchCoinsQuery ix)
+
+fetchCoinIdsFor :: Connection -> IxValue a -> IO (Set Integer)
+fetchCoinIdsFor conn ix = Set.map idx <$> fetchCoinIdsFor' conn ix
+
 {--
->>> withConnection ECOIN (\conn -> fetchPortfolii conn >>= mapM_ print)
-IxV {ix = 1, val = Portfolio {portfolioName = "COINBASE", cash = $0.00, 
-     raison = Just "COINBASE"}}
-IxV {ix = 2, val = Portfolio {portfolioName = "BINANCE", cash = $0.00, 
-     raison = Just "BINANCE"}}
+>>> withConnection ECOIN (\conn -> fetchPortfolii conn >>=
+          mapM_ (\port -> sequence (port, fetchCoinIdsFor conn port) >>= print)
+                 . Map.elems)
+(IxV {ix = 2, val = Portfolio {portfolioName = "BINANCE", cash = $0.00,
+                               raison = Just "BINANCE"}},[])
+(IxV {ix = 1, val = Portfolio {portfolioName = "COINBASE", cash = $0.00, 
+                               raison = Just "COINBASE"}},
+ fromList [1,512,4761,5692,6719,9421])
 --}

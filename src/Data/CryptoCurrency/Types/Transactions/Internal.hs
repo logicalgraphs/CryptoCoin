@@ -86,8 +86,8 @@ instance FromRow Trans' where
 
 fetchTransQuery :: String -> Query
 fetchTransQuery whereClause = Query . B.pack $ unlines [
-   "SELECT cmc_id, for_date, purchase_usd, surcharge_usd, n_coins, call_id,",
-   "portfolio_id FROM transaction_log", whereClause]
+   "SELECT for_date, purchase_usd, surcharge_usd, n_coins, call_id,",
+   "portfolio_id,cmc_id FROM transaction_log", whereClause]
 
 fetchTrans :: Connection -> String -> IO [Trans']
 fetchTrans conn = query_ conn . fetchTransQuery

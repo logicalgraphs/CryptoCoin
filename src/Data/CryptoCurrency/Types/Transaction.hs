@@ -46,6 +46,12 @@ import Store.SQL.Util.Pivots (Pivot(Pvt))
 data Transaction = Transaction Symbol Day USD USD Double Call String
    deriving (Eq, Ord, Show)
 
+ncoins :: Transaction -> Double
+ncoins (Transaction _ _ _ _ n _ _) = n
+
+spent :: Transaction -> USD
+spent (Transaction _ _ _ s _ _ _) = s
+
 -- STORE FUNCTIONS -------------------------------------------------------
 
 toTrans' :: LookupTable -> LookupTable -> LookupTable -> Transaction

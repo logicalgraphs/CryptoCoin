@@ -91,7 +91,7 @@ report typ hdrs razz =
        ranked = sortOn rank razz
    in  report' (header ++ punct sz) hdrs ranked
 
-report' :: Rank r => Rasa r => String -> [String] -> [r] -> IO ()
+report' :: Rasa r => String -> [String] -> [r] -> IO ()
 report' msg hdrs razz = printContent (p [S msg]) 0 >> t' razz hdrs
 
 p :: [Content] -> Content
