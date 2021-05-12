@@ -75,6 +75,12 @@ class CoinData a where
 instance Rank CoinInfo where
    rank (CoinInfo _ _ _ _ r _) = r
 
+instance Cymbal CoinInfo where
+   sym (CoinInfo _ _ symb _ _ _) = symb
+
+instance Named CoinInfo where
+   namei (CoinInfo _ n _ _ _ _) = n
+
 instance Indexed CoinInfo where
    idx (CoinInfo i _ _ _ _ _) = i
 
@@ -117,6 +123,12 @@ instance Rank ECoin where
 
 instance Indexed ECoin where
    idx = idx . info
+
+instance Cymbal ECoin where
+   sym = sym . info
+
+instance Named ECoin where
+   namei = namei . info
 
 raw2coin :: Listing' -> ECoin
 raw2coin l = r2c l (plat l)
@@ -235,6 +247,13 @@ fetchListings' conn tday toks coins ixn =
    fetchListingDBs conn tday ixn        >>=
    return . mapMaybe (ldb2l toks coins tags)
 
+fetchListings :: Foldable t => Connection -> Day -> t Idx -> IO Listings
+fetchListings conn tday idxn =
+   fetchTokens conn                         >>= \toks ->
+   fetchCoins conn                          >>= \coins ->
+   fetchListings' conn tday toks coins idxn >>=
+   fetchTokenParents conn tday toks coins . mapIndexed
+
 fetchListingsAndTop10 :: Foldable t => Connection -> Day -> TokenMap -> t Idx
                       -> IO Listings
 fetchListingsAndTop10 conn tday toks ixn =
@@ -254,7 +273,6 @@ fetchTokenParents conn date tm cm ls =
        newIds = Set.difference parentIds tokIds
    in  if newIds == Set.empty
        then return ls
-       else Map.mergeWithKey (\k a -> return) id id ls . mapIndexed
-            <$> fetchListings' conn date tm cm newIds
+       else Map.union ls . mapIndexed <$> fetchListings' conn date tm cm newIds
 
 -- I was gonna recurse to fetchTokenParents, but why, ya know.

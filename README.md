@@ -88,6 +88,9 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* singulars and plurals, are so different, bless my soul. Has it ever occured
+  to you, that the plural of half, is whole? ~ Alan Sherman
+
 * we need to analyze the trades vis-à-vis recommendations and find which ones
 are effective and which ones aren't, or combinations, or what. ... Bayes?
 
@@ -127,7 +130,8 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
-* 2021-05-07: added `verify`-target to Makefile, verifying every haskell file.
+* 2021-05-07: added `verify`-target to Makefile, verifying every haskell file;
+  added gemini exchange.
 * 2021-05-02: Today was the first day the system ran end-to-end from ingesting
   coin-raw data to rendering recommendation reports (that weren't wrong, so,
   that's a plus).

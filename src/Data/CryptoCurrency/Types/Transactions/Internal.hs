@@ -22,6 +22,7 @@ import Data.Foldable (toList)
 import Data.Time (Day)
 
 import Database.PostgreSQL.Simple
+import Database.PostgreSQL.Simple.FromRow
 import Database.PostgreSQL.Simple.ToField
 import Database.PostgreSQL.Simple.ToRow
 import Database.PostgreSQL.Simple.Types
@@ -30,11 +31,14 @@ import Data.CryptoCurrency.Types (IxRow(IxRow))
 import Data.CryptoCurrency.Types.Recommendation
 import Data.Monetary.USD
 
+import Store.SQL.Connection (withConnection, Database(ECOIN))
 import Store.SQL.Util.Indexed (Index(Idx), IxValue, idx, val)
 import Store.SQL.Util.Pivots (Pivot(Pvt), joinValue)
 
 data Trans' = Trans' Day USD USD Double Integer Integer Integer 
    deriving (Eq, Ord, Show)
+
+-- STORE-SIDE -------------------------------------------------------
 
 instance ToRow Trans' where
    toRow (Trans' forDate amount surcharge coins callId portfolioId coinId) =
@@ -73,3 +77,17 @@ type CoinRec = Pivot
 fetchCoinRecs :: Foldable t => Connection -> t Day -> t Integer -> IO [CoinRec]
 fetchCoinRecs conn days coins =
    map (Pvt . idx <*> (idx . val)) <$> fetchCoinRecs' conn days coins
+
+-- FETCH-SIDE -------------------------------------------------------
+
+instance FromRow Trans' where
+   fromRow = Trans' <$> field <*> field <*> field <*> field
+                    <*> field <*> field <*> field
+
+fetchTransQuery :: String -> Query
+fetchTransQuery whereClause = Query . B.pack $ unlines [
+   "SELECT for_date, purchase_usd, surcharge_usd, n_coins, call_id,",
+   "portfolio_id,cmc_id FROM transaction_log", whereClause]
+
+fetchTrans :: Connection -> String -> IO [Trans']
+fetchTrans conn = query_ conn . fetchTransQuery

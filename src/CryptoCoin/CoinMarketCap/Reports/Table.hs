@@ -16,6 +16,7 @@ import CryptoCoin.CoinMarketCap.Types hiding (idx)
 import CryptoCoin.CoinMarketCap.Types.Quote
 
 import Data.CryptoCurrency.Types (Idx, rank, idx, Rank, Indexed)
+import Data.CryptoCurrency.Utils (plural, toBe, punct)
 
 import Data.Monetary.USD
 import Data.Percentage
@@ -90,12 +91,8 @@ report typ hdrs razz =
        ranked = sortOn rank razz
    in  report' (header ++ punct sz) hdrs ranked
 
-report' :: Rank r => Rasa r => String -> [String] -> [r] -> IO ()
+report' :: Rasa r => String -> [String] -> [r] -> IO ()
 report' msg hdrs razz = printContent (p [S msg]) 0 >> t' razz hdrs
-
-punct :: Int -> String
-punct sz | sz == 0 = "."
-         | otherwise = ":"
 
 p :: [Content] -> Content
 p = E . Elt "p" []
@@ -109,11 +106,3 @@ coinHeaders = words "Name Symbol Rank Price %Change Basis"
 
 newStuff :: Foldable t => Indexed i => Listings -> String -> t i -> IO ()
 newStuff ls typ = report typ coinHeaders . mapMaybe (ec2cc ls) . toList
-
-plural :: Int -> String
-plural 1 = ""
-plural _ = "s"
-
-toBe :: Int -> String
-toBe count | count == 1 = " is "
-           | otherwise  = " are "

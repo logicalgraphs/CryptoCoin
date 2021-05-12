@@ -3,6 +3,7 @@ cabal-dev
 .cabal-sandbox
 cabal.sandbox.config
 api-keys.txt
+coinbase-holdings.csv
 *.o
 *.hi
 *.chi

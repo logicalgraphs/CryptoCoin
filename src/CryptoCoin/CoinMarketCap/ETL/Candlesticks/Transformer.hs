@@ -32,6 +32,7 @@ import CryptoCoin.CoinMarketCap.ETL.Candlesticks.Util (fromCSV, cndlstks)
 
 import Data.CryptoCurrency.Types (Cymbal, sym, IxRow(IxRow))
 import Data.CryptoCurrency.Types.OCHLV (OCHLVData(OCHLVData), OCHLV)
+import Data.CryptoCurrency.Utils (plural)
 
 import Data.LookupTable (LookupTable)
 
@@ -98,7 +99,9 @@ storeCandlesticks conn currencyLk srcLk (IxV cmcId (CSVFile sym file)) =
    let srcId = Idx (cndlstks srcLk)
        makr = mkIxOwC srcId (currencyLk Map.! "USD") cmcId
        rows = mapMaybe makr (lines file)
-       msg = unwords ["Storing",show (length rows),"candlesticks for",sym,"..."]
+       sz = length rows
+       msg = unwords ["Storing", show sz, "candlestick" ++ plural sz ++ " for",
+                      sym, "..."]
    in  putStrLn msg                                 >>
        executeMany conn storeCandlesticksQuery rows >>
        putStrLn "...done."
@@ -106,7 +109,9 @@ storeCandlesticks conn currencyLk srcLk (IxV cmcId (CSVFile sym file)) =
 processAllCandlesticks :: Connection -> LookupTable -> LookupTable -> IO ()
 processAllCandlesticks conn srcLk currLk =
    fetchCandlestickCSVFiles conn srcLk                   >>= \cndls ->
-   let msg = unwords ["Processing", show (length cndls), "candlestick files."]
+   let sz = length cndls
+       msg = unwords ["Processing", show sz, "candlestick file"
+                     ++ plural sz ++ "."]
    in  putStrLn msg                                      >>
        mapM_ (storeCandlesticks conn currLk srcLk) cndls >>
        processedCandlesticks conn srcLk

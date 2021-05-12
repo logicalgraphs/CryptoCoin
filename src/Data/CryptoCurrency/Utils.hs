@@ -1,6 +1,6 @@
 {-# LANGUAGE ViewPatterns #-}
 
-module CryptoCoin.CoinMarketCap.Utils where
+module Data.CryptoCurrency.Utils where
 
 import Data.List (isSuffixOf)
 import System.Directory (listDirectory)
@@ -10,8 +10,11 @@ import System.Directory (listDirectory)
 -- when we want to do m2 but return the value of m1 in:
 --      m1 >>= pass m2
 
-pass :: IO a -> b -> IO b
-pass proc val = proc >> return val
+pass :: (b -> IO a) -> b -> IO b
+pass proc val = proc val >> return val
+
+pass' :: IO a -> b -> IO b
+pass' proc = pass (const proc)
 
 type Suffixes = [String]
 
@@ -34,3 +37,24 @@ indent i = putStrLn . (replicate i ' ' ++)
 
 fake :: Int -> String -> IO a -> IO ()
 fake (indent -> ind) msg _ = ind ("FAKING: " ++ msg)
+
+{-- Singularity and Pluralisms ... yeah, I just said that. --------------------
+
+Singulars and plurals, are so different, bless my soul. 
+Has it ever occured to you, that the plural of half,
+   is whole?
+
+ ~ Alan Sherman
+--}
+
+punct :: Int -> String
+punct sz | sz == 0 = "."
+         | otherwise = ":"
+
+plural :: Int -> String
+plural 1 = ""
+plural _ = "s"
+
+toBe :: Int -> String
+toBe count | count == 1 = " is "
+           | otherwise  = " are "
