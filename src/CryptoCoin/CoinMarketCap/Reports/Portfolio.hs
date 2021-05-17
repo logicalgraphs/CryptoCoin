@@ -141,5 +141,5 @@ go = today >>= \tday ->
             "SELECT portfolio_id, portfolio_name FROM portfolio" >>= \portLk ->
         lookupTable conn "call_lk"                               >>= \callLk ->
         fetchPortfolii conn                                      >>=
-        foldM (forEachPortfolioDo conn (addDays (-1) tday) symLk callLk portLk)
+        foldM (forEachPortfolioDo conn tday symLk callLk portLk)
               Map.empty . Map.elems)
