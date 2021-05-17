@@ -96,7 +96,7 @@ And with that, we can now do, e.g.:
          transContext conn >>= 
          flip (onlyStoreTransactions conn) transs)
 
-... we can now look at the transactoins in a report
+... we can now look at the transactions in a report
 --}
 
 -- so, to load all the transactions for today:
@@ -110,7 +110,6 @@ XLM,2021-04-26,$0.00,$0.00,4.0871962,BUY,COINBASE
 
 and are named not-recommended.csv and recommended.csv
 --}
-
 
 go :: IO ()
 go = today                                                >>= \tday ->
