@@ -4,6 +4,7 @@ cabal-dev
 cabal.sandbox.config
 api-keys.txt
 coinbase-holdings.csv
+transactions.csv
 *.o
 *.hi
 *.chi
