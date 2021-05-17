@@ -130,6 +130,8 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-05-17: Storing transactions in CSV files under 
+  `data-files/transactions/DATE` (both not-recommended.csv and recommended.csv)
 * 2021-05-12: Transaction management and portfolio reports.
 * 2021-05-07: added `verify`-target to Makefile, verifying every haskell file;
   added gemini exchange.

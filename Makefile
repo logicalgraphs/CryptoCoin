@@ -19,6 +19,11 @@ verify: verify1 FORCE
 verify1: FORCE
 	find . $(EXCLUDE) -name "*.hs" -exec $(VERIFIER) {} \; > $(ERR_FILE)
 
+LOAD_TRANSACTIONS=$(SCRIPTS_DIR)/run-load-transactions.exp
+
+transactions: FORCE
+	$(LOAD_TRANSACTIONS)
+
 CANDLESTICK_LOADER=$(SCRIPTS_DIR)/run-load-candlesticks.exp
 TRACKED_COIN_LOADER=$(SCRIPTS_DIR)/run-load-tracked-coins.exp
 LISTINGS_LOADER=$(SCRIPTS_DIR)/run-load-listings.sh 
