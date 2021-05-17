@@ -12,6 +12,8 @@ EXCLUDE=-path ./src/Data/BlockChain -prune -false -o
 VERIFIER=$(SCRIPTS_DIR)/verify-haskell-file.exp
 ERR_FILE=errs.txt
 
+# ----- ONE-OFFS ---------------------------------------------------------
+
 verify: verify1 FORCE
 	grep error $(ERR_FILE)
 	rm $(ERR_FILE)
@@ -23,6 +25,13 @@ LOAD_TRANSACTIONS=$(SCRIPTS_DIR)/run-load-transactions.exp
 
 transactions: FORCE
 	$(LOAD_TRANSACTIONS)
+
+PORTFOLIO_REPORT=$(SCRIPTS_DIR)/run-report-portfolii.exp
+
+portfolio: FORCE
+	$(PORTFOLIO_REPORT)
+
+# ----- LOADER AND REPORT DEPENDENCIES -----------------------------------
 
 CANDLESTICK_LOADER=$(SCRIPTS_DIR)/run-load-candlesticks.exp
 TRACKED_COIN_LOADER=$(SCRIPTS_DIR)/run-load-tracked-coins.exp
