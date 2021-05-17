@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ViewPatterns      #-}
 
-module CryptoCoin.CoinMarketCap.Data.Transaction where
+module CryptoCoin.CoinMarketCap.ETL.TransactionCSVLoader where
 
 -- Records a transaction for a coin into a portfolio
 
@@ -8,12 +9,16 @@ import Control.Monad ((>=>))
 import qualified Data.Map as Map
 import Data.Maybe (mapMaybe, catMaybes)
 import Database.PostgreSQL.Simple
+import System.Directory (doesFileExist)
+import System.Environment (getEnv)
 
 import Control.Scan.CSV
 
 import Data.CryptoCurrency.Types.Transaction
+import Data.CryptoCurrency.Utils (report, conj, plural)
 import Data.LookupTable
 import Data.Monetary.USD
+import Data.Time.TimeSeries (today)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN), connectInfo)
 import Store.SQL.Util.LookupTable
@@ -36,6 +41,8 @@ makeTransaction :: String -> Maybe Transaction
 makeTransaction = mkTrans . csv
 
 mkTrans :: [String] -> Maybe Transaction
+mkTrans [sym,date,spent,surcharge,amt,call,portfolio,_confirmation] =
+   mkTrans [sym,date,spent,surcharge,amt,call,portfolio]
 mkTrans [sym,date,spent,surcharge,amt,call,portfolio] =
    Transaction sym <$> readMaybe date <*> readMaybe spent
                    <*> readMaybe surcharge <*> readMaybe amt
@@ -43,7 +50,14 @@ mkTrans [sym,date,spent,surcharge,amt,call,portfolio] =
 
 readTransactions :: FilePath -> IO [Transaction]
 readTransactions file =
-   mapMaybe makeTransaction . tail . lines <$> readFile file
+   doesFileExist file >>= rt' file
+
+rt' :: FilePath -> Bool -> IO [Transaction]
+rt' _ False = return []
+rt' file True =
+   mapMaybe makeTransaction . mbtail . lines <$> readFile file
+      where mbtail [] = []
+            mbtail (_:t) = t
 
 data TransactionContext = TC { symLk, callLk, portfolioLk :: LookupTable }
    deriving (Eq, Ord, Show)
@@ -84,3 +98,41 @@ And with that, we can now do, e.g.:
 
 ... we can now look at the transactoins in a report
 --}
+
+-- so, to load all the transactions for today:
+
+{--
+The data-files are in the format:
+
+sym,date,spent,surcharge,amt,call,portfolio
+BTC,2021-02-18,$0.00,$0.00,0.00009599,BUY,COINBASE
+XLM,2021-04-26,$0.00,$0.00,4.0871962,BUY,COINBASE
+
+and are named not-recommended.csv and recommended.csv
+--}
+
+
+go :: IO ()
+go = today                                                >>= \tday ->
+     getEnv "CRYPTOCOIN_DIR"                              >>= \ccd ->
+     let dataDir = ccd ++ "/data-files/transactions/" ++ show tday in
+     readTransactions (dataDir ++ "/recommended.csv")     >>= \recs ->
+     readTransactions (dataDir ++ "/not-recommended.csv") >>= \nrecs ->
+     report 0 (msg recs nrecs)
+            (withConnection ECOIN (\conn ->
+               transContext conn                          >>= \tc ->
+               onlyStoreTransactions conn tc nrecs        >>
+               storeTransactionsAssocRecommendations conn tc recs))
+
+msg :: [a] -> [b] -> String
+msg (length -> recs) (length -> nonrecs) = msg' recs nonrecs (recs + nonrecs)
+
+msg' :: Int -> Int -> Int -> String
+msg' r n su | su == 0 = "Storing no new transactions today."
+            | otherwise = "Storing" ++ rekts r "" ++ conj r n "and"
+                       ++ rekts n "non-"
+
+rekts :: Int -> String -> String
+rekts sz kind | sz == 0   = ""
+              | otherwise = ' ':show sz ++ " " ++ kind ++ "recommended-"
+                            ++ "transaction" ++ plural sz

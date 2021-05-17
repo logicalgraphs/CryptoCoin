@@ -62,7 +62,7 @@ realize conn t@(Trans' d _ _ _ _ _ cix) =
 
 fetchCoinRecsQuery :: Query
 fetchCoinRecsQuery = Query . B.pack $ unlines [
-   "SELECT recommendation_id, cmc_id FROM recommendation",
+   "SELECT cmc_id, recommendation_id FROM recommendation",
    "WHERE for_date IN ? AND cmc_id IN ?"]
 
 type CoinRc' = IxValue Index

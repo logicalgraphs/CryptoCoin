@@ -58,3 +58,13 @@ plural _ = "s"
 toBe :: Int -> String
 toBe count | count == 1 = " is "
            | otherwise  = " are "
+
+conj :: Int -> Int -> String -> String
+conj as bs conjunction | as * bs == 0 = ""
+                       | otherwise    = ' ':conjunction
+
+{--
+Via Georges Bool's logic
+
+"These or those" from conj as bs "or" iff as and bs are not empty
+--}

@@ -90,7 +90,7 @@ joinRecommendations conn cdts =
                 . show
 
 pvtCoin2Trans :: Map Integer Integer -> Pivot -> Maybe Pivot
-pvtCoin2Trans c2t (Pvt i j) = flip Pvt j <$> Map.lookup i c2t
+pvtCoin2Trans c2t (Pvt coinId recId) = flip Pvt recId <$> Map.lookup coinId c2t
 
 -- FETCH FUNCTIONS -------------------------------------------------------
 
