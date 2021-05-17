@@ -88,6 +88,10 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* enter transactions for today.
+
+* start building predictive model
+
 * provide year-to-date transaction history with the portfolio report
 
 * we need to analyze the trades vis-à-vis recommendations and find which ones
