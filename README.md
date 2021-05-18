@@ -92,8 +92,6 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
   if multiple transactions are made in a day. And amount transactacted per
   coin.
 
-* enter transactions for today: DONE
-
 * start building predictive model
 
 * provide year-to-date transaction history with the portfolio report
