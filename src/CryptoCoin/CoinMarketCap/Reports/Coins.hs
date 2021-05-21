@@ -59,20 +59,6 @@ ranking date ecoins newsies =
 ...
 --}
 
--- Looking at the below arithmetic, I can see that George Boole was onto 
--- something!
-
-coinsNtokens :: Foldable t => t a -> t b  -> String
-coinsNtokens (length -> c) (length -> t) = c' (c + t) c t
-
-c' :: Int -> Int -> Int -> String
-c' 0 _ _ = ""
-c' _ c t = " with" ++ n "coin" c ++ connective (c * t) ++ n "token" t
-
-n :: String -> Int -> String
-n _ 0 = ""
-n typ c = ' ':show c ++ " new " ++ typ ++ plural c
-
 {--
 Okay.
 
@@ -101,15 +87,14 @@ fetchNewCoinsAndTokens conn date toks =
 
 runReport :: Connection -> Day -> IO ()
 runReport conn tday =
-   fetchTokens conn                               >>= \toks ->
+   fetchTokens conn                                      >>= \toks ->
    let tokIds = Set.map Idx (Map.keysSet toks) in
-   fetchNewCoinsAndTokens conn tday tokIds        >>= \news ->
+   fetchNewCoinsAndTokens conn tday tokIds               >>= \news ->
    let ucf = flip uncurry news
-       idxn = map idx (Set.toList (ucf Set.union))
-       msg = "The top-10 e-coins " ++ ucf coinsNtokens in
-   fetchListingsAndTop10 conn tday toks idxn      >>= \lists ->
-   ranking tday lists news                        >>
-   tweet tday "top-10-e-coins-for-" msg           >>
+       idxn = map idx (Set.toList (ucf Set.union)) in
+   fetchListingsAndTop10 conn tday toks idxn             >>= \lists ->
+   ranking tday lists news                               >>
+   tweet tday "top-10-e-coins-for-" "The top-10 e-coins" >>
    putStrLn ("Top-10 E-coins for " ++ show tday)
 
 go :: IO ()

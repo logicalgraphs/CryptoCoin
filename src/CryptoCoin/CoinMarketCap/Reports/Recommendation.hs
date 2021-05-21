@@ -293,7 +293,7 @@ go = today >>= \tday ->
         report "recommendation" thdr recs          >>
         let sz = length recs
             route = show sz ++ "-e-coin-recommendations-for-"
-            message = show sz ++ " E-Coin recommendations" in
+            message = show sz ++ " E-Coin recommendations (beta)" in
         tweet tday route message                   >>
         putStrLn (message ++ " for " ++ show tday))
 
