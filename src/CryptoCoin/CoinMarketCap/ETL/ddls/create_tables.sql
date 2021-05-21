@@ -166,10 +166,10 @@ CREATE TABLE "portfolio" (
   OIDS=FALSE
 );
 
--- let's start us out with two portfolii
+-- let's start us out with two portfolii ... now: three portfolii.
 
 INSERT INTO portfolio (portfolio_id, portfolio_name, tracked_type_id)
-VALUES (1, 'COINBASE', 2), (2, 'BINANCE', 3);
+VALUES (1, 'COINBASE', 2), (2, 'BINANCE', 3), (3, 'GEMINI', 5);
 
 CREATE TABLE "transaction_log" (
 	"transaction_id" serial NOT NULL,
