@@ -14,6 +14,8 @@ import System.Environment (getEnv)
 
 import Control.Scan.CSV
 
+import CryptoCoin.CoinMarketCap.Data.Coin (allCoinsLk)
+import CryptoCoin.CoinMarketCap.Data.Portfolio (portfoliiLk)
 import Data.CryptoCurrency.Types.Transaction
 import Data.CryptoCurrency.Utils (report, conj, plural)
 import Data.LookupTable
@@ -64,10 +66,7 @@ data TransactionContext = TC { symLk, callLk, portfolioLk :: LookupTable }
 
 transContext :: Connection -> IO TransactionContext
 transContext conn =
-   TC <$> lookupTableFrom conn "SELECT cmc_id, symbol FROM coin"
-      <*> lookupTable conn "call_lk"
-      <*> lookupTableFrom conn
-                   "SELECT portfolio_id, portfolio_name FROM portfolio"
+   TC <$> allCoinsLk conn <*> lookupTable conn "call_lk" <*> portfoliiLk conn
 
 {--
 >>> withConnection ECOIN (\conn -> transContext conn >>= \(TC cns a b) ->

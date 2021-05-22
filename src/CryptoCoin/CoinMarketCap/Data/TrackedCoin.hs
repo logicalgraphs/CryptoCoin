@@ -43,4 +43,3 @@ trackedCoins conn = lookupTableFrom conn trackedCoinsQuery
 ("ZEC",1437)
 ("ZIL",2469)
 --}
-
