@@ -90,9 +90,10 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 * correct how portfolio information is read, particularly total invested and
   if multiple transactions are made in a day. And amount transactacted per
-  coin.
+  coin. PARTIALLY DONE: we still have binance saying there's $100 in BNB, not
+  the $200 we have invested.
 
-* start building predictive model
+* start building predictive model: STARTED
 
 * provide year-to-date transaction history with the portfolio report
 
