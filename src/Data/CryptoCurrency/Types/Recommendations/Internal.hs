@@ -38,11 +38,17 @@ data RektReadRow = RRR' (Maybe Double) String String String
 instance FromRow RektReadRow where
    fromRow = RRR' <$> field <*> field <*> field <*> field
 
+fetchAllRektsQueryStrings :: [String]
+fetchAllRektsQueryStrings = 
+   ["SELECT r.cmc_id, r.for_date, r.confidence, c.call, i.indicator, b.basis",
+    "FROM recommendation r",
+    "INNER JOIN indicator_lk i ON i.indicator_id=r.indicator_id",
+    "INNER JOIN call_lk c ON c.call_id=r.call_id",
+    "INNER JOIN basis_lk b ON b.basis_id=i.basis_id"]
+
+fetchAllRektsQuery :: Query
+fetchAllRektsQuery = Query . B.pack $ unlines fetchAllRektsQueryStrings
+
 fetchRektsQuery :: Day -> Query
-fetchRektsQuery date = Query . B.pack $ unwords [
-   "SELECT r.cmc_id, r.for_date, r.confidence, c.call, i.indicator, b.basis",
-   "FROM recommendation r",
-   "INNER JOIN indicator_lk i ON i.indicator_id=r.indicator_id",
-   "INNER JOIN call_lk c ON c.call_id=r.call_id",
-   "INNER JOIN basis_lk b ON b.basis_id=i.basis_id",
-   "WHERE for_date='" ++ show date ++ "'"]
+fetchRektsQuery date = Query . B.pack $ unlines (
+   fetchAllRektsQueryStrings ++ ["WHERE for_date='" ++ show date ++ "'"])

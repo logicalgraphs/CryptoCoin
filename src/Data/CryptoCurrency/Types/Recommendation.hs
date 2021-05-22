@@ -5,14 +5,18 @@ module Data.CryptoCurrency.Types.Recommendation where
 
 -- Houses recommendations
 
+import Control.Arrow ((&&&))
 import Control.Monad (join)
 
 import qualified Data.ByteString.Char8 as B
 
 import Data.Char (isLower)
 import Data.List (groupBy)
+import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
+import Data.Set (Set)
+import qualified Data.Set as Set
 import Data.Time (Day, addDays)
 
 import Database.PostgreSQL.Simple (Connection, executeMany, query_)
@@ -21,6 +25,7 @@ import Database.PostgreSQL.Simple.ToField
 import Database.PostgreSQL.Simple.FromRow
 import Database.PostgreSQL.Simple.Types (Query(Query))
 
+import Control.Map (snarf)
 import Control.Scan.CSV (readMaybe)
 
 import Data.CryptoCurrency.Types
@@ -165,3 +170,14 @@ smoosh = concat . words
 >>> smoosh "Simple Moving Averages"
 "SimpleMovingAverages"
 --}
+
+fetchAllRecommendations :: Connection -> IO (Map Day (Set Recommendation))
+fetchAllRecommendations conn =
+   allRektsByDay . mapMaybe toRecsRekts <$> query_ conn fetchAllRektsQuery
+
+allRektsByDay :: [Recommendation] -> Map Day (Set Recommendation)
+allRektsByDay = snarf (Just . (date &&& id))
+
+-- the coin-ids are simply Set.map idx on (Set Recommendation)
+
+-- also: let allcoins = Set.unions (Map.elems dailyRektx)
