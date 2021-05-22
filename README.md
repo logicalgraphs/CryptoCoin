@@ -82,11 +82,14 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 * Simple Moving Average: https://www.investopedia.com/terms/s/sma.asp
 * Exponential Moving Average: https://www.investopedia.com/terms/e/ema.asp
-* Moving Average Convergence/Divergence: https://www.investopedia.com/terms/m/macd.asp
+* Moving Average Convergence/Diverence: https://www.investopedia.com/terms/m/macd.asp
 * On Balance Volume: https://www.investopedia.com/terms/o/onbalancevolume.asp
 * Relative Strength Index: https://www.investopedia.com/terms/r/rsi.asp 
 
 ## TODOs:
+
+* Track which crypto can be loaned/earn interest. This might be useful for
+Bayesian analysis, as well.
 
 * correct how portfolio information is read, particularly total invested and
   if multiple transactions are made in a day. And amount transactacted per
