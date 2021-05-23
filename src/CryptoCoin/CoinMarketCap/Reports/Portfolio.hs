@@ -23,6 +23,8 @@ import Data.Time (Day, addDays)
 
 import Database.PostgreSQL.Simple
 
+import CryptoCoin.CoinMarketCap.Data.Coin (allCoinsLk)
+import CryptoCoin.CoinMarketCap.Data.Portfolio (portfoliiLk)
 import CryptoCoin.CoinMarketCap.Reports.Table hiding (ecoin)
 import CryptoCoin.CoinMarketCap.Types
 import CryptoCoin.CoinMarketCap.Types.Quote
@@ -137,9 +139,8 @@ forEachPortfolioDo conn tday symLk callLk portLk lists i@(IxV ix port) =
 go :: IO ()
 go = today >>= \tday ->
      withConnection ECOIN (\conn ->
-        lookupTableFrom conn "SELECT cmc_id, symbol FROM coin"   >>= \symLk ->
-        lookupTableFrom conn
-            "SELECT portfolio_id, portfolio_name FROM portfolio" >>= \portLk ->
+        allCoinsLk conn                                          >>= \symLk ->
+        portfoliiLk conn                                         >>= \portLk ->
         lookupTable conn "call_lk"                               >>= \callLk ->
         fetchPortfolii conn                                      >>=
         foldM (forEachPortfolioDo conn tday symLk callLk portLk)
