@@ -38,6 +38,7 @@ import Data.CryptoCurrency.Types (IxRow(IxRow), idx, Idx, row, Indexed,
 import Data.CryptoCurrency.Types.Recommendation
           (Recommendation, RecommendationData(Rekt), call, Call(BUY), 
            fetchRecommendations, Source, toSource)
+import Data.CryptoCurrency.Utils (plural)
 import Data.Time.TimeSeries (today)
 import Data.XHTML
 
@@ -292,9 +293,12 @@ go = today >>= \tday ->
         collateRecommendations conn tday           >>= \recs ->
         report "recommendation" thdr recs          >>
         let sz = length recs
-            route = show sz ++ "-e-coin-recommendations-for-"
-            message = show sz ++ " E-Coin recommendations (beta)" in
-        tweet tday route message                   >>
-        putStrLn (message ++ " for " ++ show tday))
+            beta = ["(beta)"]
+            uwu = unwords . (++ beta)    -- yup. I went there. Deal.
+            recName = "recommendation" ++ plural sz
+            route = concat [show sz, "-e-coin-", recName, "-for-"]
+            message = concat [show sz, " E-Coin ", recName] in
+        tweet tday route (uwu [message])           >>
+        putStrLn (uwu [message, "for", show tday]))
 
 -- a sample output is at this directory: sample-recommendations.html
