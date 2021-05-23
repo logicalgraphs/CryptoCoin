@@ -95,8 +95,7 @@ Bayesian analysis, as well.
 
 * correct how portfolio information is read, particularly total invested and
   if multiple transactions are made in a day. And amount transactacted per
-  coin. PARTIALLY DONE: we still have binance saying there's $100 in BNB, not
-  the $200 we have invested.
+  coin. DONE
 
 * start building predictive model: STARTED
 
