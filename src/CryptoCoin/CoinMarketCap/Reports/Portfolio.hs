@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ViewPatterns #-}
 
 module CryptoCoin.CoinMarketCap.Reports.Portfolio where
 
