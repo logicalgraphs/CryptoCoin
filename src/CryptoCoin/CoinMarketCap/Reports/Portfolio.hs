@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module CryptoCoin.CoinMarketCap.Reports.Portfolio where
 
@@ -61,13 +62,13 @@ totalInvested (PR _ holds) = sumOver invested holds
 totalValue (PR _ holds) = sumOver val holds
    where val h = USD (toRational (amount h * doubledown (currentPrice h)))
 
-toHolding :: Listings -> Idx -> Set Transaction -> Maybe Holding
+toHolding :: Foldable t => Listings -> Idx -> t Transaction -> Maybe Holding
 toHolding listings ix transes = 
    Map.lookup ix listings >>= \listing ->
    quote listing          >>= \quot ->
    return (buildHolding (coin listing) (price quot) transes)
 
-buildHolding :: ECoin -> Double -> Set Transaction -> Holding
+buildHolding :: Foldable t => ECoin -> Double -> t Transaction -> Holding
 buildHolding coin pric transes =
    let coins    = sumOver ncoins transes
        invested = sumOver spent transes
@@ -87,7 +88,7 @@ instance Rasa KV where
 printPortfolioReport :: PortfolioReport -> IO ()
 printPortfolioReport pr@(PR (Portfolio name reserve _) holdings) =
    if holdings == Set.empty
-   then putStrLn ("<p>No holdings for " ++ name ++ " portfolio.</p>")
+   then printContent (p [S (unwords ["No holdings for", name, "portfolio."])]) 0
    else
    let ti@(USD totInv) = totalInvested pr
        tv@(USD totVal) = totalValue pr in
@@ -100,15 +101,15 @@ printPortfolioReport pr@(PR (Portfolio name reserve _) holdings) =
            (words "Rank Id Symbol Coin Amount Invested Price Value %change")
            (sortOn rank (Set.toList holdings))
 
-data PorNot = Perc Percentage | NOT
+data PorNot = Perc Percentage | PNOT
    deriving Eq
 
 change :: Rational -> Rational -> PorNot
-change inv val = if inv < 1 then NOT else Perc (P ((val - inv) / inv))
+change inv val = if inv < 1 then PNOT else Perc (P ((val - inv) / inv))
 
 instance Show PorNot where
    show (Perc p) = show p
-   show NOT = "N/A"
+   show PNOT = "N/A"
    
 instance Rasa Holding where
    printRow h@(Holding coin amt ui@(USD inv) up@(USD pric)) =

@@ -32,7 +32,7 @@ import Data.Time (Day)
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.Types
 
-import Control.Map (snarf)
+import Control.Map (snarfL)
 import Control.Scan.CSV (readMaybe)
 
 import Data.CryptoCurrency.Types
@@ -106,7 +106,7 @@ fromTrans' symLk callLk portLk (Trans' dt amt sur cns callId portId symId) =
 instance Indexed Trans' where
    idx (Trans' _ _ _ _ _ _ symId) = symId
 
-type CoinTransactions = Map Idx (Set Transaction)
+type CoinTransactions = Map Idx [Transaction]
 
 fetchTransactions :: Connection -> LookupTable -> LookupTable -> LookupTable
                   -> String -> IO CoinTransactions
@@ -116,7 +116,7 @@ fetchTransactions conn symLk callLk portLk portfolio =
        symld = lookdown symLk
        callld = lookdown callLk
        portld = lookdown portLk
+       ixTransF = idx &&& fromTrans' symld callld portld
    in  maybe (return Map.empty) 
-             (\wc -> snarf (sequence . (idx &&& fromTrans' symld callld portld))
-                           <$> fetchTrans conn wc)
+             (\wc -> snarfL (sequence . ixTransF) <$> fetchTrans conn wc)
              whereClause
