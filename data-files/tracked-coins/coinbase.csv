@@ -1,55 +1,62 @@
 coin,symbol,cmc_id
+Ox,ZRX
+1inch,1INCH
+Aave,AAVE
+Algorand,ALGO
+Ampleforth Governance Token,FORTH
+Ankr,ANKR
+Augur,REP
+Balancer,BAL
+Bancor Network Token,BNT
+Band Protocol,BAND
+Basic Attention Token,BAT
 Bitcoin,BTC
 Bitcoin Cash,BCH
+Cardano,ADA
+Cartesi,CTSI
+Celo,CGLD
+Chainlink,LINK
+Civic,CVC
+Compound,COMP
+Cosmos,ATOM
+Curve DAO Token,CRV
+Dai,DAI
+Dash,DASH
+Decentraland,MANA
+districtOx,DNT
+Enjin Coin,ENJ
+EOS,EOS
 Ethereum,ETH
 Ethereum Classic,ETC
-Litecoin,LTC
-Ox,ZRX
-USD Coin,USDC
-Basic Attention Token,BAT
-Decentraland,MANA
-Kyber Network,KNC
-Chainlink,LINK
-districtOx,DNT
-Maker,MKR
-Civic,CVC
-OMG Network,OMG
-Dai,DAI
-Zcash,ZEC
-Augur,REP
-Stellar Lumens,XLM
-EOS,EOS
-Tezos,XTZ
-Algorand,ALGO
-Dash,DASH
-Cosmos,ATOM
-Orchid,OXT
-Compound,COMP
-Enjin Coin,ENJ
-Band Protocol,BAND
-Numeraire,NMR
-Celo,CGLD
-UMA,UMA
-Loopring,LRC
-yearn.finance,YFI
-Uniswap,UNI
-Balancer,BAL
-Ren,REN
-Wrapped Bitcoin,WBTC
-NuCypher,NU
 Filecoin,FIL
-Aave,AAVE
-Bancor Network Token,BNT
-The Graph,GRT
-Synthetix Network Token,SNX
+iExec RLC,RLC
+Internet Computer,ICP
+Kyber Network,KNC
+Litecoin,LTC
+Loopring,LRC
+Maker,MKR
+Mirror Protocol,MIR
+NKN,NKN
+NuCypher,NU
+Numeraire,NMR
+OMG Network,OMG
+Orchid,OXT
+Origin Token,OGN
+Polygon,MATIC
+Ren,REN
+REPv2,REPV2
+SKALE,SKL
+Stellar Lumens,XLM
 Storj,STORJ
 SushiSwap,SUSHI
-Polygon,MATIC
-SKALE,SKL
-Cardano,ADA
-Ankr,ANKR
-Curve DAO Token,CRV
-NKN,NKN
-Origin Token,OGN
-1inch,1INCH
-Ampleforth Governance Token,FORTH
+Synthetix Network Token,SNX
+Tellor,TRB
+Tether,USDT
+Tezos,XTZ
+The Graph,GRT
+UMA,UMA
+Uniswap,UNI
+USD Coin,USDC
+Wrapped Bitcoin,WBTC
+yearn.finance,YFI
+Zcash,ZEC
