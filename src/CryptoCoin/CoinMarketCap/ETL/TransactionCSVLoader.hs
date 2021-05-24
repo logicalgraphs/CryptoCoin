@@ -16,22 +16,22 @@ import Control.Scan.CSV
 
 import CryptoCoin.CoinMarketCap.Data.Coin (allCoinsLk)
 import CryptoCoin.CoinMarketCap.Data.Portfolio (portfoliiLk)
+import CryptoCoin.CoinMarketCap.Data.TransactionContext
+
 import Data.CryptoCurrency.Types.Transaction
 import Data.CryptoCurrency.Utils (report, conj, plural)
-import Data.LookupTable
 import Data.Monetary.USD
 import Data.Time.TimeSeries (today)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN), connectInfo)
-import Store.SQL.Util.LookupTable
-
-type StoreTransactionsF =
-   Connection -> TransactionContext -> [Transaction] -> IO ()
 
 storeTransactionsAssocRecommendations :: StoreTransactionsF
 storeTransactionsAssocRecommendations conn (TC symLk calll portl) =
    mapM (storeTransaction conn symLk calll portl) >=>
    joinRecommendations conn . catMaybes
+
+type StoreTransactionsF =
+   Connection -> TransactionContext -> [Transaction] -> IO ()
 
 -- to store just the transactions, use storeTransaction from Types.
 
@@ -60,13 +60,6 @@ rt' file True =
    mapMaybe makeTransaction . mbtail . lines <$> readFile file
       where mbtail [] = []
             mbtail (_:t) = t
-
-data TransactionContext = TC { symLk, callLk, portfolioLk :: LookupTable }
-   deriving (Eq, Ord, Show)
-
-transContext :: Connection -> IO TransactionContext
-transContext conn =
-   TC <$> allCoinsLk conn <*> lookupTable conn "call_lk" <*> portfoliiLk conn
 
 {--
 >>> withConnection ECOIN (\conn -> transContext conn >>= \(TC cns a b) ->
