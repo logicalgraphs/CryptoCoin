@@ -88,9 +88,9 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* summarize all portfolii with net gain/loss
+* summarize all portfolii with net gain/loss: DONE
 
-* Write a daily transaction-reporter
+* Write a daily transaction-reporter: DONE
 
 * Track which crypto can be loaned/earn interest. This might be useful for
 Bayesian analysis, as well.
@@ -139,6 +139,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-05-25: Summary report across all portfolii and daily transactions report
 * 2021-05-17: Storing transactions in CSV files under 
   `data-files/transactions/DATE` (both not-recommended.csv and recommended.csv)
 * 2021-05-12: Transaction management and portfolio reports.

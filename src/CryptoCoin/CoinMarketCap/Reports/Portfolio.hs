@@ -3,7 +3,7 @@
 module CryptoCoin.CoinMarketCap.Reports.Portfolio where
 
 {--
-Gives a report of the coins and the balances and the totals of a portfolio.
+Gives a report of the coins and the balances and the totals of each portfolio.
 
 Woo, boy!
 --}
@@ -16,6 +16,7 @@ import Data.List (sortOn)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
+import Data.Monoid (mconcat)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.Time (Day, addDays)
@@ -31,6 +32,7 @@ import Data.CryptoCurrency.Types.Coin (allCoinsLk)
 import Data.CryptoCurrency.Types.Portfolio
 import Data.CryptoCurrency.Types.Transaction
 import Data.CryptoCurrency.Types.Transactions.Context
+import Data.CryptoCurrency.Utils (pass)
 import Data.LookupTable (LookupTable)
 import Data.Monetary.USD
 import Data.Percentage
@@ -43,9 +45,6 @@ import Store.SQL.Util.LookupTable (lookupTable, lookupTableFrom)
 
 data Holding =
    Holding { ecoin :: ECoin, amount :: Double, invested, currentPrice :: USD }
-                         -- ranking                :: Integer
-                         -- ecoin has ranking built in
-                         -- from which value/worth can be computed
       deriving (Eq, Ord, Show)
 
 instance Indexed Holding where
@@ -57,6 +56,12 @@ instance Rank Holding where
 data PortfolioReport = PR { portfolio     :: Portfolio,
                             holdings      :: Set Holding }
    deriving (Eq, Ord, Show)
+
+instance Monoid PortfolioReport where
+   mempty = PR (Portfolio "Nada" (USD 0) Nothing) Set.empty
+   PR p0 h0 `mappend` PR p1 h1 =
+       PR (Portfolio "All Portfolii" (cash p0 + cash p1) Nothing)
+          (Set.union h0 h1)
 
 totalInvested, totalValue :: PortfolioReport -> USD
 totalInvested (PR _ holds) = sumOver invested holds
@@ -87,18 +92,9 @@ instance Rasa KV where
    printRow (KV k v) = tr [S (k ++ ":"), S v]
 
 printPortfolioReport :: PortfolioReport -> IO ()
-printPortfolioReport pr@(PR (Portfolio name reserve _) holdings) =
-   if holdings == Set.empty
-   then printContent (p [S (unwords ["No holdings for", name, "portfolio."])]) 0
-   else
-   let ti@(USD totInv) = totalInvested pr
-       tv@(USD totVal) = totalValue pr in
-   report' ("Summary of " ++ name ++ " portfolio") []
-           [KV "Cash reserve" (show reserve),
-            KV "Total invested" (show ti),
-            KV "Current value" (show tv),
-            KV "Gain/Loss" (show $ change totInv totVal)] >>
-   report' ("Holdings for " ++ name ++ " portfolio")
+printPortfolioReport pr@(PR p holdings) =
+   summarizePortfolio pr >>
+   report' ("Holdings for " ++ portfolioName p ++ " portfolio")
            (words "Rank Id Symbol Coin Amount Invested Price Value %change")
            (sortOn rank (Set.toList holdings))
 
@@ -121,8 +117,9 @@ instance Rasa Holding where
                s' = S . show
 
 forEachPortfolioDo :: Connection -> Day -> TransactionContext
-                   -> Listings -> IxValue Portfolio -> IO Listings
-forEachPortfolioDo conn tday tc lists i@(IxV ix port) =
+                   -> ([PortfolioReport], Listings) -> IxValue Portfolio
+                   -> IO ([PortfolioReport], Listings)
+forEachPortfolioDo conn tday tc (prs, lists) i@(IxV ix port) =
    fetchCoinIdsFor conn i                                     >>= \coinIds ->
    let newIds = Set.difference coinIds (Map.keysSet lists)
        portName = portfolioName port in
@@ -131,12 +128,29 @@ forEachPortfolioDo conn tday tc lists i@(IxV ix port) =
    let combinedListings = Map.union newLists lists
        coinsHeld = mapMaybe (uncurry (toHolding combinedListings))
                             (Map.toList transs)
-   in printPortfolioReport (PR port (Set.fromList coinsHeld)) >>
-      return combinedListings
+   in  return (PR port (Set.fromList coinsHeld):prs, combinedListings)
+
+summarizePortfolio :: PortfolioReport -> IO ()
+summarizePortfolio pr@(PR (Portfolio name reserve _) holdings) =
+   if holdings == Set.empty
+   then printContent (p [S (unwords ["No holdings for", name, "portfolio."])]) 0
+   else
+   let ti@(USD totInv) = totalInvested pr
+       tv@(USD totVal) = totalValue pr in
+   report' ("Summary of " ++ name) []
+           [KV "Cash reserve" (show reserve),
+            KV "Total invested" (show ti),
+            KV "Current value" (show tv),
+            KV "Gain/Loss" (show $ change totInv totVal)]
+
+summarizePortfolii :: [PortfolioReport] -> IO ()
+summarizePortfolii = summarizePortfolio . mconcat
 
 go :: IO ()
 go = today >>= \tday ->
      withConnection ECOIN (\conn ->
-        transContext conn                                        >>= \tc ->
-        fetchPortfolii conn                                      >>=
-        foldM (forEachPortfolioDo conn tday tc) Map.empty . Map.elems)
+        transContext conn                                             >>= \tc ->
+        fetchPortfolii conn                                                  >>=
+        foldM (forEachPortfolioDo conn tday tc) ([], Map.empty) . Map.elems  >>=
+        pass summarizePortfolii . fst                                        >>=
+        mapM_ printPortfolioReport)
