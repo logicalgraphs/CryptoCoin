@@ -1,15 +1,15 @@
-{-# LANGUAGE OverloadedStrings #-}
-
-module CryptoCoin.CoinMarketCap.Data.TransactionContext where
+module Data.CryptoCurrency.Types.TransactionContext where
 
 import Database.PostgreSQL.Simple (Connection)
 
-import CryptoCoin.CoinMarketCap.Data.Coin (allCoinsLk)
-import CryptoCoin.CoinMarketCap.Data.Portfolio (portfoliiLk)
+import Data.CryptoCurrency.Types.Coin (allCoinsLk)
+import Data.CryptoCurrency.Types.Portfolio (portfoliiLk)
 
 import Data.LookupTable
 
-import Store.SQL.Util.LookupTable
+import Store.SQL.Util.LookupTable (lookupTable)
+
+-- TRANSACTION CONTEXT ---------------------------------------------------
 
 data TransactionContext = TC { symLk, callLk, portfolioLk :: LookupTable }
    deriving (Eq, Ord, Show)

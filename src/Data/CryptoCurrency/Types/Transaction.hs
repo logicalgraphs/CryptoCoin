@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ViewPatterns      #-}
 
 module Data.CryptoCurrency.Types.Transaction where
 
@@ -38,9 +39,11 @@ import Control.Scan.CSV (readMaybe)
 import Data.CryptoCurrency.Types
 import Data.CryptoCurrency.Types.Recommendation
 import Data.CryptoCurrency.Types.Transactions.Internal
+import Data.CryptoCurrency.Types.TransactionContext
 import Data.LookupTable
 import Data.Monetary.USD
 
+import Store.SQL.Util.LookupTable
 import Store.SQL.Util.Pivots (Pivot(Pvt))
 
 data Transaction = Transaction Symbol Day USD USD Double Call String
@@ -54,19 +57,18 @@ spent (Transaction _ _ s _ _ _ _) = s
 
 -- STORE FUNCTIONS -------------------------------------------------------
 
-toTrans' :: LookupTable -> LookupTable -> LookupTable -> Transaction
-         -> Maybe Trans'
-toTrans' coinLk callLk portfolioLk (Transaction cn dt xn sch cns cl port) =
+toTrans' :: TransactionContext -> Transaction -> Maybe Trans'
+        
+toTrans' (TC coinLk callLk portfolioLk) (Transaction cn dt xn sch cns cl port) =
    Trans' dt xn sch cns <$> lk (show cl) callLk
                         <*> lk port portfolioLk
                         <*> lk cn coinLk
       where lk = Map.lookup
 
-storeTransaction :: Connection -> LookupTable -> LookupTable -> LookupTable
-                 -> Transaction -> IO (Maybe CoinDayTransaction)
-storeTransaction conn coinLk callLk portLk =
-   maybe (pure Nothing) (\t -> Just <$> realize conn t)
-       . toTrans' coinLk callLk portLk
+storeTransaction :: Connection -> TransactionContext -> Transaction
+                 -> IO (Maybe CoinDayTransaction)
+storeTransaction conn ctx = 
+   maybe (pure Nothing) (\t -> Just <$> realize conn t) . toTrans' ctx
 
 gather :: Foldable t => Ord b => (a -> b) -> t a -> Set b
 gather f = Set.fromList . map f . toList
@@ -108,15 +110,30 @@ instance Indexed Trans' where
 
 type CoinTransactions = Map Idx [Transaction]
 
-fetchTransactions :: Connection -> LookupTable -> LookupTable -> LookupTable
-                  -> String -> IO CoinTransactions
-fetchTransactions conn symLk callLk portLk portfolio =
+fetchTransactionsByPortfolio :: Connection -> TransactionContext -> String 
+                             -> IO CoinTransactions
+fetchTransactionsByPortfolio conn tc@(TC _ _ portLk) portfolio =
    let whereClause = ("WHERE portfolio_id=" ++) . show
                      <$> Map.lookup portfolio portLk
-       symld = lookdown symLk
+   in  maybe (return Map.empty) (doFetchTransaction conn tc) whereClause
+
+-- this also breaks out the transactions by not-recommended and recommended
+
+fetchTransactionsByDay :: Connection -> TransactionContext -> Day 
+                       -> IO (CoinTransactions, CoinTransactions)
+fetchTransactionsByDay conn tc date =
+   let whereClause = "WHERE for_date='" ++ show date ++ "'" in
+   doFetchTransaction conn tc whereClause >>= \transmap ->
+   fetchCoinRecs conn [date] (Map.keys transmap) >>=
+   return . flip Map.partitionWithKey transmap . idIn . map coinId
+      where coinId (Pvt cid _) = cid
+            idIn (Set.fromList -> keys) k _v = Set.member k keys
+
+doFetchTransaction :: Connection -> TransactionContext -> String
+                   -> IO CoinTransactions
+doFetchTransaction conn (TC symLk callLk portLk) whereClause =
+   let symld = lookdown symLk
        callld = lookdown callLk
        portld = lookdown portLk
        ixTransF = idx &&& fromTrans' symld callld portld
-   in  maybe (return Map.empty) 
-             (\wc -> snarfL (sequence . ixTransF) <$> fetchTrans conn wc)
-             whereClause
+   in  snarfL (sequence . ixTransF) <$> fetchTrans conn whereClause 

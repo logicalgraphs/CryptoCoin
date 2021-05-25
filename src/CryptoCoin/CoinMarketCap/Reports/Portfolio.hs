@@ -22,15 +22,15 @@ import Data.Time (Day, addDays)
 
 import Database.PostgreSQL.Simple
 
-import CryptoCoin.CoinMarketCap.Data.Coin (allCoinsLk)
-import CryptoCoin.CoinMarketCap.Data.Portfolio (portfoliiLk)
 import CryptoCoin.CoinMarketCap.Reports.Table hiding (ecoin)
 import CryptoCoin.CoinMarketCap.Types
 import CryptoCoin.CoinMarketCap.Types.Quote
 
 import Data.CryptoCurrency.Types
+import Data.CryptoCurrency.Types.Coin (allCoinsLk)
 import Data.CryptoCurrency.Types.Portfolio
 import Data.CryptoCurrency.Types.Transaction
+import Data.CryptoCurrency.Types.TransactionContext
 import Data.LookupTable (LookupTable)
 import Data.Monetary.USD
 import Data.Percentage
@@ -120,16 +120,15 @@ instance Rasa Holding where
          where s' :: Show s => s -> Content
                s' = S . show
 
-forEachPortfolioDo :: Connection -> Day -> LookupTable -> LookupTable
-                   -> LookupTable -> Listings -> IxValue Portfolio
-                   -> IO Listings
-forEachPortfolioDo conn tday symLk callLk portLk lists i@(IxV ix port) =
-   fetchCoinIdsFor conn i                              >>= \coinIds ->
+forEachPortfolioDo :: Connection -> Day -> TransactionContext
+                   -> Listings -> IxValue Portfolio -> IO Listings
+forEachPortfolioDo conn tday tc lists i@(IxV ix port) =
+   fetchCoinIdsFor conn i                                     >>= \coinIds ->
    let newIds = Set.difference coinIds (Map.keysSet lists)
        portName = portfolioName port in
-   fetchListings conn tday newIds                      >>= \newListings ->
-   fetchTransactions conn symLk callLk portLk portName >>= \transs ->
-   let combinedListings = Map.union newListings lists
+   fetchListings conn tday newIds                             >>= \newLists ->
+   fetchTransactionsByPortfolio conn tc portName              >>= \transs ->
+   let combinedListings = Map.union newLists lists
        coinsHeld = mapMaybe (uncurry (toHolding combinedListings))
                             (Map.toList transs)
    in printPortfolioReport (PR port (Set.fromList coinsHeld)) >>
@@ -138,9 +137,6 @@ forEachPortfolioDo conn tday symLk callLk portLk lists i@(IxV ix port) =
 go :: IO ()
 go = today >>= \tday ->
      withConnection ECOIN (\conn ->
-        allCoinsLk conn                                          >>= \symLk ->
-        portfoliiLk conn                                         >>= \portLk ->
-        lookupTable conn "call_lk"                               >>= \callLk ->
+        transContext conn                                        >>= \tc ->
         fetchPortfolii conn                                      >>=
-        foldM (forEachPortfolioDo conn tday symLk callLk portLk)
-              Map.empty . Map.elems)
+        foldM (forEachPortfolioDo conn tday tc) Map.empty . Map.elems)

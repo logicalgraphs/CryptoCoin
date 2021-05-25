@@ -19,10 +19,12 @@ import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromRow
 import Database.PostgreSQL.Simple.Types
 
+import Data.LookupTable
 import Data.Monetary.USD
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 import Store.SQL.Util.Indexed (IxValue(IxV), val, Index, idx)
+import Store.SQL.Util.LookupTable (lookupTableFrom)
 
 data Portfolio =
    Portfolio { portfolioName :: String, cash :: USD, raison :: Maybe String }
@@ -70,3 +72,9 @@ fetchCoinIdsFor conn ix = Set.map idx <$> fetchCoinIdsFor' conn ix
                                raison = Just "COINBASE"}},
  fromList [1,512,4761,5692,6719,9421])
 --}
+
+-- for a lookup-table:
+
+portfoliiLk :: Connection -> IO LookupTable
+portfoliiLk conn =
+   lookupTableFrom conn "SELECT portfolio_id, portfolio_name FROM portfolio"

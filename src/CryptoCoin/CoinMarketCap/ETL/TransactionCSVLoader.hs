@@ -14,30 +14,28 @@ import System.Environment (getEnv)
 
 import Control.Scan.CSV
 
-import CryptoCoin.CoinMarketCap.Data.Coin (allCoinsLk)
-import CryptoCoin.CoinMarketCap.Data.Portfolio (portfoliiLk)
-import CryptoCoin.CoinMarketCap.Data.TransactionContext
 
+import Data.CryptoCurrency.Types.Coin (allCoinsLk)
+import Data.CryptoCurrency.Types.Portfolio (portfoliiLk)
 import Data.CryptoCurrency.Types.Transaction
+import Data.CryptoCurrency.Types.TransactionContext
 import Data.CryptoCurrency.Utils (report, conj, plural)
 import Data.Monetary.USD
 import Data.Time.TimeSeries (today)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN), connectInfo)
 
-storeTransactionsAssocRecommendations :: StoreTransactionsF
-storeTransactionsAssocRecommendations conn (TC symLk calll portl) =
-   mapM (storeTransaction conn symLk calll portl) >=>
-   joinRecommendations conn . catMaybes
-
 type StoreTransactionsF =
    Connection -> TransactionContext -> [Transaction] -> IO ()
+
+storeTransactionsAssocRecommendations :: StoreTransactionsF
+storeTransactionsAssocRecommendations conn tc =
+   mapM_ (storeTransaction conn tc >=> joinRecommendations conn)
 
 -- to store just the transactions, use storeTransaction from Types.
 
 onlyStoreTransactions :: StoreTransactionsF
-onlyStoreTransactions conn (TC symLk calll portl) =
-   mapM_ (storeTransaction conn symLk calll portl)
+onlyStoreTransactions conn tc = mapM_ (storeTransaction conn tc)
 
 makeTransaction :: String -> Maybe Transaction
 makeTransaction = mkTrans . csv

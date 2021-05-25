@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module CryptoCoin.CoinMarketCap.Data.Coin where
+module Data.CryptoCurrency.Types.Coin where
 
 import Database.PostgreSQL.Simple (Connection)
 
