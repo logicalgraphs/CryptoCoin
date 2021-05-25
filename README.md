@@ -88,6 +88,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* summarize all portfolii with net gain/loss
+
 * Write a daily transaction-reporter
 
 * Track which crypto can be loaned/earn interest. This might be useful for
