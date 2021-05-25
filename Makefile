@@ -21,10 +21,15 @@ verify: verify1 FORCE
 verify1: FORCE
 	find . $(EXCLUDE) -name "*.hs" -exec $(VERIFIER) {} \; > $(ERR_FILE)
 
+# ----- We want transactions to be independent, because we buy and sell
+# ----- after the system makes the recommendations.
+
 LOAD_TRANSACTIONS=$(SCRIPTS_DIR)/run-load-transactions.exp
+REPORT_TRANSACTIONS=$(SCRIPTS_DIR)/run-report-transactions.exp
 
 transactions: FORCE
 	$(LOAD_TRANSACTIONS)
+	$(REPORT_TRANSACTIONS)
 
 PORTFOLIO_REPORT=$(SCRIPTS_DIR)/run-report-portfolii.exp
 
