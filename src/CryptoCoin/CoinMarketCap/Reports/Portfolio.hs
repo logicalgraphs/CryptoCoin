@@ -30,7 +30,7 @@ import Data.CryptoCurrency.Types
 import Data.CryptoCurrency.Types.Coin (allCoinsLk)
 import Data.CryptoCurrency.Types.Portfolio
 import Data.CryptoCurrency.Types.Transaction
-import Data.CryptoCurrency.Types.TransactionContext
+import Data.CryptoCurrency.Types.Transactions.Context
 import Data.LookupTable (LookupTable)
 import Data.Monetary.USD
 import Data.Percentage

@@ -18,7 +18,7 @@ import Control.Scan.CSV
 import Data.CryptoCurrency.Types.Coin (allCoinsLk)
 import Data.CryptoCurrency.Types.Portfolio (portfoliiLk)
 import Data.CryptoCurrency.Types.Transaction
-import Data.CryptoCurrency.Types.TransactionContext
+import Data.CryptoCurrency.Types.Transactions.Context
 import Data.CryptoCurrency.Utils (report, conj, plural)
 import Data.Monetary.USD
 import Data.Time.TimeSeries (today)

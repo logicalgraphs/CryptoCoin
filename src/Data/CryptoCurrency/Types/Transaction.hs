@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ViewPatterns      #-}
 
 module Data.CryptoCurrency.Types.Transaction where
 
@@ -39,7 +38,7 @@ import Control.Scan.CSV (readMaybe)
 import Data.CryptoCurrency.Types
 import Data.CryptoCurrency.Types.Recommendation
 import Data.CryptoCurrency.Types.Transactions.Internal
-import Data.CryptoCurrency.Types.TransactionContext
+import Data.CryptoCurrency.Types.Transactions.Context
 import Data.LookupTable
 import Data.Monetary.USD
 
@@ -119,15 +118,15 @@ fetchTransactionsByPortfolio conn tc@(TC _ _ portLk) portfolio =
 
 -- this also breaks out the transactions by not-recommended and recommended
 
-fetchTransactionsByDay :: Connection -> TransactionContext -> Day 
+fetchTransactionsByDate :: Connection -> TransactionContext -> Day 
                        -> IO (CoinTransactions, CoinTransactions)
-fetchTransactionsByDay conn tc date =
+fetchTransactionsByDate conn tc date =
    let whereClause = "WHERE for_date='" ++ show date ++ "'" in
    doFetchTransaction conn tc whereClause >>= \transmap ->
    fetchCoinRecs conn [date] (Map.keys transmap) >>=
-   return . flip Map.partitionWithKey transmap . idIn . map coinId
+   return . flip Map.partitionWithKey transmap . (const .) . idIn . map coinId
       where coinId (Pvt cid _) = cid
-            idIn (Set.fromList -> keys) k _v = Set.member k keys
+            idIn = flip Set.member . Set.fromList
 
 doFetchTransaction :: Connection -> TransactionContext -> String
                    -> IO CoinTransactions

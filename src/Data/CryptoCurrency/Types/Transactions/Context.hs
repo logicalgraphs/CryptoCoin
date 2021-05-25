@@ -1,4 +1,4 @@
-module Data.CryptoCurrency.Types.TransactionContext where
+module Data.CryptoCurrency.Types.Transactions.Context where
 
 import Database.PostgreSQL.Simple (Connection)
 
