@@ -88,9 +88,7 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* summarize all portfolii with net gain/loss: DONE
-
-* Write a daily transaction-reporter: DONE
+* output reports as CVS and save them to that big Google Sheets in the Sky(tm).
 
 * Track which crypto can be loaned/earn interest. This might be useful for
 Bayesian analysis, as well.
