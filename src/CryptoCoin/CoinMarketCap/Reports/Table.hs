@@ -12,6 +12,10 @@ import Data.Maybe (mapMaybe)
 
 import Data.Time (Day)
 
+import Control.List (weave)
+import Control.Presentation hiding (S)
+import Control.Scan.CSV
+
 import CryptoCoin.CoinMarketCap.Types hiding (idx)
 import CryptoCoin.CoinMarketCap.Types.Quote
 
@@ -85,11 +89,22 @@ t' [] = const $ return ()
 t' rs@(_:_) = flip table rs
 
 report :: Rank r => Rasa r => String -> [String] -> [r] -> IO ()
-report typ hdrs razz =
+report typ hdrs = let r' a (b, c) = report' b a c in r' hdrs . setupReport typ
+
+-- alternatively, to output as CSV:
+
+csvReport :: Rank r => Univ r => String -> [String] -> [r] -> IO ()
+csvReport typ hdrs razz = 
+   let (title, sorted) = setupReport typ razz in
+   putStrLn (title ++ "\n") >>
+   mapM_ (putStrLn . weave) (hdrs:map explode sorted)
+
+setupReport :: Rank r => String -> [r] -> (String, [r])
+setupReport typ razz =
    let sz     = length razz
        header = concat ["There",toBe sz,show sz," new ",typ,plural sz," today"]
        ranked = sortOn rank razz
-   in  report' (header ++ punct sz) hdrs ranked
+   in  (header ++ punct sz, ranked)
 
 report' :: Rasa r => String -> [String] -> [r] -> IO ()
 report' msg hdrs razz = printContent (p [S msg]) 0 >> t' razz hdrs

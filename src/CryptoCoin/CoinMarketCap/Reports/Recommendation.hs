@@ -27,18 +27,19 @@ import Database.PostgreSQL.Simple.Types (Query(Query))
 
 import Control.List (weave)
 import Control.Map (snarf)
+import Control.Presentation hiding (S)
 
-import CryptoCoin.CoinMarketCap.Reports.Table (report, linq, a)
+import CryptoCoin.CoinMarketCap.Reports.Table (report, linq, a, csvReport)
 import CryptoCoin.CoinMarketCap.Reports.Utils (tweet)
 
 import Data.LookupTable (LookupTable)
 import Data.Monetary.USD
 import Data.CryptoCurrency.Types (IxRow(IxRow), idx, Idx, row, Indexed, 
-           Rank, rank)
+           Rank, rank, namei, Named)
 import Data.CryptoCurrency.Types.Recommendation
           (Recommendation, RecommendationData(Rekt), call, Call(BUY), 
            fetchRecommendations, Source, toSource)
-import Data.CryptoCurrency.Utils (plural)
+import Data.CryptoCurrency.Utils (plural, pass)
 import Data.Time.TimeSeries (today)
 import Data.XHTML
 
@@ -120,6 +121,8 @@ data Exchange = Exchange Idx String FilePath
 
 instance Indexed Exchange where
    idx (Exchange i _ _) = i
+
+instance Named Exchange where namei (Exchange _ n _) = n
 
 instance FromRow Exchange where
    fromRow = Exchange <$> field <*> field <*> field
@@ -272,33 +275,51 @@ thdr = words "ID symbol name price rank buys sells exchanges"
 instance Rasa RecRow where
    printRow (RR (IxRow i _d (CoinRow sy n sl p r)) exs tlas buys sells) = tr [
       S (show i), E $ linq sl sy, S n, S (show p), S (show r),
-      S (ts buys), S (ts sells), S iexs]
-        where thunk f = weave . mapMaybe (\x -> show <$> f x) . toList
-              iexs = thunk exchangeUrl exs
-              ts = thunk (tla tlas)
+      S (ts tlas buys), S (ts tlas sells), S (iexs exs)]
+
+thunk :: Foldable t => Show b => (a -> Maybe b) -> t a -> String
+thunk f = weave . mapMaybe (\x -> show <$> f x) . toList
+
+iexs, jexs :: Foldable t => t Exchange -> String
+iexs = thunk exchangeUrl
+jexs = thunk (pure . namei)
+
+ts', ts :: Foldable t => TLAs -> t Recommendation -> String
+ts tlas = thunk (tla tlas)
+ts' tlas = thunk (\r -> fst <$> tlb tlas r)
+
+instance Univ RecRow where
+   explode (RR (IxRow i _d (CoinRow sy n sl p r)) exs tlas buys sells) =
+      [show i, sy, n, show p, show r, ts' tlas buys, ts' tlas sells, jexs exs]
 
 exchangeUrl :: Exchange -> Maybe Element
 exchangeUrl (Exchange _ n url) = Just $ a url n
 
 tla :: TLAs -> Recommendation -> Maybe Element
-tla tlas (IxRow _ _ (Rekt _ src _conf)) =
-   uncurry a . swap . tupII <$> Map.lookup src tlas
+tla tlas ixr = uncurry a . swap <$> tlb tlas ixr
+
+tlb :: TLAs -> Recommendation -> Maybe (String, String)
+tlb tlas (row -> Rekt _ src _) = tupII <$> Map.lookup src tlas
 
 tupII :: IndicatorInfo -> (String, FilePath)
 tupII (II tla url) = (tla, url)
 
 go :: IO ()
 go = today >>= \tday ->
+     let report = csvReport in
      withConnection ECOIN (\conn -> 
-        collateRecommendations conn tday           >>= \recs ->
-        report "recommendation" thdr recs          >>
-        let sz = length recs
-            beta = ["(beta)"]
-            uwu = unwords . (++ beta)    -- yup. I went there. Deal.
-            recName = "recommendation" ++ plural sz
-            route = concat [show sz, "-e-coin-", recName, "-for-"]
-            message = concat [show sz, " E-Coin ", recName] in
-        tweet tday route (uwu [message])           >>
-        putStrLn (uwu [message, "for", show tday]))
+        collateRecommendations conn tday    >>=
+        pass (report "recommendation" thdr) >>=
+        tweetAndTitle tday)
+
+tweetAndTitle :: Foldable t => Day -> t recs -> IO ()
+tweetAndTitle tday (length -> sz) =
+   let beta = ["(beta)"]
+       uwu = unwords . (++ beta)    -- yup. I went there. Deal.
+       recName = "recommendation" ++ plural sz
+       route = concat [show sz, "-e-coin-", recName, "-for-"]
+       message = unwords [show sz, "E-Coin", recName]
+       title = uwu [message, "for", show tday]
+   in  tweet tday route (uwu [message]) >> putStrLn title
 
 -- a sample output is at this directory: sample-recommendations.html
