@@ -93,10 +93,6 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 * Track which crypto can be loaned/earn interest. This might be useful for
 Bayesian analysis, as well.
 
-* correct how portfolio information is read, particularly total invested and
-  if multiple transactions are made in a day. And amount transactacted per
-  coin. DONE
-
 * start building predictive model: STARTED
 
 * provide year-to-date transaction history with the portfolio report
@@ -111,6 +107,7 @@ are effective and which ones aren't, or combinations, or what. ... Bayes?
 * create a spot-check that runs the numbers on any arbitrary yahoo-symbol
 
 * build predictive model based off of recommendations
+
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
   * map FCAS coin uuids to cmc_ids
 
