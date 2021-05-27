@@ -13,6 +13,7 @@ import Control.Arrow ((&&&))
 
 import qualified Data.ByteString.Char8 as B
 import Data.Foldable (toList)
+import Data.List (intercalate)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
@@ -277,16 +278,19 @@ instance Rasa RecRow where
       S (show i), E $ linq sl sy, S n, S (show p), S (show r),
       S (ts tlas buys), S (ts tlas sells), S (iexs exs)]
 
+pipe :: Foldable t => (a -> Maybe String) -> t a -> String
+pipe f = intercalate "|" . mapMaybe f . toList
+
 thunk :: Foldable t => Show b => (a -> Maybe b) -> t a -> String
 thunk f = weave . mapMaybe (\x -> show <$> f x) . toList
 
 iexs, jexs :: Foldable t => t Exchange -> String
 iexs = thunk exchangeUrl
-jexs = thunk (pure . namei)
+jexs = pipe (pure . namei)
 
 ts', ts :: Foldable t => TLAs -> t Recommendation -> String
 ts tlas = thunk (tla tlas)
-ts' tlas = thunk (\r -> fst <$> tlb tlas r)
+ts' tlas = pipe (\r -> fst <$> tlb tlas r)
 
 instance Univ RecRow where
    explode (RR (IxRow i _d (CoinRow sy n sl p r)) exs tlas buys sells) =
@@ -309,7 +313,7 @@ go = today >>= \tday ->
      let report = csvReport in
      withConnection ECOIN (\conn -> 
         collateRecommendations conn tday    >>=
-        pass (report "recommendation" thdr) >>=
+        pass (report tday "recommendation" thdr) >>=
         tweetAndTitle tday)
 
 tweetAndTitle :: Foldable t => Day -> t recs -> IO ()
@@ -318,6 +322,7 @@ tweetAndTitle tday (length -> sz) =
        route = concat [show sz, "-e-coin-", recName, "-for-"]
        message = unwords [show sz, "E-Coin", recName]
        title = unwords [message, "for", show tday]
-   in  tweet tday route message >> putStrLn title
+       cr = putStrLn ""
+   in  cr >> tweet tday route message >> cr >> putStrLn title
 
 -- a sample output is at this directory: sample-recommendations.html

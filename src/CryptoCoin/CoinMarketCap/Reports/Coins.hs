@@ -44,7 +44,7 @@ ranking date ecoins newsies =
    let sortCoins = sortOn rank . mapMaybe (ec2cc ecoins . coin) . toList in
    report' (show $ top10 date) coinHeaders 
            (take 10 (sortCoins $ Map.elems ecoins)) >>
-   newCoins ecoins newsies
+   newCoins date ecoins newsies
 
 {--
 >>> let date = (read "2021-02-22") :: Day

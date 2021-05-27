@@ -88,23 +88,24 @@ t' :: Rasa r => [r] -> [String] -> IO ()
 t' [] = const $ return ()
 t' rs@(_:_) = flip table rs
 
-report :: Rank r => Rasa r => String -> [String] -> [r] -> IO ()
-report typ hdrs = let r' a (b, c) = report' b a c in r' hdrs . setupReport typ
+report :: Rank r => Rasa r => Day -> String -> [String] -> [r] -> IO ()
+report date typ hdrs =
+   let r' a (b, c) = report' b a c in r' hdrs . setupReport date typ
 
 -- alternatively, to output as CSV:
 
-csvReport :: Rank r => Univ r => String -> [String] -> [r] -> IO ()
-csvReport typ hdrs razz = 
-   let (title, sorted) = setupReport typ razz in
+csvReport :: Rank r => Univ r => Day -> String -> [String] -> [r] -> IO ()
+csvReport date typ hdrs razz = 
+   let (title, sorted) = setupReport date typ razz in
    putStrLn (title ++ "\n") >>
    mapM_ (putStrLn . weave) (hdrs:map explode sorted)
 
-setupReport :: Rank r => String -> [r] -> (String, [r])
-setupReport typ razz =
+setupReport :: Rank r => Day -> String -> [r] -> (String, [r])
+setupReport date typ razz =
    let sz     = length razz
-       header = concat ["There",toBe sz,show sz," new ",typ,plural sz," today"]
+       header = concat ["There",toBe sz,show sz," new ",typ,plural sz]
        ranked = sortOn rank razz
-   in  (header ++ punct sz, ranked)
+   in  (header ++ " for " ++ show date ++ punct sz, ranked)
 
 report' :: Rasa r => String -> [String] -> [r] -> IO ()
 report' msg hdrs razz = printContent (p [S msg]) 0 >> t' razz hdrs
@@ -112,12 +113,13 @@ report' msg hdrs razz = printContent (p [S msg]) 0 >> t' razz hdrs
 p :: [Content] -> Content
 p = E . Elt "p" []
 
-newCoins :: Foldable t => Indexed i => Listings -> (t i, t i) -> IO ()
-newCoins ls ncs@(coins, tokens) =
-   mapM_ (uncurry (newStuff ls)) [("coin", coins), ("token", tokens)]
+newCoins :: Foldable t => Indexed i => Day -> Listings -> (t i, t i) -> IO ()
+newCoins date ls ncs@(coins, tokens) =
+   mapM_ (uncurry (newStuff date ls)) [("coin", coins), ("token", tokens)]
 
 coinHeaders :: [String]
 coinHeaders = words "Name Symbol Rank Price %Change Basis"
 
-newStuff :: Foldable t => Indexed i => Listings -> String -> t i -> IO ()
-newStuff ls typ = report typ coinHeaders . mapMaybe (ec2cc ls) . toList
+newStuff :: Foldable t => Indexed i => Day -> Listings -> String -> t i -> IO ()
+newStuff date ls typ =
+   report date typ coinHeaders . mapMaybe (ec2cc ls) . toList
