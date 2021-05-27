@@ -95,8 +95,10 @@ report date typ hdrs =
 -- alternatively, to output as CSV:
 
 csvReport :: Rank r => Univ r => Day -> String -> [String] -> [r] -> IO ()
-csvReport date typ hdrs razz = 
-   let (title, sorted) = setupReport date typ razz in
+csvReport date typ hdrs = uncurry (csvReport' hdrs) . setupReport date typ
+
+csvReport' :: Univ r => [String] -> String -> [r] -> IO ()
+csvReport' hdrs title sorted =
    putStrLn (title ++ "\n") >>
    mapM_ (putStrLn . weave) (hdrs:map explode sorted)
 
