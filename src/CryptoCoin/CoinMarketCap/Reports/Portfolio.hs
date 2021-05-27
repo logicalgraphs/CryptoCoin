@@ -54,8 +54,21 @@ instance Indexed Holding where
 instance Rank Holding where
    rank = rank . ecoin
 
-data PortfolioReport = PR { portfolio     :: Portfolio,
-                            holdings      :: Set Holding }
+instance Rasa Holding where
+   printRow h@(Holding coin amt ui@(USD inv) up@(USD pric)) =
+      let currVal = toRational amt * toRational pric  in
+      tr [s' (rank h), s' (idx h), S (sym coin), S (namei coin),
+          s' amt, s' ui, s' up, s' (USD currVal), s' (change inv currVal)]
+         where s' :: Show s => s -> Content
+               s' = S . show
+
+instance Univ Holding where
+   explode h@(Holding e amt ui@(USD inv) up@(USD pric)) =
+      let currVal = toRational amt * toRational pric in
+      [show (rank h), show (idx h), sym e, namei e, show amt, show ui, show up,
+       show (USD currVal), show (change inv currVal)]
+
+data PortfolioReport = PR { portfolio :: Portfolio, holdings :: Set Holding }
    deriving (Eq, Ord, Show)
 
 instance Monoid PortfolioReport where
@@ -94,12 +107,24 @@ instance Rasa KV where
 
 instance Univ KV where explode (KV k v) = [k, v]
 
+portHdrs :: [String]
+portHdrs = words "Rank Id Symbol Coin Amount Invested Price Value %change"
+
+portTitle :: Portfolio -> String
+portTitle p = "Holdings for " ++ portfolioName p ++ " portfolio"
+
 printPortfolioReport :: Day -> PortfolioReport -> IO ()
 printPortfolioReport date pr@(PR p holdings) =
    summarizePortfolio date pr >>
-   report' ("Holdings for " ++ portfolioName p ++ " portfolio")
-           (words "Rank Id Symbol Coin Amount Invested Price Value %change")
-           (sortOn rank (Set.toList holdings))
+   report' (portTitle p) portHdrs (sortOn rank (Set.toList holdings))
+
+printPortfolioCSV :: Day -> PortfolioReport -> IO ()
+printPortfolioCSV date pr@(PR p holdings) =
+   let cr = putStrLn "" in
+   cr              >>
+   sumport date pr >>
+   cr              >>
+   csvReport' portHdrs (portTitle p) (sortOn rank (Set.toList holdings))
 
 data PorNot = Perc Percentage | PNOT
    deriving Eq
@@ -111,14 +136,6 @@ instance Show PorNot where
    show (Perc p) = show p
    show PNOT = "N/A"
    
-instance Rasa Holding where
-   printRow h@(Holding coin amt ui@(USD inv) up@(USD pric)) =
-      let currVal = toRational amt * toRational pric  in
-      tr [s' (rank h), s' (idx h), S (sym coin), S (namei coin),
-          s' amt, s' ui, s' up, s' (USD currVal), s' (change inv currVal)]
-         where s' :: Show s => s -> Content
-               s' = S . show
-
 forEachPortfolioDo :: Connection -> Day -> TransactionContext
                    -> ([PortfolioReport], Listings) -> IxValue Portfolio
                    -> IO ([PortfolioReport], Listings)
@@ -159,11 +176,14 @@ sumport date pr@(PR (Portfolio name _ _) holdings) =
 summarizePortfolii :: Day -> [PortfolioReport] -> IO ()
 summarizePortfolii date = summarizePortfolio date . mconcat
 
+sumports :: Day -> [PortfolioReport] -> IO ()
+sumports date = sumport date . mconcat
+
 go :: IO ()
 go = today >>= \tday ->
      withConnection ECOIN (\conn ->
         transContext conn                                             >>= \tc ->
         fetchPortfolii conn                                                  >>=
         foldM (forEachPortfolioDo conn tday tc) ([], Map.empty) . Map.elems  >>=
-        pass (summarizePortfolii tday) . fst                                 >>=
-        mapM_ (printPortfolioReport tday))
+        pass (sumports tday) . fst                                           >>=
+        mapM_ (printPortfolioCSV tday))

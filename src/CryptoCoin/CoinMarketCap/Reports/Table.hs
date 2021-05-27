@@ -36,19 +36,6 @@ instance Rank PriceCoin where
 l2PC :: Listing -> Maybe PriceCoin
 l2PC l = quote l >>= \q -> PC (coin l) (price q) <$> percentChange24h q
 
-data ContextCoin = CC Listings PriceCoin
-   deriving (Eq, Ord, Show)
-
-instance Rank ContextCoin where
-   rank (CC _ pc) = rank pc
-
-ec2cc :: Indexed i => Listings -> i -> Maybe ContextCoin
-ec2cc m c = CC m <$> (Map.lookup (idx c) m >>= l2PC)
-
-instance Rasa ContextCoin where
-   printRow (CC m (PC ecoin p ch)) =
-      tr (ci2tr (info ecoin) p ch ++ [addlInfo m ecoin])
-
 addlInfo :: Listings -> ECoin -> Content
 addlInfo _ (C _) = S "--"
 addlInfo m (T (Token _ci i _)) = link . info . coin $ m Map.! i
@@ -115,13 +102,5 @@ report' msg hdrs razz = printContent (p [S msg]) 0 >> t' razz hdrs
 p :: [Content] -> Content
 p = E . Elt "p" []
 
-newCoins :: Foldable t => Indexed i => Day -> Listings -> (t i, t i) -> IO ()
-newCoins date ls ncs@(coins, tokens) =
-   mapM_ (uncurry (newStuff date ls)) [("coin", coins), ("token", tokens)]
-
 coinHeaders :: [String]
 coinHeaders = words "Name Symbol Rank Price %Change Basis"
-
-newStuff :: Foldable t => Indexed i => Day -> Listings -> String -> t i -> IO ()
-newStuff date ls typ =
-   report date typ coinHeaders . mapMaybe (ec2cc ls) . toList
