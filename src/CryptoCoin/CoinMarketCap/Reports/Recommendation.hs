@@ -314,12 +314,10 @@ go = today >>= \tday ->
 
 tweetAndTitle :: Foldable t => Day -> t recs -> IO ()
 tweetAndTitle tday (length -> sz) =
-   let beta = ["(beta)"]
-       uwu = unwords . (++ beta)    -- yup. I went there. Deal.
-       recName = "recommendation" ++ plural sz
+   let recName = "recommendation" ++ plural sz
        route = concat [show sz, "-e-coin-", recName, "-for-"]
        message = unwords [show sz, "E-Coin", recName]
-       title = uwu [message, "for", show tday]
-   in  tweet tday route (uwu [message]) >> putStrLn title
+       title = unwords [message, "for", show tday]
+   in  tweet tday route message >> putStrLn title
 
 -- a sample output is at this directory: sample-recommendations.html
