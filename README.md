@@ -88,9 +88,12 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* readjust Coinbase balance from db to IRL
+* elide new coins report: we don't need it anymore?
 
-* output reports as CVS and save them to that big Google Sheets in the Sky(tm).
+* readjust Coinbase balance from db to IRL ... and gemini
+
+* output reports as CVS and save them to that big Google Sheets in the Sky(tm):
+IN PROGRESS
 
 * Track which crypto can be loaned/earn interest. This might be useful for
 Bayesian analysis, as well.
