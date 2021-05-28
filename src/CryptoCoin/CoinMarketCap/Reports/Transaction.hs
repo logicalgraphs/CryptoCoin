@@ -32,12 +32,14 @@ import Data.Time (Day)
 
 import Database.PostgreSQL.Simple (Connection)
 
+import Control.Presentation hiding (S)
+
 import Data.CryptoCurrency.Types.Transaction
 import Data.CryptoCurrency.Types.Transactions.Context
 
 import Data.Time.TimeSeries (today)
 
-import Data.XHTML
+import Data.XHTML hiding (nb)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 
@@ -48,8 +50,11 @@ p :: String -> Content
 p = elt "p"
 
 addendum :: [Content]
-addendum = [p ("* There were no recommendations for these two transactions; I "
-               ++ "bought these coins on sale, is all.")]
+addendum = [p nb]
+
+nb :: String
+nb = "* There were no recommendations for these two transactions; I "
+   ++ "bought these coins on sale, is all."
 
 printTransactions :: Day -> (CoinTransactions, CoinTransactions) -> IO ()
 printTransactions date (recs, nonrecs) =
