@@ -12,6 +12,25 @@ EXCLUDE=-path ./src/Data/BlockChain -prune -false -o
 VERIFIER=$(SCRIPTS_DIR)/verify-haskell-file.exp
 ERR_FILE=errs.txt
 
+# the programs are the things we run from scripts directory. How do we 
+# macrotize this, I wonder?
+
+# for now I run: ls $COIN_MARKET_CAP_DIR/scripts/*.* | xargs grep hs
+# then generate these program inodes by hand.
+
+PROGRAMS=$(COIN_MARKET_CAP_DIR)/ETL/Candlesticks/Loader.hs \
+         $(COIN_MARKET_CAP_DIR)/ETL/SourceFileLoader.hs \
+         $(COIN_MARKET_CAP_DIR)/ETL/TrackedCoinLoader.hs \
+         $(COIN_MARKET_CAP_DIR)/ETL/TransactionCSVLoader.hs \
+         $(COIN_MARKET_CAP_DIR)/ETL/Coins/Loader.hs \
+         $(COIN_MARKET_CAP_DIR)/ETL/Candlesticks/Transformer.hs \
+         $(COIN_MARKET_CAP_DIR)/Analytics/Candlesticks/Patterns.hs \
+         $(COIN_MARKET_CAP_DIR)/Analytics/Trends/Recommendation.hs \
+         $(COIN_MARKET_CAP_DIR)/Analytics/Trends/Trend.hs \
+         $(COIN_MARKET_CAP_DIR)/Reports/Portfolio.hs \
+         $(COIN_MARKET_CAP_DIR)/Reports/Recommendation.hs \
+         $(COIN_MARKET_CAP_DIR)/Reports/Transaction.hs
+
 # ----- ONE-OFFS ---------------------------------------------------------
 
 verify: verify1 FORCE
@@ -19,7 +38,7 @@ verify: verify1 FORCE
 	rm $(ERR_FILE)
 
 verify1: FORCE
-	find . $(EXCLUDE) -name "*.hs" -exec $(VERIFIER) {} \; > $(ERR_FILE)
+	$(foreach file, $(PROGRAMS), $(VERIFIER) $(file) >> $(ERR_FILE);)
 
 # ----- We want transactions to be independent, because we buy and sell
 # ----- after the system makes the recommendations.
