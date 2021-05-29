@@ -22,7 +22,7 @@ PROGRAMS=$(COIN_MARKET_CAP_DIR)/ETL/Candlesticks/Loader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/SourceFileLoader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/TrackedCoinLoader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/TransactionCSVLoader.hs \
-         $(COIN_MARKET_CAP_DIR)/ETL/Coins/Loader.hs \
+         $(COIN_MARKET_CAP_DIR)/ETL/Coins/Transformer.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/Candlesticks/Transformer.hs \
          $(COIN_MARKET_CAP_DIR)/Analytics/Candlesticks/Patterns.hs \
          $(COIN_MARKET_CAP_DIR)/Analytics/Trends/Recommendation.hs \
@@ -34,7 +34,7 @@ PROGRAMS=$(COIN_MARKET_CAP_DIR)/ETL/Candlesticks/Loader.hs \
 # ----- ONE-OFFS ---------------------------------------------------------
 
 verify: verify1 FORCE
-	grep error $(ERR_FILE)
+	grep error $(ERR_FILE) || [[ $$? == 1 ]]
 	rm $(ERR_FILE)
 
 verify1: FORCE
