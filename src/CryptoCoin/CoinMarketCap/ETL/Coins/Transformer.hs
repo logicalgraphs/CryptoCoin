@@ -2,18 +2,18 @@
 {-# LANGUAGE TupleSections     #-}
 {-# LANGUAGE ViewPatterns      #-}
 
-module CryptoCoin.CoinMarketCap.ETL.Coins.Loader where
+module CryptoCoin.CoinMarketCap.ETL.Coins.Transformer where
 
 {--
 Takes the listing files, processes them into ECoin values, and saves those
 values to the data-store.
 --}
 
-import Control.Monad (forM_, void)
+import Control.Monad (void)
 
 import qualified Data.ByteString.Char8 as B
-import Data.List (partition)
 import qualified Data.Map as Map
+import Data.Maybe (mapMaybe)
 import Data.Time (Day)
 
 import Database.PostgreSQL.Simple
@@ -25,8 +25,9 @@ import CryptoCoin.CoinMarketCap.ETL.JSONFile (extractListings)
 import CryptoCoin.CoinMarketCap.ETL.ListingLoader (insertListings)
 import CryptoCoin.CoinMarketCap.ETL.TagLoader (processTags)
 import CryptoCoin.CoinMarketCap.Types
-import Data.CryptoCurrency.Types hiding (Date)      -- Idx
+import Data.CryptoCurrency.Types (date, idx)
 import Data.CryptoCurrency.Types.Coin (allCoinsLk)
+import Data.CryptoCurrency.Utils (report)
 
 import Data.LookupTable (LookupTable)
 
@@ -80,39 +81,39 @@ insertTokenQuery =
 insertNewCoinsQuery :: Query
 insertNewCoinsQuery = "INSERT INTO new_coin (cmc_id, for_date) VALUES (?, ?)"
 
-insertCoin :: Connection -> ECoin -> IO ()
-insertCoin conn ecoin =
-   insertCoinInfo conn (info ecoin) >> thenInsertCoin conn ecoin
+insertNewCoinsDate :: Connection -> Day -> [ECoin] -> IO ()
+insertNewCoinsDate conn date =
+   void . executeMany conn insertNewCoinsQuery . map (toDate date)
 
-insertCoinInfo :: Connection -> CoinInfo -> IO ()
-insertCoinInfo conn = void . execute conn insertCoinInfoQuery
-
-thenInsertCoin :: Connection -> ECoin -> IO ()
-thenInsertCoin _ (C _) = return ()
-thenInsertCoin conn (T tok) = execute conn insertTokenQuery tok >> return ()
-
--- so, this is how we do it.
-
--- We insert all the coins first, then we insert the tokens
-
-insertAllCoins :: Connection -> Day -> NewCoins -> IO ()
-insertAllCoins conn date nc@(coins, tokens) =
-   putStrLn ("Inserting " ++ show (length coins) ++ " coins.")                >>
-   forM_ coins (insertCoin conn)                                              >>
-   putStrLn "...done."                                                        >>
-   putStrLn ("Inserting " ++ show (length tokens) ++ " tokens.")              >>
-   forM_ tokens (insertCoin conn)                                             >>
-   putStrLn "Inserting all new coins and tokens into new_coin table"          >>
-   executeMany conn insertNewCoinsQuery (map (toDate date) (coins ++ tokens)) >>
-   putStrLn "...done."
-
-toDate :: Indexed i => Day -> i -> Date
+toDate :: Day -> ECoin -> Date
 toDate d (idx -> i) = Dt i d
 
 data Date = Dt Integer Day
 
 instance ToRow Date where
    toRow (Dt i d) = [toField i, toField d]
+
+insertCoinInfos :: Connection -> [ECoin] -> IO ()
+insertCoinInfos conn = void . executeMany conn insertCoinInfoQuery . map info
+
+insertTokens :: Connection -> [ECoin] -> IO ()
+insertTokens conn = void . executeMany conn insertTokenQuery . mapMaybe unToken
+
+unToken :: ECoin -> Maybe Token
+unToken (T tok) = Just tok
+unToken _       = Nothing
+
+-- so, this is how we do it.
+
+-- We insert all the coin information first, then we insert the tokens
+-- (which are references to the token (coininfo) and their parent coin(info))
+
+insertAllCoins :: Connection -> Day -> [ECoin] -> IO ()
+insertAllCoins conn date allCoins =
+   report 0 ("Inserting " ++ show (length allCoins) ++ " coin infos.")
+            (insertCoinInfos conn allCoins >> insertTokens conn allCoins) >>
+   report 0 "Inserting all new coins and tokens into new_coin table"
+            (insertNewCoinsDate conn date allCoins)
 
 processOneListingFile :: Connection -> IxValue MetaData -> IO ()
 processOneListingFile conn i@(IxV _ md) =
@@ -122,10 +123,9 @@ processOneListingFile conn i@(IxV _ md) =
    insertListings conn i                                       >>
    processTags conn i
 
-newCoins :: Connection -> MetaData -> IO NewCoins
+newCoins :: Connection -> MetaData -> IO [ECoin]
 newCoins conn (MetaData _ m) =
-   partition (not . isToken)
-   . map coin
+   map coin
    . Map.elems
    . foldr Map.delete m
    . Map.elems
@@ -136,8 +136,6 @@ setProcessed conn srcs =
    execute conn "UPDATE source SET processed=? WHERE source_type_id=?"
            (True, srcs Map.! "LISTING") >>
    putStrLn "Set all listings files as processed."
-
--- Process all of them:
 
 processFiles :: Connection -> LookupTable -> IO ()
 processFiles conn srcs =
