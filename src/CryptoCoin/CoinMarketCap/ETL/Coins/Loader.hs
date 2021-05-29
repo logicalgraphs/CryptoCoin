@@ -2,7 +2,7 @@
 {-# LANGUAGE TupleSections     #-}
 {-# LANGUAGE ViewPatterns      #-}
 
-module CryptoCoin.CoinMarketCap.ETL.NewCoinTransformer where
+module CryptoCoin.CoinMarketCap.ETL.Coins.Loader where
 
 {--
 Takes the listing files, processes them into ECoin values, and saves those
@@ -11,24 +11,22 @@ values to the data-store.
 
 import Control.Monad (forM_, void)
 
+import qualified Data.ByteString.Char8 as B
+import Data.List (partition)
+import qualified Data.Map as Map
+import Data.Time (Day)
+
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.ToField
 import Database.PostgreSQL.Simple.ToRow
 import Database.PostgreSQL.Simple.Types
 
-import qualified Data.ByteString.Char8 as B
-
-import qualified Data.Map as Map
-
-import Data.Time (Day)
-
-import Data.CryptoCurrency.Types hiding (Date)      -- Idx
-
-import CryptoCoin.CoinMarketCap.ETL.Coins.NewCoins (newCoins)
 import CryptoCoin.CoinMarketCap.ETL.JSONFile (extractListings)
 import CryptoCoin.CoinMarketCap.ETL.ListingLoader (insertListings)
 import CryptoCoin.CoinMarketCap.ETL.TagLoader (processTags)
 import CryptoCoin.CoinMarketCap.Types
+import Data.CryptoCurrency.Types hiding (Date)      -- Idx
+import Data.CryptoCurrency.Types.Coin (allCoinsLk)
 
 import Data.LookupTable (LookupTable)
 
@@ -123,6 +121,15 @@ processOneListingFile conn i@(IxV _ md) =
    insertAllCoins conn (date md)                               >>
    insertListings conn i                                       >>
    processTags conn i
+
+newCoins :: Connection -> MetaData -> IO NewCoins
+newCoins conn (MetaData _ m) =
+   partition (not . isToken)
+   . map coin
+   . Map.elems
+   . foldr Map.delete m
+   . Map.elems
+   <$> allCoinsLk conn
 
 setProcessed :: Connection -> LookupTable -> IO ()
 setProcessed conn srcs =
