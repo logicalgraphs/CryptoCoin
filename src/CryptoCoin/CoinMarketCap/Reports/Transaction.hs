@@ -1,3 +1,5 @@
+{-# LANGUAGE ViewPatterns #-}
+
 module CryptoCoin.CoinMarketCap.Reports.Transaction where
 
 {--
@@ -32,6 +34,7 @@ import Data.Time (Day)
 
 import Database.PostgreSQL.Simple (Connection)
 
+import Control.List (weave)
 import Control.Presentation hiding (S)
 
 import Data.CryptoCurrency.Types.Transaction
@@ -56,26 +59,95 @@ nb :: String
 nb = "* There were no recommendations for these two transactions; I "
    ++ "bought these coins on sale, is all."
 
+header :: Day -> String
+header date = "I am making the following transactions for " ++ show date
+
+mapper :: (Bool -> Transaction -> row) -> Bool -> CoinTransactions -> [row]
+mapper f b = map (f b) . concat . Map.elems
+
+transactionRows :: (Bool -> Transaction -> row)
+                -> CoinTransactions -> CoinTransactions -> [row]
+transactionRows r (mapper r False -> rs) (mapper r True -> nrs) = rs ++ nrs
+
 printTransactions :: Day -> (CoinTransactions, CoinTransactions) -> IO ()
 printTransactions date (recs, nonrecs) =
-   let ce = concat . Map.elems
-       rpt = [p ("I am making the following transactions for " ++ show date),
-              E (Elt "ol" [] (map (listItem True) (ce nonrecs)
-                           ++ map (listItem False) (ce recs))),
+   let rpt = [p (header date),
+              E (Elt "ol" [] (transactionRows listItem recs nonrecs)),
               p "That's it for today."]
        addend = if length nonrecs == 0 then id else (++ addendum)
    in printContent (E (Elt "p" [] (addend rpt))) 0
+
+printCSVTransactions :: Day -> (CoinTransactions, CoinTransactions) -> IO ()
+printCSVTransactions date (recs, nonrecs) =
+   let rpt = [header date, ""] ++ transactionRows csvRow recs nonrecs ++
+             ["", "That's it for today."]
+       addend = if length nonrecs == 0 then id else (++ ["", nb])
+   in  putStrLn (unlines (addend rpt))
 
 listItem :: Bool -> Transaction -> Content
 listItem withStar (Transaction sym _dt amt _surcharge coins call portfolio) =
    let star = if withStar then "*" else "" in
    elt "li" (unwords [show call, show amt, sym ++ ",", portfolio, star])
 
+csvRow :: Bool -> Transaction -> String
+csvRow withStar (Transaction sym _dt amt _surcharge coins call portfolio) =
+   let star = if withStar then (++ " *") else id in
+   weave [show call, show amt, sym, star portfolio]
+
 reportTransactions :: Connection -> Day -> IO ()
 reportTransactions conn tday =
    transContext conn                        >>=
    flip (fetchTransactionsByDate conn) tday >>=
-   printTransactions tday
+   printCSVTransactions tday
 
 go :: IO ()
 go = today >>= withConnection ECOIN . flip reportTransactions
+
+{--
+As HTML:
+
+>>> withConnection ECOIN (flip reportTransactions (read "2021-05-21"))
+<p>
+ <p>
+  I am making the following transactions for 2021-05-21
+ </p>
+ <ol>
+  <li>
+   BUY $100.00 BTC, GEMINI
+  </li>
+  <li>
+   BUY $100.00 LTC, GEMINI
+  </li>
+...
+  <li>
+   BUY $100.00 ETH, GEMINI *
+  </li>
+ </ol>
+ <p>
+  That's it for today.
+ </p>
+ <p>
+  * There were no recommendations for these two transactions; I bought these coins on sale, is all.
+ </p>
+</p>
+
+As CSV:
+
+I am making the following transactions for 2021-05-21
+
+BUY,$100.00,BTC,GEMINI
+BUY,$100.00,LTC,GEMINI
+BUY,$100.00,XTZ,COINBASE
+BUY,$100.00,ATOM,COINBASE
+BUY,$100.00,ALGO,COINBASE
+BUY,$100.00,UMA,GEMINI
+BUY,$100.00,GRT,GEMINI
+BUY,$100.00,1INCH,GEMINI
+BUY,$100.00,1INCH,GEMINI
+BUY,$100.00,DOGE,GEMINI *
+BUY,$100.00,ETH,GEMINI *
+
+That's it for today.
+
+* There were no recommendations for these two transactions; I bought these coins on sale, is all.
+--}

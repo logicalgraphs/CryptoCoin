@@ -90,8 +90,6 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 * readjust Coinbase balance from db to IRL ... and gemini
 
-* output reports as CVS (Transaction reports: TODO)
-
 * Track which crypto can be loaned/earn interest. This might be useful for
 Bayesian analysis, as well.
 
@@ -136,6 +134,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-05-29: Transaction reports now as CSV
 * 2021-05-28: Reports now output as CSV (except transactions, TODO)
 * 2021-05-27: removed new coins report. It was nice, but unnecessary.
 * 2021-05-25: Summary report across all portfolii and daily transactions report
