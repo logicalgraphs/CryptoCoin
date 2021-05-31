@@ -145,7 +145,8 @@ VALUES (1, 'NEW', null),
        (5, 'GEMINI', 'https://exchange.gemini.com/'),
        (6, 'RANK_VARIANCE', null),
        (7, 'PRICE_VARIANCE', null), 
-       (8, 'MENTIONED_IN_NEWS', null);
+       (8, 'MENTIONED_IN_NEWS', null),
+       (9, 'BANK_ACCOUNT', null);
 
 CREATE TABLE "j_tracked_coin_tracked_type" (
 	"jtctt_id" serial NOT NULL,
@@ -169,7 +170,7 @@ CREATE TABLE "portfolio" (
 -- let's start us out with two portfolii ... now: three portfolii.
 
 INSERT INTO portfolio (portfolio_id, portfolio_name, tracked_type_id)
-VALUES (1, 'COINBASE', 2), (2, 'BINANCE', 3), (3, 'GEMINI', 5);
+VALUES (1, 'COINBASE', 2), (2, 'BINANCE', 3), (3, 'GEMINI', 5), (4, 'USAA', 9);
 
 CREATE TABLE "transaction_log" (
 	"transaction_id" serial NOT NULL,
