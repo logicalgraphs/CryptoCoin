@@ -16,7 +16,7 @@ import Data.Foldable (toList)
 import Data.Map (Map)
 import qualified Data.Map as Map
 
-import Data.Maybe (mapMaybe)
+import Data.Maybe (mapMaybe, fromMaybe)
 
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -221,7 +221,7 @@ fetchTokens conn = Map.map val . mapIndexed <$> fetchTokens' conn
 ldb2l :: TokenMap -> CoinMap -> TagMap -> IxListingDB -> Maybe Listing
 ldb2l tm cm tagm l@(IxRow idx _ (ListingDB np mbms cs ts _rnk q)) =
    tokenize (Map.lookup idx tm) (Map.lookup idx cm) l >>= \ecoin ->
-   Map.lookup idx tagm >>= \tags ->
+   let tags = fromMaybe Set.empty (Map.lookup idx tagm) in
    return (Listing ecoin np (Supplies cs ts mbms) tags (Just q))
 
 tokenize :: Maybe TokenRow -> Maybe (IxRow RanklessCoinInfo)
