@@ -9,11 +9,13 @@ Takes the listing files, processes them into ECoin values, and saves those
 values to the data-store.
 --}
 
-import Control.Monad (void)
+import Control.Monad (void, foldM)
 
 import qualified Data.ByteString.Char8 as B
 import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
+import Data.Set (Set)
+import qualified Data.Set as Set
 import Data.Time (Day)
 
 import Database.PostgreSQL.Simple
@@ -25,8 +27,8 @@ import CryptoCoin.CoinMarketCap.ETL.JSONFile (extractListings)
 import CryptoCoin.CoinMarketCap.ETL.ListingLoader (insertListings)
 import CryptoCoin.CoinMarketCap.ETL.TagLoader (processTags)
 import CryptoCoin.CoinMarketCap.Types
-import Data.CryptoCurrency.Types (date, idx)
-import Data.CryptoCurrency.Types.Coin (allCoinsLk)
+import Data.CryptoCurrency.Types (date, idx, Idx)
+import Data.CryptoCurrency.Types.Coin (allCoinIds)
 import Data.CryptoCurrency.Utils (report)
 
 import Data.LookupTable (LookupTable)
@@ -115,21 +117,19 @@ insertAllCoins conn date allCoins =
    report 0 "Inserting all new coins and tokens into new_coin table"
             (insertNewCoinsDate conn date allCoins)
 
-processOneListingFile :: Connection -> IxValue MetaData -> IO ()
-processOneListingFile conn i@(IxV _ md) =
+processOneListingFile :: Connection -> Set Idx -> IxValue MetaData
+                      -> IO (Set Idx)
+processOneListingFile conn coinz i@(IxV _ md) =
+   let nc = newCoins md coinz in
    putStrLn ("\n\nFor listing file " ++ show (date md) ++ ":") >>
-   newCoins conn md                                            >>=
-   insertAllCoins conn (date md)                               >>
+   insertAllCoins conn (date md) nc                            >>
    insertListings conn i                                       >>
-   processTags conn i
+   processTags conn i                                          >>
+   return (Set.union coinz (Set.fromList (map idx nc)))
 
-newCoins :: Connection -> MetaData -> IO [ECoin]
-newCoins conn (MetaData _ m) =
-   map coin
-   . Map.elems
-   . foldr Map.delete m
-   . Map.elems
-   <$> allCoinsLk conn
+newCoins :: MetaData -> Set Idx -> [ECoin]
+newCoins (MetaData _ listings) =
+   map coin . Map.elems . foldr Map.delete listings . Set.toList
 
 setProcessed :: Connection -> LookupTable -> IO ()
 setProcessed conn srcs =
@@ -139,9 +139,10 @@ setProcessed conn srcs =
 
 processFiles :: Connection -> LookupTable -> IO ()
 processFiles conn srcs =
-   putStrLn "Processing coin listings." >>   
-   extractListings conn srcs            >>=
-   mapM_ (processOneListingFile conn)   >>
+   putStrLn "Processing coin listings."   >>
+   allCoinIds conn                        >>= \acz ->
+   extractListings conn srcs              >>=
+   foldM (processOneListingFile conn) acz >>
    setProcessed conn srcs
 
 go :: IO ()

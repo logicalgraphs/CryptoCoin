@@ -36,6 +36,7 @@ import Control.Map (snarfL)
 import Control.Scan.CSV (readMaybe)
 
 import Data.CryptoCurrency.Types
+import Data.CryptoCurrency.Types.Coin (lookdownCoinSyms)
 import Data.CryptoCurrency.Types.Recommendation
 import Data.CryptoCurrency.Types.Transactions.Internal
 import Data.CryptoCurrency.Types.Transactions.Context
@@ -61,7 +62,7 @@ toTrans' :: TransactionContext -> Transaction -> Maybe Trans'
 toTrans' (TC coinLk callLk portfolioLk) (Transaction cn dt xn sch cns cl port) =
    Trans' dt xn sch cns <$> lk (show cl) callLk
                         <*> lk port portfolioLk
-                        <*> lk cn coinLk
+                        <*> (head . Set.toList <$> lk cn coinLk)
       where lk = Map.lookup
 
 storeTransaction :: Connection -> TransactionContext -> Transaction
@@ -131,7 +132,7 @@ fetchTransactionsByDate conn tc date =
 doFetchTransaction :: Connection -> TransactionContext -> String
                    -> IO CoinTransactions
 doFetchTransaction conn (TC symLk callLk portLk) whereClause =
-   let symld = lookdown symLk
+   let symld = lookdownCoinSyms symLk
        callld = lookdown callLk
        portld = lookdown portLk
        ixTransF = idx &&& fromTrans' symld callld portld
