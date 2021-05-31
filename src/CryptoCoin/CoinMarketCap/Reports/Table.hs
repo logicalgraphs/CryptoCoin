@@ -94,7 +94,7 @@ setupReport date typ razz =
    let sz     = length razz
        header = concat ["There",toBe sz,show sz," new ",typ,plural sz]
        ranked = sortOn rank razz
-   in  (header ++ " for " ++ show date ++ punct sz, ranked)
+   in  (weave [show date, header], ranked)  -- this is now CSV-y. Oh, well.
 
 report' :: Rasa r => String -> [String] -> [r] -> IO ()
 report' msg hdrs razz = printContent (p [S msg]) 0 >> t' razz hdrs

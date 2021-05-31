@@ -30,8 +30,7 @@ import Control.List (weave)
 import Control.Map (snarf)
 import Control.Presentation hiding (S)
 
-import CryptoCoin.CoinMarketCap.Reports.Table (report, linq, a, csvReport)
-import CryptoCoin.CoinMarketCap.Reports.Utils (tweet)
+import CryptoCoin.CoinMarketCap.Reports.Table (linq, a, csvReport)
 
 import Data.LookupTable (LookupTable)
 import Data.Monetary.USD
@@ -194,7 +193,6 @@ fetchIndicatorInfo conn =
    Map.fromList . mapMaybe fooey <$> query_ conn fetchIndicatorInfoQuery
 
 fooey :: TLARow' -> Maybe (Source, IndicatorInfo)
--- fooey = swap <$> sequence . (ii &&& toSource . ind <*> base)
 fooey (TLAR' ind bas ii) = (,ii) <$> toSource ind bas
 
 {--
@@ -310,19 +308,6 @@ tupII (II tla url) = (tla, url)
 
 go :: IO ()
 go = today >>= \tday ->
-     let report = csvReport in
      withConnection ECOIN (\conn -> 
         collateRecommendations conn tday    >>=
-        pass (report tday "recommendation" thdr) >>=
-        tweetAndTitle tday)
-
-tweetAndTitle :: Foldable t => Day -> t recs -> IO ()
-tweetAndTitle tday (length -> sz) =
-   let recName = "recommendation" ++ plural sz
-       route = concat [show sz, "-e-coin-", recName, "-for-"]
-       message = unwords [show sz, "E-Coin", recName]
-       title = unwords [message, "for", show tday]
-       cr = putStrLn ""
-   in  cr >> tweet tday route message >> cr >> putStrLn title
-
--- a sample output is at this directory: sample-recommendations.html
+        csvReport tday "recommendation" thdr)
