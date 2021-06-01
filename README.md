@@ -88,6 +88,13 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* Like for the recommendations report, we need to separate dates from portfolio
+  titles.
+
+* generalize 'today' to 'latest' for any data-table/date-column
+
+* for portfolii, show cash reserves, even if no investments
+
 * that 8 pm ET 'next day'-problem with the portfolii. We need to provide
 portfolio holdings, even if the listings for 'today' aren't available.
 
