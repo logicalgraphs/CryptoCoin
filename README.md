@@ -88,6 +88,9 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* that 8 pm ET 'next day'-problem with the portfolii. We need to provide
+portfolio holdings, even if the listings for 'today' aren't available.
+
 * Track which crypto can be loaned/earn interest. This might be useful for
 Bayesian analysis, as well.
 
