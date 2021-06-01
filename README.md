@@ -88,16 +88,6 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* Like for the recommendations report, we need to separate dates from portfolio
-  titles.
-
-* generalize 'today' to 'latest' for any data-table/date-column
-
-* for portfolii, show cash reserves, even if no investments
-
-* that 8 pm ET 'next day'-problem with the portfolii. We need to provide
-portfolio holdings, even if the listings for 'today' aren't available.
-
 * Track which crypto can be loaned/earn interest. This might be useful for
 Bayesian analysis, as well.
 
@@ -142,6 +132,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-06-01: Updated reports: portfolii show even if 'next day' (UTC)
 * 2021-05-29: Transaction reports now as CSV
 * 2021-05-28: Reports now output as CSV (except transactions, TODO)
 * 2021-05-27: removed new coins report. It was nice, but unnecessary.
