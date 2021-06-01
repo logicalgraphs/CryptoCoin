@@ -25,6 +25,7 @@ import Database.PostgreSQL.Simple
 
 import Control.Presentation hiding (S)
 import CryptoCoin.CoinMarketCap.Reports.Table hiding (ecoin)
+import CryptoCoin.CoinMarketCap.Reports.Utils (today)
 import CryptoCoin.CoinMarketCap.Types
 import CryptoCoin.CoinMarketCap.Types.Quote
 
@@ -37,7 +38,6 @@ import Data.CryptoCurrency.Utils (pass)
 import Data.LookupTable (LookupTable)
 import Data.Monetary.USD
 import Data.Percentage
-import Data.Time.TimeSeries (today)
 import Data.XHTML hiding (P)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
@@ -180,8 +180,8 @@ sumports :: Day -> [PortfolioReport] -> IO ()
 sumports date = sumport date . mconcat
 
 go :: IO ()
-go = today >>= \tday ->
-     withConnection ECOIN (\conn ->
+go = withConnection ECOIN (\conn ->
+        today conn >>= \tday ->
         transContext conn                                             >>= \tc ->
         fetchPortfolii conn                                                  >>=
         foldM (forEachPortfolioDo conn tday tc) ([], Map.empty) . Map.elems  >>=

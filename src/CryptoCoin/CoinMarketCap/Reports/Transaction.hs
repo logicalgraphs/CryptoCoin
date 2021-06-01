@@ -36,11 +36,10 @@ import Database.PostgreSQL.Simple (Connection)
 
 import Control.List (weave)
 import Control.Presentation hiding (S)
+import CryptoCoin.CoinMarketCap.Reports.Utils (today)
 
 import Data.CryptoCurrency.Types.Transaction
 import Data.CryptoCurrency.Types.Transactions.Context
-
-import Data.Time.TimeSeries (today)
 
 import Data.XHTML hiding (nb)
 
@@ -101,7 +100,7 @@ reportTransactions conn tday =
    printCSVTransactions tday
 
 go :: IO ()
-go = today >>= withConnection ECOIN . flip reportTransactions
+go = withConnection ECOIN (\conn -> today conn >>= reportTransactions conn)
 
 {--
 As HTML:

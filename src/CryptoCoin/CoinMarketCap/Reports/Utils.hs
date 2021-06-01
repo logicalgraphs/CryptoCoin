@@ -1,4 +1,5 @@
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ViewPatterns      #-}
 
 module CryptoCoin.CoinMarketCap.Reports.Utils where
 
@@ -7,6 +8,10 @@ module CryptoCoin.CoinMarketCap.Reports.Utils where
 
 import Data.List (intercalate)
 import Data.Time (Day, toGregorian)
+
+import Database.PostgreSQL.Simple
+
+import Store.SQL.Util.TaggedTypes
 
 tweet :: Day -> String -> String -> IO ()
 tweet today route message =
@@ -22,3 +27,12 @@ tweet today route message =
 connective :: Int -> String
 connective 0 = ""
 connective _ = " and"
+
+-- for the reports, 'today' is whatever is last in the data-sets.
+
+today :: Connection -> IO Day
+today conn =
+   untag <$> tday conn "SELECT max(for_date) FROM coin_market_cap_daily_listing"
+
+tday :: Connection -> Query -> IO (TaggedType Day)
+tday conn qury = head <$> query_ conn qury

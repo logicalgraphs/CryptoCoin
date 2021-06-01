@@ -31,6 +31,7 @@ import Control.Map (snarf)
 import Control.Presentation hiding (S)
 
 import CryptoCoin.CoinMarketCap.Reports.Table (linq, a, csvReport)
+import CryptoCoin.CoinMarketCap.Reports.Utils (today)
 
 import Data.LookupTable (LookupTable)
 import Data.Monetary.USD
@@ -40,7 +41,6 @@ import Data.CryptoCurrency.Types.Recommendation
           (Recommendation, RecommendationData(Rekt), call, Call(BUY), 
            fetchRecommendations, Source, toSource)
 import Data.CryptoCurrency.Utils (plural, pass)
-import Data.Time.TimeSeries (today)
 import Data.XHTML
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
@@ -307,7 +307,7 @@ tupII :: IndicatorInfo -> (String, FilePath)
 tupII (II tla url) = (tla, url)
 
 go :: IO ()
-go = today >>= \tday ->
-     withConnection ECOIN (\conn -> 
+go = withConnection ECOIN (\conn -> 
+        today conn                          >>= \tday ->
         collateRecommendations conn tday    >>=
         csvReport tday "recommendation" thdr)
