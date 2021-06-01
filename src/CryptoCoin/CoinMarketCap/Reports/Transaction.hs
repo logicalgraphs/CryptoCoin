@@ -36,7 +36,6 @@ import Database.PostgreSQL.Simple (Connection)
 
 import Control.List (weave)
 import Control.Presentation hiding (S)
-import CryptoCoin.CoinMarketCap.Reports.Utils (today)
 
 import Data.CryptoCurrency.Types.Transaction
 import Data.CryptoCurrency.Types.Transactions.Context
@@ -44,6 +43,7 @@ import Data.CryptoCurrency.Types.Transactions.Context
 import Data.XHTML hiding (nb)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
+import Store.SQL.Util.Time (latest)
 
 elt :: String -> String -> Content
 elt e = E . Elt e [] . pure . S
@@ -100,7 +100,9 @@ reportTransactions conn tday =
    printCSVTransactions tday
 
 go :: IO ()
-go = withConnection ECOIN (\conn -> today conn >>= reportTransactions conn)
+go = withConnection ECOIN (\conn ->
+       latest conn "transaction_log" "for_date" >>=
+       reportTransactions conn)
 
 {--
 As HTML:
@@ -132,7 +134,7 @@ As HTML:
 
 As CSV:
 
-I am making the following transactions for 2021-05-21
+2021-05-21,I am making the following transactions
 
 BUY,$100.00,BTC,GEMINI
 BUY,$100.00,LTC,GEMINI
@@ -148,5 +150,5 @@ BUY,$100.00,ETH,GEMINI *
 
 That's it for today.
 
-* There were no recommendations for these two transactions; I bought these coins on sale, is all.
+* There were no recommendations for these transactions; I bought these coins on sale, is all.
 --}

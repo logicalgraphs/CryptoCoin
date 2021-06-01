@@ -31,7 +31,6 @@ import Control.Map (snarf)
 import Control.Presentation hiding (S)
 
 import CryptoCoin.CoinMarketCap.Reports.Table (linq, a, csvReport)
-import CryptoCoin.CoinMarketCap.Reports.Utils (today)
 
 import Data.LookupTable (LookupTable)
 import Data.Monetary.USD
@@ -45,6 +44,7 @@ import Data.XHTML
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 import Store.SQL.Util.LookupTable (lookupTable)
+import Store.SQL.Util.Time (latest)
 
 {--
 so each coin can have multiples of 
@@ -308,6 +308,6 @@ tupII (II tla url) = (tla, url)
 
 go :: IO ()
 go = withConnection ECOIN (\conn -> 
-        today conn                          >>= \tday ->
-        collateRecommendations conn tday    >>=
+        latest conn "recommendation" "for_date" >>= \tday ->
+        collateRecommendations conn tday        >>=
         csvReport tday "recommendation" thdr)

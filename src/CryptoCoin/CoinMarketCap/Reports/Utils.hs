@@ -27,12 +27,3 @@ tweet today route message =
 connective :: Int -> String
 connective 0 = ""
 connective _ = " and"
-
--- for the reports, 'today' is whatever is last in the data-sets.
-
-today :: Connection -> IO Day
-today conn =
-   untag <$> tday conn "SELECT max(for_date) FROM coin_market_cap_daily_listing"
-
-tday :: Connection -> Query -> IO (TaggedType Day)
-tday conn qury = head <$> query_ conn qury

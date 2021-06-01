@@ -25,7 +25,6 @@ import Database.PostgreSQL.Simple
 
 import Control.Presentation hiding (S)
 import CryptoCoin.CoinMarketCap.Reports.Table hiding (ecoin)
-import CryptoCoin.CoinMarketCap.Reports.Utils (today)
 import CryptoCoin.CoinMarketCap.Types
 import CryptoCoin.CoinMarketCap.Types.Quote
 
@@ -43,6 +42,7 @@ import Data.XHTML hiding (P)
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 import Store.SQL.Util.Indexed (IxValue(IxV))
 import Store.SQL.Util.LookupTable (lookupTable, lookupTableFrom)
+import Store.SQL.Util.Time (latest)
 
 data Holding =
    Holding { ecoin :: ECoin, amount :: Double, invested, currentPrice :: USD }
@@ -123,7 +123,8 @@ printPortfolioCSV date pr@(PR p holdings) =
    let cr = putStrLn "" in
    cr              >>
    sumport date pr >>
-   cr              >>
+   if holdings == Set.empty then return ()
+   else cr         >>
    csvReport' portHdrs (portTitle p) (sortOn rank (Set.toList holdings))
 
 data PorNot = Perc Percentage | PNOT
@@ -151,27 +152,22 @@ forEachPortfolioDo conn tday tc (prs, lists) i@(IxV ix port) =
    in  return (PR port (Set.fromList coinsHeld):prs, combinedListings)
 
 buildSummary :: PortfolioReport -> [KV]
-buildSummary pr@(PR (Portfolio name reserve _) _) =
+buildSummary pr@(PR (Portfolio name reserve _) holdings) =
    let ti@(USD totInv) = totalInvested pr
        tv@(USD totVal) = totalValue pr in
-   [KV "Cash reserve" (show reserve),
-    KV "Total invested" (show ti),
-    KV "Current value" (show tv),
-    KV "Gain/Loss" (show $ change totInv totVal)]
+   [KV "Cash reserve" (show reserve)]
+   ++ if holdings == Set.empty then []
+      else [KV "Total invested" (show ti),
+            KV "Current value" (show tv),
+            KV "Gain/Loss" (show $ change totInv totVal)]
 
 summarizePortfolio :: Day -> PortfolioReport -> IO ()
 summarizePortfolio date pr@(PR (Portfolio name reserve _) holdings) =
-   if holdings == Set.empty
-   then printContent (p [S (unwords ["No holdings for", name, "portfolio."])]) 0
-   else report' (unwords ["Summary of", name, "for", show date])
-                [] (buildSummary pr)
+   report' (unwords ["Summary of", name, "for", show date]) [] (buildSummary pr)
 
 sumport :: Day -> PortfolioReport -> IO ()
 sumport date pr@(PR (Portfolio name _ _) holdings) =
-   if holdings == Set.empty
-   then putStrLn (unwords ["No holdings for", name, "portfolio."])
-   else csvReport' [] (unwords ["Summary of", name, "for", show date])
-                   (buildSummary pr)
+   csvReport' [] (unwords [show date ++ ",Summary of", name]) (buildSummary pr)
 
 summarizePortfolii :: Day -> [PortfolioReport] -> IO ()
 summarizePortfolii date = summarizePortfolio date . mconcat
@@ -181,7 +177,7 @@ sumports date = sumport date . mconcat
 
 go :: IO ()
 go = withConnection ECOIN (\conn ->
-        today conn >>= \tday ->
+        latest conn "coin_market_cap_daily_listing" "for_date"      >>= \tday ->
         transContext conn                                             >>= \tc ->
         fetchPortfolii conn                                                  >>=
         foldM (forEachPortfolioDo conn tday tc) ([], Map.empty) . Map.elems  >>=
