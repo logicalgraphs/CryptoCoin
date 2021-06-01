@@ -56,11 +56,11 @@ addendum :: [Content]
 addendum = [p nb]
 
 nb :: String
-nb = "* There were no recommendations for these two transactions; I "
+nb = "* There were no recommendations for these transactions; I "
    ++ "bought these coins on sale, is all."
 
 header :: Day -> String
-header date = "I am making the following transactions for " ++ show date
+header date = show date ++ ",I am making the following transactions"
 
 mapper :: (Bool -> Transaction -> row) -> Bool -> CoinTransactions -> [row]
 mapper f b = map (f b) . concat . Map.elems
