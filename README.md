@@ -88,8 +88,6 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* readjust Coinbase balance from db to IRL ... and gemini
-
 * Track which crypto can be loaned/earn interest. This might be useful for
 Bayesian analysis, as well.
 
