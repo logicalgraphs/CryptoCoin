@@ -88,10 +88,7 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* update all DRiPs
-
-* Track which crypto can be loaned/earn interest. This might be useful for
-Bayesian analysis, as well.
+* write an article about staking
 
 * start building predictive model: STARTED
 

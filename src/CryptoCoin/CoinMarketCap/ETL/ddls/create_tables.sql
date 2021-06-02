@@ -167,10 +167,42 @@ CREATE TABLE "portfolio" (
   OIDS=FALSE
 );
 
--- let's start us out with two portfolii ... now: three portfolii.
+-- let's start us out with two portfolii ... now: three portfolii, and we'll
+-- also add (and, importantly: manage) my source bank account.
 
 INSERT INTO portfolio (portfolio_id, portfolio_name, tracked_type_id)
-VALUES (1, 'COINBASE', 2), (2, 'BINANCE', 3), (3, 'GEMINI', 5), (4, 'USAA', 9);
+VALUES (1, 'COINBASE', 2), (2, 'BINANCE', 3), (3, 'GEMINI', 5), (4, 'USAA', 9),
+       (5, 'PHEMEX', 4);
+
+CREATE TABLE "staking" (
+	"stake_id" serial NOT NULL,
+	"cmc_id" bigint NOT NULL,
+	"portfolio_id" bigint NOT NULL,
+	"interest" double precision NOT NULL,
+	CONSTRAINT "staking_pk" PRIMARY KEY ("stake_id")
+) WITH (
+  OIDS=FALSE
+);
+
+INSERT INTO staking (stake_id, cmc_id, portfolio_id, interest)
+VALUES (1, 8104, 3, 0.0151), (2, 7278, 3, 0.0305), (3, 6945, 3, 0.0178),
+(4, 5728, 3, 0.0154), (5, 1697, 3, 0.0349), (6, 1831, 3, 0.0429),
+(7, 1, 3, 0.0205), (8, 5692, 3, 0.0247), (9, 6538, 3, 0.0177),
+(10, 4943, 3, 0.074), (11, 74, 3, 0.0225), (12, 1027, 3, 0.0205),
+(13, 2280, 3, 0.0448), (14, 6719, 3, 0.0126), (15, 3306, 3, 0.0740), 
+(16, 7226, 3, 0.0151), (17, 1982, 3, 0.0177), (18, 1975, 3, 0.0408),
+(19, 3640, 3, 0.0225), (20, 2, 3, 0.0277),
+(21, 1966, 3, 0.018), (22, 3890, 3, 0.0151), (23, 1518, 3, 0.0198), 
+(24, 5026, 3, 0.0247),
+(25, 4705, 3, 0.0181), (26, 2539, 3, 0.0177), (27, 2586, 3, 0.0177), 
+(28, 1772, 3, 0.0177),
+(29, 6758, 3, 0.031), (30, 5617, 3, 0.0177), (31, 7083, 3, 0.0359), 
+(32, 5864, 3, 0.0329), (33, 1437, 3, 0.0175), (34, 1896, 3, 0.0181), 
+(35, 4030, 1, 0.06), (36, 3794, 1, 0.05), (37, 4943, 1, 0.02), 
+(38, 3408, 1, 0.0015), (39, 2011, 1, 0.0463), (40, 2011, 2, 0.065),
+(41, 3794, 2, 0.075), (42, 4030, 2, 0.09), (43, 1765, 2, 0.0075),
+(44, 1684, 2, 0.015), (45, 3077, 2, 0.02), (46, 3945, 2, 0.025),
+(47, 825, 5, 0.1);
 
 CREATE TABLE "transaction_log" (
 	"transaction_id" serial NOT NULL,
