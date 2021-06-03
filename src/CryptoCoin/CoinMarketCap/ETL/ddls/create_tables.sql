@@ -222,6 +222,29 @@ CREATE INDEX ON transaction_log (cmc_id);
 CREATE INDEX ON transaction_log (for_date);
 CREATE INDEX ON transaction_log (portfolio_id);
 
+CREATE TABLE "transfer_direction_lk" (
+	"transfer_direction_id" serial NOT NULL,
+	"transfer_direction" text NOT NULL,
+	CONSTRAINT "transfer_direction_lk_pk" PRIMARY KEY ("transfer_direction_id")
+) WITH (
+  OIDS=FALSE
+);
+
+INSERT INTO transfer_direction_lk (transfer_direction_id, transfer_direction)
+VALUES (1, "IN"), (2, "OUT");
+
+CREATE TABLE "transfer_funds" (
+	"transfer_funds_id" serial NOT NULL,
+	"portfolio_id" bigint NOT NULL,
+	"transfer_direction_id" bigint NOT NULL,
+	"for_date" DATE NOT NULL DEFAULT now(),
+	CONSTRAINT "transfer_funds_pk" PRIMARY KEY ("transfer_funds_id")
+) WITH (
+  OIDS=FALSE
+);
+
+CREATE INDEX ON transfer_funds (portfolio_id);
+
 CREATE TABLE "candlesticks" (
 	"candlestick_id" serial NOT NULL,
 	"for_date" DATE NOT NULL DEFAULT now(),

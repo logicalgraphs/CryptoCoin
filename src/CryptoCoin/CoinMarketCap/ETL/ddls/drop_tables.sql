@@ -32,7 +32,9 @@ DROP TABLE IF EXISTS "recommendation";
 
 DROP TABLE IF EXISTS "new_coin";
 
-DROP TABLE IF EXISTS "interest_bearing_coin";
+DROP TABLE IF EXISTS "staking";
+
+DROP TABLE IF EXISTS "transfer_funds";
 
 -- LOOKUP TABLES -- (drop with care) ---------------------------------------
 
@@ -42,3 +44,4 @@ DROP TABLE IF EXISTS "tracked_type_lk";
 DROP TABLE IF EXISTS "call_lk";
 DROP TABLE IF EXISTS "basis_lk";
 DROP TABLE IF EXISTS "indicator_lk";
+DROP TABLE IF EXISTS "transfer_direction_lk";
