@@ -88,6 +88,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* roll in staked reinvestments ... E'ERY DAY!
+
 * Show the average price per coin bought.
 
 * start building predictive model: STARTED
@@ -135,7 +137,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
   transfer funds from the linked-account, updating that account's balance.
 * 2021-06-01: Updated reports: portfolii show even if 'next day' (UTC)
 * 2021-05-29: Transaction reports now as CSV
-* 2021-05-28: Reports now output as CSV (except transactions, TODO)
+* 2021-05-28: Reports now output as CSV
 * 2021-05-27: removed new coins report. It was nice, but unnecessary.
 * 2021-05-25: Summary report across all portfolii and daily transactions report
 * 2021-05-17: Storing transactions in CSV files under 
