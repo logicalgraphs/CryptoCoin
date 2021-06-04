@@ -88,11 +88,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* Add a balance-adjustment mechanism. Not a transaction as that can adjust
-  capital gains, but a movement of funds (into bank accounts or to cover costs
-  from overdrawn transactions).
-
-* write an article about staking: Done; added to repository
+* when executing a transaction, automatically transfer money from a linked 
+  account
 
 * start building predictive model: STARTED
 
