@@ -21,13 +21,14 @@ import Database.PostgreSQL.Simple.Types
 
 import Data.LookupTable
 import Data.Monetary.USD
+import Data.XHTML (Name)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 import Store.SQL.Util.Indexed (IxValue(IxV), val, Index, idx)
 import Store.SQL.Util.LookupTable (lookupTableFrom)
 
 data Portfolio =
-   Portfolio { portfolioName :: String, cash :: USD, raison :: Maybe String }
+   Portfolio { portfolioName :: Name, cash :: USD, raison :: Maybe String }
       deriving (Eq, Ord, Show)
 
 -- that's it. That's the tweet, lol.
@@ -39,7 +40,9 @@ data Portfolio =
 instance FromRow Portfolio where
    fromRow = Portfolio <$> field <*> field <*> field
 
-fetchPortfolii :: Connection -> IO (Map String (IxValue Portfolio))
+type Portfolii = Map String (IxValue Portfolio)
+
+fetchPortfolii :: Connection -> IO Portfolii
 fetchPortfolii conn =
    Map.fromList . map (portfolioName . val &&& id)
       <$> query_ conn fetchPortfoliiQuery

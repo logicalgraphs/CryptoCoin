@@ -7,16 +7,13 @@ module CryptoCoin.CoinMarketCap.ETL.TransactionCSVLoader where
 
 import Control.Monad ((>=>))
 import qualified Data.Map as Map
-import Data.Maybe (mapMaybe, catMaybes)
+import Data.Maybe (mapMaybe)
 import Database.PostgreSQL.Simple
 import System.Directory (doesFileExist)
 import System.Environment (getEnv)
 
 import Control.Scan.CSV
 
-
-import Data.CryptoCurrency.Types.Coin (allCoinsLk)
-import Data.CryptoCurrency.Types.Portfolio (portfoliiLk)
 import Data.CryptoCurrency.Types.Transaction
 import Data.CryptoCurrency.Types.Transactions.Context
 import Data.CryptoCurrency.Utils (report, conj, plural)
@@ -49,8 +46,7 @@ mkTrans [sym,date,spent,surcharge,amt,call,portfolio] =
                    <*> readMaybe call <*> Just portfolio
 
 readTransactions :: FilePath -> IO [Transaction]
-readTransactions file =
-   doesFileExist file >>= rt' file
+readTransactions file = doesFileExist file >>= rt' file
 
 rt' :: FilePath -> Bool -> IO [Transaction]
 rt' _ False = return []

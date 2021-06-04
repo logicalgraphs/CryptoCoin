@@ -12,9 +12,9 @@ import Store.SQL.Util.LookupTable (lookupTable)
 -- TRANSACTION CONTEXT ---------------------------------------------------
 
 data TransactionContext =
-   TC { symLk :: CoinIdsLookup, callLk, portfolioLk :: LookupTable }
+   TaC { symLk :: CoinIdsLookup, callLk, portfolioLk :: LookupTable }
       deriving (Eq, Ord, Show)
 
 transContext :: Connection -> IO TransactionContext
 transContext conn =
-   TC <$> allCoinsLk conn <*> lookupTable conn "call_lk" <*> portfoliiLk conn
+   TaC <$> allCoinsLk conn <*> lookupTable conn "call_lk" <*> portfoliiLk conn

@@ -174,6 +174,21 @@ INSERT INTO portfolio (portfolio_id, portfolio_name, tracked_type_id)
 VALUES (1, 'COINBASE', 2), (2, 'BINANCE', 3), (3, 'GEMINI', 5), (4, 'USAA', 9),
        (5, 'PHEMEX', 4);
 
+-- Tells us which (bank) account is tied to a portfolio, so that when a 
+-- transaction occurs, we pull (transfer) the funds from that account.
+
+CREATE TABLE "j_linked_account" (
+	"j_linked_account_id" serial NOT NULL,
+	"portfolio_id" bigint NOT NULL,
+	"linked_account_id" bigint NOT NULL,
+	CONSTRAINT "j_linked_account_pk" PRIMARY KEY ("j_linked_account_id")
+) WITH (
+  OIDS=FALSE
+);
+
+INSERT INTO j_linked_account (portfolio_id, linked_account_id)
+VALUES (1, 4), (2, 4), (3, 4);
+
 CREATE TABLE "staking" (
 	"stake_id" serial NOT NULL,
 	"cmc_id" bigint NOT NULL,
@@ -231,13 +246,14 @@ CREATE TABLE "transfer_direction_lk" (
 );
 
 INSERT INTO transfer_direction_lk (transfer_direction_id, transfer_direction)
-VALUES (1, "IN"), (2, "OUT");
+VALUES (1, 'INCOME'), (2, 'OUTGO');
 
 CREATE TABLE "transfer_funds" (
 	"transfer_funds_id" serial NOT NULL,
 	"portfolio_id" bigint NOT NULL,
 	"transfer_direction_id" bigint NOT NULL,
 	"for_date" DATE NOT NULL DEFAULT now(),
+        "amount" double precision NOT NULL,
 	CONSTRAINT "transfer_funds_pk" PRIMARY KEY ("transfer_funds_id")
 ) WITH (
   OIDS=FALSE
