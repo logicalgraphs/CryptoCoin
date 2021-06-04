@@ -78,10 +78,14 @@ printTransactions date (recs, nonrecs) =
 
 printCSVTransactions :: Day -> (CoinTransactions, CoinTransactions) -> IO ()
 printCSVTransactions date (recs, nonrecs) =
-   let rpt = [header date, ""] ++ transactionRows csvRow recs nonrecs ++
-             ["", "That's it for today."]
-       addend = if length nonrecs == 0 then id else (++ ["", nb])
+   let rpt = (header date:lf "call,amount,coin,exchange")
+             ++ transactionRows csvRow recs nonrecs
+             ++ lf "That's it for today."
+       addend = if length nonrecs == 0 then id else (++ lf nb)
    in  putStrLn (unlines (addend rpt))
+
+lf :: String -> [String]
+lf = ("":) . pure
 
 listItem :: Bool -> Transaction -> Content
 listItem withStar (Transaction sym _dt amt _surcharge coins call portfolio) =
@@ -136,6 +140,7 @@ As CSV:
 
 2021-05-21,I am making the following transactions
 
+call,amount,coin,exchange
 BUY,$100.00,BTC,GEMINI
 BUY,$100.00,LTC,GEMINI
 BUY,$100.00,XTZ,COINBASE

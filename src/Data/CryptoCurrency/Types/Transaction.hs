@@ -58,8 +58,8 @@ spent (Transaction _ _ s _ _ _ _) = s
 -- STORE FUNCTIONS -------------------------------------------------------
 
 toTrans' :: TransactionContext -> Transaction -> Maybe Trans'
-        
-toTrans' (TC coinLk callLk portfolioLk) (Transaction cn dt xn sch cns cl port) =
+toTrans' (TaC coinLk callLk portfolioLk _)
+         (Transaction cn dt xn sch cns cl port) =
    Trans' dt xn sch cns <$> lk (show cl) callLk
                         <*> lk port portfolioLk
                         <*> (head . Set.toList <$> lk cn coinLk)
@@ -112,7 +112,7 @@ type CoinTransactions = Map Idx [Transaction]
 
 fetchTransactionsByPortfolio :: Connection -> TransactionContext -> String 
                              -> IO CoinTransactions
-fetchTransactionsByPortfolio conn tc@(TC _ _ portLk) portfolio =
+fetchTransactionsByPortfolio conn tc@(TaC _ _ portLk _) portfolio =
    let whereClause = ("WHERE portfolio_id=" ++) . show
                      <$> Map.lookup portfolio portLk
    in  maybe (return Map.empty) (doFetchTransaction conn tc) whereClause
@@ -131,7 +131,7 @@ fetchTransactionsByDate conn tc date =
 
 doFetchTransaction :: Connection -> TransactionContext -> String
                    -> IO CoinTransactions
-doFetchTransaction conn (TC symLk callLk portLk) whereClause =
+doFetchTransaction conn (TaC symLk callLk portLk _) whereClause =
    let symld = lookdownCoinSyms symLk
        callld = lookdown callLk
        portld = lookdown portLk

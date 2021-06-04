@@ -20,17 +20,22 @@ to effect the transaction.
 This way, I can stay on top of my cash reserves.
 --}
 
+import Control.Arrow ((&&&))
+
 import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
+import qualified Data.Set as Set
 import Data.Time (Day)
 
 import Database.PostgreSQL.Simple
+
+import Control.Map (snarf)
 
 import Data.CryptoCurrency.Types hiding (idx)
 import Data.CryptoCurrency.Types.Portfolio
 import Data.CryptoCurrency.Types.Transfers.Context
 import Data.CryptoCurrency.Types.Transfers.Internal
-import Data.CryptoCurrency.Utils (report)
+import Data.CryptoCurrency.Utils (report, plural)
 import Data.Monetary.USD
 import Data.XHTML (Name)
 
@@ -48,11 +53,18 @@ data Transfer =
    Transfer { dt :: Day, port :: Name, dir ::  Direction, amt :: USD }
      deriving (Eq, Ord, Show)
 
--- STORE FUNCTIONS -------------------------------------------------------
+storeTransfersAndUpdatePortfolii :: Connection -> [Transfer] -> IO ()
+storeTransfersAndUpdatePortfolii conn xfers =
+   report 0 (msg (length xfers))
+          (transFContext conn            >>= \tfc ->
+           storeTransfers conn tfc xfers >>
+           updatePortfolii conn tfc xfers)
+
+-- INTERNAL FUNCTIONS -------------------------------------------------------
 
 toTransF' :: TransferContext -> Transfer -> Maybe TransF'
 toTransF' (TfC dirLk ports) (Transfer dt p dir amt) =
-   Tf dt amt <$> (idx <$> lk (show p) ports) <*> lk (show dir) dirLk
+   Tf dt amt <$> (idx <$> lk p ports) <*> lk (show dir) dirLk
       where lk = Map.lookup
 
 type StoreTransferF = Connection -> TransferContext -> [Transfer] -> IO ()
@@ -77,5 +89,15 @@ updateCashReserves conn tfc xfers =
                      ix = idx ip in
                  report 0 (unwords ["Adjusting",portfolioName (val ip),"by",
                                     showD adj, "to", showD newcash])
-                          (execute conn updateCashReserveQuery (ix,newcash)))
+                          (execute conn updateCashReserveQuery (newcash,ix)))
          mbIxPort
+
+msg :: Int -> String
+msg su | su == 0 = "Storing no new transfers today."
+       | otherwise = "Storing " ++ show su ++ " transfer" ++ plural su
+
+updatePortfolii :: StoreTransferF
+updatePortfolii conn tfc =
+   mapM_ (updateCashReserves conn tfc . Set.toList)
+       . Map.elems
+       . snarf (pure . (port &&& id))

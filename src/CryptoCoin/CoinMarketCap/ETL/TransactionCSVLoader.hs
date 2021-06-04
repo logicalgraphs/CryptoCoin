@@ -6,17 +6,24 @@ module CryptoCoin.CoinMarketCap.ETL.TransactionCSVLoader where
 -- Records a transaction for a coin into a portfolio
 
 import Control.Monad ((>=>))
+
 import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
+import Data.Time (Day)
+
 import Database.PostgreSQL.Simple
+
 import System.Directory (doesFileExist)
 import System.Environment (getEnv)
 
 import Control.Scan.CSV
 
+import Data.CryptoCurrency.Types.Recommendation (Call(BUY, SELL))
 import Data.CryptoCurrency.Types.Transaction
 import Data.CryptoCurrency.Types.Transactions.Context
+import Data.CryptoCurrency.Types.Transfer hiding (msg)
 import Data.CryptoCurrency.Utils (report, conj, plural)
+import Data.LookupTable
 import Data.Monetary.USD
 import Data.Time.TimeSeries (today)
 
@@ -98,16 +105,35 @@ and are named not-recommended.csv and recommended.csv
 --}
 
 go :: IO ()
-go = today                                                >>= \tday ->
-     getEnv "CRYPTOCOIN_DIR"                              >>= \ccd ->
-     let dataDir = ccd ++ "/data-files/transactions/" ++ show tday in
-     readTransactions (dataDir ++ "/recommended.csv")     >>= \recs ->
-     readTransactions (dataDir ++ "/not-recommended.csv") >>= \nrecs ->
-     report 0 (msg recs nrecs)
-            (withConnection ECOIN (\conn ->
-               transContext conn                          >>= \tc ->
-               onlyStoreTransactions conn tc nrecs        >>
-               storeTransactionsAssocRecommendations conn tc recs))
+go = today >>= withConnection ECOIN . flip addAllTransactions
+
+addAllTransactions :: Connection -> Day -> IO ()
+addAllTransactions conn date =
+  getEnv "CRYPTOCOIN_DIR"                                    >>= \ccd ->
+  let dataDir = ccd ++ "/data-files/transactions/" ++ show date in
+  readTransactions (dataDir ++ "/recommended.csv")           >>= \recs ->
+  readTransactions (dataDir ++ "/not-recommended.csv")       >>= \nrecs ->
+  report 0 (msg recs nrecs)
+         (transContext conn       >>= \tc@(TaC _ _ portLk _) ->
+          let portNames = lookdown portLk
+              transfers = mapMaybe (reifyFrom tc portNames) (recs ++ nrecs) in
+          onlyStoreTransactions conn tc nrecs                >>
+          storeTransactionsAssocRecommendations conn tc recs >>
+          storeTransfersAndUpdatePortfolii conn transfers)
+
+-- for buys, we transfer in from out linked account. For sells, we 'transfer'
+-- to our own account's cash-reserve
+
+reifyFrom :: TransactionContext -> LookDown String -> Transaction
+          -> Maybe Transfer
+reifyFrom (TaC _ _ portLk links) portNames
+          (Transaction _ dt amt _ _ BUY port) =
+   Map.lookup port portLk    >>=
+   flip Map.lookup links     >>=
+   flip Map.lookup portNames >>= \p ->
+   return (Transfer dt p OUTGO amt)
+reifyFrom _ _ (Transaction _ dt (USD amt) (USD charge) _ SELL port) =
+   pure (Transfer dt port INCOME (USD (amt - charge)))
 
 msg :: [a] -> [b] -> String
 msg (length -> recs) (length -> nonrecs) = msg' recs nonrecs (recs + nonrecs)

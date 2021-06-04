@@ -81,24 +81,11 @@ each portfolio's cash reserve.
 --}
 
 go :: IO ()
-go = today >>= \tday ->
-     withConnection ECOIN (flip storeTransfersAndUpdatePortfolii tday)
+go = today >>= withConnection ECOIN . flip storeTransfersAndUpdatePortfoliiCSV
 
-storeTransfersAndUpdatePortfolii :: Connection -> Day -> IO ()
-storeTransfersAndUpdatePortfolii conn date =
-  getEnv "CRYPTOCOIN_DIR"                                      >>= \ccd ->
-  let dataDir = ccd ++ "/data-files/transfers/" ++ show date in
-  readTransfers (dataDir ++ "/transfers.csv")                  >>= \xfers ->
-  report 0 (msg (length xfers)) (transFContext conn            >>= \tfc ->
-                                 storeTransfers conn tfc xfers >>
-                                 updatePortfolii conn tfc xfers)
-
-msg :: Int -> String
-msg su | su == 0 = "Storing no new transfers today."
-       | otherwise = "Storing " ++ show su ++ " transfer" ++ plural su
-
-updatePortfolii :: StoreTransferF
-updatePortfolii conn tfc =
-   mapM_ (updateCashReserves conn tfc . Set.toList)
-       . Map.elems
-       . snarf (pure . (port &&& id))
+storeTransfersAndUpdatePortfoliiCSV :: Connection -> Day -> IO ()
+storeTransfersAndUpdatePortfoliiCSV conn date =
+   getEnv "CRYPTOCOIN_DIR"                                      >>= \ccd ->
+   let dataDir = ccd ++ "/data-files/transfers/" ++ show date in
+   readTransfers (dataDir ++ "/transfers.csv")                  >>=
+   storeTransfersAndUpdatePortfolii conn

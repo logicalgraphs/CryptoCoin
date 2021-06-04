@@ -88,8 +88,7 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* when executing a transaction, automatically transfer money from a linked 
-  account
+* Show the average price per coin bought.
 
 * start building predictive model: STARTED
 
@@ -132,6 +131,8 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-06-04: added transfers of funds between accounts. Transactions now 
+  transfer funds from the linked-account, updating that account's balance.
 * 2021-06-01: Updated reports: portfolii show even if 'next day' (UTC)
 * 2021-05-29: Transaction reports now as CSV
 * 2021-05-28: Reports now output as CSV (except transactions, TODO)
