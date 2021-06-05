@@ -138,4 +138,4 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 * 2021-05-29: Transaction reports now as CSV
 * 2021-05-28: Reports now output as CSV
 
-... the complete revision history is [here](HIST.md)
+... the complete revision history is [here](HISTORY.md)
