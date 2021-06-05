@@ -37,7 +37,6 @@ import Data.CryptoCurrency.Utils (pass)
 import Data.LookupTable (LookupTable)
 import Data.Monetary.USD
 import Data.Percentage
-import Data.XHTML hiding (P)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 import Store.SQL.Util.Indexed (IxValue(IxV))
@@ -54,19 +53,13 @@ instance Indexed Holding where
 instance Rank Holding where
    rank = rank . ecoin
 
-instance Rasa Holding where
-   printRow h@(Holding coin amt ui@(USD inv) up@(USD pric)) =
-      let currVal = toRational amt * toRational pric  in
-      tr [s' (rank h), s' (idx h), S (sym coin), S (namei coin),
-          s' amt, s' ui, s' up, s' (USD currVal), s' (change inv currVal)]
-         where s' :: Show s => s -> Content
-               s' = S . show
-
 instance Univ Holding where
    explode h@(Holding e amt ui@(USD inv) up@(USD pric)) =
-      let currVal = toRational amt * toRational pric in
+      let tramt = toRational amt
+          currVal = tramt * toRational pric
+          ave = USD (inv / tramt) in
       [show (rank h), show (idx h), sym e, namei e, show amt, show ui, show up,
-       show (USD currVal), show (change inv currVal)]
+       show ave, show (USD currVal), show (change inv currVal)]
 
 data PortfolioReport = PR { portfolio :: Portfolio, holdings :: Set Holding }
    deriving (Eq, Ord, Show)
@@ -102,29 +95,21 @@ sumOver f = sum . map f . toList
 data KV = KV String String
    deriving (Eq, Ord, Show)
 
-instance Rasa KV where
-   printRow (KV k v) = tr [S (k ++ ":"), S v]
-
 instance Univ KV where explode (KV k v) = [k, v]
 
 portHdrs :: [String]
-portHdrs = words "Rank Id Symbol Coin Amount Invested Price Value %change"
+portHdrs = words "Rank Id Symbol Coin Amount Invested Price Ave Value %change"
 
 portTitle :: Portfolio -> String
 portTitle p = "Holdings for " ++ portfolioName p ++ " portfolio"
 
-printPortfolioReport :: Day -> PortfolioReport -> IO ()
-printPortfolioReport date pr@(PR p holdings) =
-   summarizePortfolio date pr >>
-   report' (portTitle p) portHdrs (sortOn rank (Set.toList holdings))
-
 printPortfolioCSV :: Day -> PortfolioReport -> IO ()
 printPortfolioCSV date pr@(PR p holdings) =
    let cr = putStrLn "" in
-   cr              >>
-   sumport date pr >>
+   cr                         >>
+   summarizePortfolio date pr >>
    if holdings == Set.empty then return ()
-   else cr         >>
+   else cr                    >>
    csvReport' portHdrs (portTitle p) (sortOn rank (Set.toList holdings))
 
 data PorNot = Perc Percentage | PNOT
@@ -162,18 +147,11 @@ buildSummary pr@(PR (Portfolio name reserve _) holdings) =
             KV "Gain/Loss" (show $ change totInv totVal)]
 
 summarizePortfolio :: Day -> PortfolioReport -> IO ()
-summarizePortfolio date pr@(PR (Portfolio name reserve _) holdings) =
-   report' (unwords ["Summary of", name, "for", show date]) [] (buildSummary pr)
-
-sumport :: Day -> PortfolioReport -> IO ()
-sumport date pr@(PR (Portfolio name _ _) holdings) =
+summarizePortfolio date pr@(PR (Portfolio name _ _) holdings) =
    csvReport' [] (unwords [show date ++ ",Summary of", name]) (buildSummary pr)
 
 summarizePortfolii :: Day -> [PortfolioReport] -> IO ()
 summarizePortfolii date = summarizePortfolio date . mconcat
-
-sumports :: Day -> [PortfolioReport] -> IO ()
-sumports date = sumport date . mconcat
 
 go :: IO ()
 go = withConnection ECOIN (\conn ->
@@ -181,5 +159,5 @@ go = withConnection ECOIN (\conn ->
         transContext conn                                             >>= \tc ->
         fetchPortfolii conn                                                  >>=
         foldM (forEachPortfolioDo conn tday tc) ([], Map.empty) . Map.elems  >>=
-        pass (sumports tday) . fst                                           >>=
+        pass (summarizePortfolii tday) . fst                                 >>=
         mapM_ (printPortfolioCSV tday))
