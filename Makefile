@@ -22,6 +22,7 @@ PROGRAMS=$(COIN_MARKET_CAP_DIR)/ETL/Candlesticks/Loader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/SourceFileLoader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/TrackedCoinLoader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/TransactionCSVLoader.hs \
+         $(COIN_MARKET_CAP_DIR)/ETL/ReinvestCSVLoader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/TransferCSVLoader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/Coins/Transformer.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/Candlesticks/Transformer.hs \
