@@ -29,9 +29,6 @@ import Data.Time.TimeSeries (today)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN), connectInfo)
 
-type StoreTransactionsF =
-   Connection -> TransactionContext -> [Transaction] -> IO ()
-
 storeTransactionsAssocRecommendations :: StoreTransactionsF
 storeTransactionsAssocRecommendations conn tc =
    mapM_ (storeTransaction conn tc >=> joinRecommendations conn)

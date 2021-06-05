@@ -228,6 +228,7 @@ CREATE TABLE "transaction_log" (
 	"n_coins" double precision NOT NULL,
 	"call_id" bigint NOT NULL,
 	"portfolio_id" bigint NULL,
+	"staked" boolean NOT NULL DEFAULT false,
 	CONSTRAINT "transaction_log_pk" PRIMARY KEY ("transaction_id")
 ) WITH (
   OIDS=FALSE

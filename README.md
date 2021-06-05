@@ -88,7 +88,11 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* roll in staked reinvestments ... E'ERY DAY!
+* We need to know the best (lowest) average price on a BUY recommendation and
+  the best (highest) average price on a SELL recommendation... and not $0.00.
+
+* roll in staked reinvestments ... E'ERY DAY! DONE ... now I need to report
+  the earned info out.
 
 * start building predictive model: STARTED
 

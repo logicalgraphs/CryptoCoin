@@ -46,6 +46,8 @@ import Data.Monetary.USD
 import Store.SQL.Util.LookupTable
 import Store.SQL.Util.Pivots (Pivot(Pvt))
 
+-- Types ----------------------------------------------------------------
+
 data Transaction = Transaction Symbol Day USD USD Double Call String
    deriving (Eq, Ord, Show)
 
@@ -54,6 +56,9 @@ ncoins (Transaction _ _ _ _ n _ _) = n
 
 spent :: Transaction -> USD
 spent (Transaction _ _ s _ _ _ _) = s
+
+type StoreTransactionsF =
+   Connection -> TransactionContext -> [Transaction] -> IO ()
 
 -- STORE FUNCTIONS -------------------------------------------------------
 

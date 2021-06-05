@@ -58,6 +58,13 @@ LOAD_TRANSFERS=$(SCRIPTS_DIR)/run-load-transfers.exp
 transfers: FORCE
 	$(LOAD_TRANSFERS)
 
+# ----- Same for staking reinvestments
+
+LOAD_REINVESTMENTS=$(SCRIPTS_DIR)/run-load-reinvestments.exp
+
+reinvest: FORCE
+	$(LOAD_REINVESTMENTS)
+
 PORTFOLIO_REPORT=$(SCRIPTS_DIR)/run-report-portfolii.exp
 
 portfolio: FORCE
