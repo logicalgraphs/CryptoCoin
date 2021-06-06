@@ -135,7 +135,8 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
-* 2021-06-05: reporting the average price of coin bought.
+* 2021-06-05: reporting the average price of coin bought; Updated transaction 
+  context to favor coins in portfolii; rolling in earnings from staked coins.
 * 2021-06-04: added transfers of funds between accounts. Transactions now 
   transfer funds from the linked-account, updating that account's balance.
 * 2021-06-01: Updated reports: portfolii show even if 'next day' (UTC)
