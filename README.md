@@ -88,6 +88,10 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* two transactions only reduced the linked account by $100. Fix this.
+
+* don't show earned/reinvested under transaction report.
+
 * We need to know the best (lowest) average price on a BUY recommendation and
   the best (highest) average price on a SELL recommendation... and not $0.00.
 
