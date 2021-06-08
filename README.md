@@ -88,7 +88,21 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* two transactions only reduced the linked account by $100. Fix this.
+* two transactions only reduced the linked account by $100. Fix this. e.g.:
+
+```
+Storing 3 recommended-transactions
+Joined 1 recommendations to transactions.
+Joined 1 recommendations to transactions.
+Joined 1 recommendations to transactions.
+Storing 3 transfers
+Adjusting USAA by $-101.99 to $619.57
+...done
+...done
+...done
+```
+
+Not good.
 
 * don't show earned/reinvested under transaction report.
 
