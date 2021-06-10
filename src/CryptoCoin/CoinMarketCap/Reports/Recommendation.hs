@@ -30,7 +30,7 @@ import Control.List (weave)
 import Control.Map (snarf)
 import Control.Presentation hiding (S)
 
-import CryptoCoin.CoinMarketCap.Reports.Table (linq, a, csvReport)
+import CryptoCoin.CoinMarketCap.Reports.Table (csvReport)
 
 import Data.LookupTable (LookupTable)
 import Data.Monetary.USD
@@ -40,7 +40,6 @@ import Data.CryptoCurrency.Types.Recommendation
           (Recommendation, RecommendationData(Rekt), call, Call(BUY), 
            fetchRecommendations, Source, toSource)
 import Data.CryptoCurrency.Utils (plural, pass)
-import Data.XHTML
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 import Store.SQL.Util.LookupTable (lookupTable)
@@ -271,34 +270,18 @@ RR {coin = IxRow 1437 2021-04-20 (CoinRow "ZEC" "Zcash" $230.94 50),
 thdr :: [String]
 thdr = words "ID symbol name price rank buys sells exchanges"
 
-instance Rasa RecRow where
-   printRow (RR (IxRow i _d (CoinRow sy n sl p r)) exs tlas buys sells) = tr [
-      S (show i), E $ linq sl sy, S n, S (show p), S (show r),
-      S (ts tlas buys), S (ts tlas sells), S (iexs exs)]
-
 pipe :: Foldable t => (a -> Maybe String) -> t a -> String
 pipe f = intercalate "|" . mapMaybe f . toList
 
-thunk :: Foldable t => Show b => (a -> Maybe b) -> t a -> String
-thunk f = weave . mapMaybe (\x -> show <$> f x) . toList
-
-iexs, jexs :: Foldable t => t Exchange -> String
-iexs = thunk exchangeUrl
+jexs :: Foldable t => t Exchange -> String
 jexs = pipe (pure . namei)
 
-ts', ts :: Foldable t => TLAs -> t Recommendation -> String
-ts tlas = thunk (tla tlas)
+ts' :: Foldable t => TLAs -> t Recommendation -> String
 ts' tlas = pipe (\r -> fst <$> tlb tlas r)
 
 instance Univ RecRow where
    explode (RR (IxRow i _d (CoinRow sy n sl p r)) exs tlas buys sells) =
       [show i, sy, n, show p, show r, ts' tlas buys, ts' tlas sells, jexs exs]
-
-exchangeUrl :: Exchange -> Maybe Element
-exchangeUrl (Exchange _ n url) = Just $ a url n
-
-tla :: TLAs -> Recommendation -> Maybe Element
-tla tlas ixr = uncurry a . swap <$> tlb tlas ixr
 
 tlb :: TLAs -> Recommendation -> Maybe (String, String)
 tlb tlas (row -> Rekt _ src _) = tupII <$> Map.lookup src tlas

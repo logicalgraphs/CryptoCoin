@@ -44,19 +44,8 @@ import Data.CryptoCurrency.Types.Transaction
 import Data.CryptoCurrency.Types.Transactions.Context
 import Data.Monetary.USD
 
-import Data.XHTML hiding (nb)
-
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 import Store.SQL.Util.Time (latest)
-
-elt :: String -> String -> Content
-elt e = E . Elt e [] . pure . S
-
-p :: String -> Content
-p = elt "p"
-
-addendum :: [Content]
-addendum = [p nb]
 
 nb :: String
 nb = "* There were no recommendations for these transactions; I "
@@ -72,14 +61,6 @@ transactionRows :: (Bool -> Transaction -> row)
                 -> CoinTransactions -> CoinTransactions -> [row]
 transactionRows r (mapper r False -> rs) (mapper r True -> nrs) = rs ++ nrs
 
-printTransactions :: Day -> (CoinTransactions, CoinTransactions) -> IO ()
-printTransactions date (recs, nonrecs) =
-   let rpt = [p (header date),
-              E (Elt "ol" [] (transactionRows listItem recs nonrecs)),
-              p "That's it for today."]
-       addend = if length nonrecs == 0 then id else (++ addendum)
-   in printContent (E (Elt "p" [] (addend rpt))) 0
-
 printCSVTransactions :: Day -> (CoinTransactions, CoinTransactions) -> IO ()
 printCSVTransactions date (join (***) filterOut -> (recs, nonrecs)) =
    let rpt = (header date:lf "call,amount,coin,exchange")
@@ -93,11 +74,6 @@ filterOut = Map.map (filter ((> USD 9) . spent))
 
 lf :: String -> [String]
 lf = ("":) . pure
-
-listItem :: Bool -> Transaction -> Content
-listItem withStar (Transaction sym _dt amt _surcharge coins call portfolio) =
-   let star = if withStar then "*" else "" in
-   elt "li" (unwords [show call, show amt, sym ++ ",", portfolio, star])
 
 csvRow :: Bool -> Transaction -> String
 csvRow withStar (Transaction sym _dt amt _surcharge coins call portfolio) =
@@ -116,8 +92,6 @@ go = withConnection ECOIN (\conn ->
        reportTransactions conn)
 
 {--
-As HTML: ... deprecated
-
 As CSV:
 
 2021-05-21,I am making the following transactions

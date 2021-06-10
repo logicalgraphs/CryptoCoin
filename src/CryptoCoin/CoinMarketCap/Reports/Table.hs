@@ -25,8 +25,6 @@ import Data.CryptoCurrency.Utils (plural, toBe, punct)
 import Data.Monetary.USD
 import Data.Percentage
 
-import Data.XHTML hiding (P)
-
 data PriceCoin = PC { ecoin :: ECoin, price1 :: Double, delta :: Double }
    deriving (Eq, Ord, Show)
 
@@ -36,6 +34,7 @@ instance Rank PriceCoin where
 l2PC :: Listing -> Maybe PriceCoin
 l2PC l = quote l >>= \q -> PC (coin l) (price q) <$> percentChange24h q
 
+{--
 addlInfo :: Listings -> ECoin -> Content
 addlInfo _ (C _) = S "--"
 addlInfo m (T (Token _ci i _)) = link . info . coin $ m Map.! i
@@ -57,7 +56,7 @@ a href = Elt "a" [Attrib "href" href] . return . S
    
 coinmarketcaphref :: String
 coinmarketcaphref = "https://coinmarketcap.com"
-   
+
 coinmarketcapcoinlink :: String -> String
 coinmarketcapcoinlink = ((coinmarketcaphref ++ "/currencies/") ++) . (++ "/")
 
@@ -80,6 +79,7 @@ report date typ hdrs =
    let r' a (b, c) = report' b a c in r' hdrs . setupReport date typ
 
 -- alternatively, to output as CSV:
+--}
 
 csvReport :: Rank r => Univ r => Day -> String -> [String] -> [r] -> IO ()
 csvReport date typ hdrs = uncurry (csvReport' hdrs) . setupReport date typ
@@ -96,11 +96,13 @@ setupReport date typ razz =
        ranked = sortOn rank razz
    in  (weave [show date, header], ranked)  -- this is now CSV-y. Oh, well.
 
+{--
 report' :: Rasa r => String -> [String] -> [r] -> IO ()
 report' msg hdrs razz = printContent (p [S msg]) 0 >> t' razz hdrs
 
 p :: [Content] -> Content
 p = E . Elt "p" []
+--}
 
 coinHeaders :: [String]
 coinHeaders = words "Name Symbol Rank Price %Change Basis"
