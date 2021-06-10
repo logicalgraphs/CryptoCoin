@@ -102,7 +102,7 @@ Adjusting USAA by $-101.99 to $619.57
 ...done
 ```
 
-Not good.
+Not good. DONE. Changed snarf to snarfL
 
 * don't show earned/reinvested under transaction report.
 

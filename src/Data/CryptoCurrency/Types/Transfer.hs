@@ -24,12 +24,11 @@ import Control.Arrow ((&&&))
 
 import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
-import qualified Data.Set as Set
 import Data.Time (Day)
 
 import Database.PostgreSQL.Simple
 
-import Control.Map (snarf)
+import Control.Map (snarfL)
 
 import Data.CryptoCurrency.Types hiding (idx)
 import Data.CryptoCurrency.Types.Portfolio
@@ -98,6 +97,5 @@ msg su | su == 0 = "Storing no new transfers today."
 
 updatePortfolii :: StoreTransferF
 updatePortfolii conn tfc =
-   mapM_ (updateCashReserves conn tfc . Set.toList)
-       . Map.elems
-       . snarf (pure . (port &&& id))
+   mapM_ (updateCashReserves conn tfc) . Map.elems
+       . snarfL (pure . (port &&& id))
