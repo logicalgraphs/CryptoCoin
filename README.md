@@ -90,34 +90,12 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 * remove HTML code from reports.
 
-* two transactions only reduced the linked account by $100. Fix this. e.g.:
-
-```
-Storing 3 recommended-transactions
-Joined 1 recommendations to transactions.
-Joined 1 recommendations to transactions.
-Joined 1 recommendations to transactions.
-Storing 3 transfers
-Adjusting USAA by $-101.99 to $619.57
-...done
-...done
-...done
-```
-
-Not good. DONE. Changed snarf to snarfL
-
-* don't show earned/reinvested under transaction report. DONE, filtered on
-  (> USD 9) transactions
-
 * We need to know the best (lowest) average price on a BUY recommendation and
   the best (highest) average price on a SELL recommendation... and not $0.00.
 
-* roll in staked reinvestments ... E'ERY DAY! DONE ... now I need to report
-  the earned info out.
+* provide year-to-date transaction history with the portfolio report
 
 * start building predictive model: STARTED
-
-* provide year-to-date transaction history with the portfolio report
 
 * we need to analyze the trades vis-à-vis recommendations and find which ones
 are effective and which ones aren't, or combinations, or what. ... Bayes?
