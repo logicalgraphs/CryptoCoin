@@ -88,6 +88,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* remove HTML code from reports.
+
 * two transactions only reduced the linked account by $100. Fix this. e.g.:
 
 ```
