@@ -29,6 +29,9 @@ that are not. So, we need to find this out from the join table: DONE in
 the transaction-pull.
 --}
 
+import Control.Arrow ((***))
+import Control.Monad (join)
+
 import qualified Data.Map as Map
 import Data.Time (Day)
 
@@ -39,6 +42,7 @@ import Control.Presentation hiding (S)
 
 import Data.CryptoCurrency.Types.Transaction
 import Data.CryptoCurrency.Types.Transactions.Context
+import Data.Monetary.USD
 
 import Data.XHTML hiding (nb)
 
@@ -77,12 +81,15 @@ printTransactions date (recs, nonrecs) =
    in printContent (E (Elt "p" [] (addend rpt))) 0
 
 printCSVTransactions :: Day -> (CoinTransactions, CoinTransactions) -> IO ()
-printCSVTransactions date (recs, nonrecs) =
+printCSVTransactions date (join (***) filterOut -> (recs, nonrecs)) =
    let rpt = (header date:lf "call,amount,coin,exchange")
              ++ transactionRows csvRow recs nonrecs
              ++ lf "That's it for today."
        addend = if length nonrecs == 0 then id else (++ lf nb)
    in  putStrLn (unlines (addend rpt))
+
+filterOut :: CoinTransactions -> CoinTransactions
+filterOut = Map.map (filter ((> USD 9) . spent))
 
 lf :: String -> [String]
 lf = ("":) . pure
@@ -109,32 +116,7 @@ go = withConnection ECOIN (\conn ->
        reportTransactions conn)
 
 {--
-As HTML:
-
->>> withConnection ECOIN (flip reportTransactions (read "2021-05-21"))
-<p>
- <p>
-  I am making the following transactions for 2021-05-21
- </p>
- <ol>
-  <li>
-   BUY $100.00 BTC, GEMINI
-  </li>
-  <li>
-   BUY $100.00 LTC, GEMINI
-  </li>
-...
-  <li>
-   BUY $100.00 ETH, GEMINI *
-  </li>
- </ol>
- <p>
-  That's it for today.
- </p>
- <p>
-  * There were no recommendations for these two transactions; I bought these coins on sale, is all.
- </p>
-</p>
+As HTML: ... deprecated
 
 As CSV:
 

@@ -104,7 +104,8 @@ Adjusting USAA by $-101.99 to $619.57
 
 Not good. DONE. Changed snarf to snarfL
 
-* don't show earned/reinvested under transaction report.
+* don't show earned/reinvested under transaction report. DONE, filtered on
+  (> USD 9) transactions
 
 * We need to know the best (lowest) average price on a BUY recommendation and
   the best (highest) average price on a SELL recommendation... and not $0.00.
