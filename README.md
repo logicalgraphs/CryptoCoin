@@ -88,8 +88,6 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* remove HTML code from reports. DONE
-
 * We need to know the best (lowest) average price on a BUY recommendation and
   the best (highest) average price on a SELL recommendation... and not $0.00.
 
@@ -134,6 +132,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-06-10: Corrected issue with multiple transactions not being recorded.
 * 2021-06-05: reporting the average price of coin bought; Updated transaction 
   context to favor coins in portfolii; rolling in earnings from staked coins.
 * 2021-06-04: added transfers of funds between accounts. Transactions now 
