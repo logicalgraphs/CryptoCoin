@@ -50,7 +50,7 @@ import Control.Presentation
 import CryptoCoin.CoinMarketCap.Reports.Recommendation
 import CryptoCoin.CoinMarketCap.Reports.Table (csvReport)
 
-import Data.CryptoCurrency.Types (Idx, idx)
+import Data.CryptoCurrency.Types (Idx, idx, Rank, rank)
 import Data.Monetary.USD
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
@@ -287,6 +287,8 @@ ts' tlas = pipe (\r -> fst <$> tlb tlas r)
 data ResultRow = RRR RecRow USD Score
    deriving (Eq, Show)
 
+instance Rank ResultRow where rank (RRR rr _ _) = rank rr
+
 data Score = WIN | EH | LOSE
    deriving (Eq, Ord, Show)
 
@@ -312,7 +314,7 @@ theW :: RecRow -> USD -> ResultRow
 theW rr tdayPrice = RRR rr tdayPrice (computeW rr tdayPrice)
 
 computeW :: RecRow -> USD -> Score
-computeW rr prc = undefined
+computeW rr prc = EH
 
 rrrFromRr :: Connection -> Day -> [RecRow] -> IO [ResultRow]
 rrrFromRr conn tday rrs =
@@ -322,6 +324,15 @@ rrrFromRr conn tday rrs =
 
 go :: IO ()
 go = withConnection ECOIN (\conn -> 
-        latest conn "recommendation" "for_date" >>= \tday ->
-        collateRecommendations conn tday        >>=
-        csvReport tday "recommendation" thdr)
+        latest conn "recommendation" "for_date" >>=
+        resultsReport conn)
+
+resultsReport :: Connection -> Day -> IO ()
+resultsReport conn tday =
+   let yest = addDays (-1) tday in
+   collateRecommendations conn yest >>=
+   rrrFromRr conn tday              >>=
+   csvReport tday "results" rhdr
+
+rhdr :: [String]
+rhdr = thdr ++ ["today's price", "result"]
