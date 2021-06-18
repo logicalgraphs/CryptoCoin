@@ -88,6 +88,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* add a transfer protocol for coins (instead of dollars)
+
 * write a comparison of recommendations from yesterday: how did they do today?
 
 * We need to know the best (lowest) average price on a BUY recommendation and
