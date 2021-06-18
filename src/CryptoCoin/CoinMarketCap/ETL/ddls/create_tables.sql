@@ -338,7 +338,7 @@ CREATE TABLE "call_lk" (
 );
 
 INSERT INTO call_lk (call_id, call)
-VALUES (1, 'BUY'), (2, 'SELL');
+VALUES (1, 'BUY'), (2, 'SELL'), (3, 'XFER');
 
 CREATE TABLE "indicator_lk" (
 	"indicator_id" serial NOT NULL,
