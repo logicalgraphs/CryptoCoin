@@ -12,23 +12,16 @@ import Control.Arrow ((&&&))
 import qualified Data.ByteString.Char8 as B
 import Data.Foldable (toList)
 import Data.List (intercalate)
-import Data.Map (Map)
-import qualified Data.Map as Map
-import Data.Maybe (mapMaybe)
 import Data.Set (Set)
 import qualified Data.Set as Set
-import Data.Time (Day, addDays)
 import Data.Tuple (swap)
 
-import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromRow
 import Database.PostgreSQL.Simple.Types (Query(Query))
 
 import Control.List (weave)
 import Control.Map (snarf)
-import Control.Presentation hiding (S)
 
-import CryptoCoin.CoinMarketCap.Reports.Table (csvReport)
 
 import Data.LookupTable (LookupTable)
 import Data.CryptoCurrency.Types (IxRow(IxRow), idx, Idx, row, Indexed, 
@@ -38,13 +31,32 @@ import Data.CryptoCurrency.Types.Recommendation
            fetchRecommendations, Source, toSource)
 import Data.CryptoCurrency.Utils (plural, pass)
 
-import Store.SQL.Connection (withConnection, Database(ECOIN))
 import Store.SQL.Util.LookupTable (lookupTable)
-import Store.SQL.Util.Time (latest)
 --}
 
+import Control.Arrow ((&&&))
+
+import qualified Data.ByteString.Char8 as B
+import Data.Map (Map)
+import qualified Data.Map as Map
+import Data.Maybe (mapMaybe)
+import Data.Time (Day, addDays)
+
+import Database.PostgreSQL.Simple
+import Database.PostgreSQL.Simple.Types (Query(Query))
+
+import Control.Presentation
+
 import CryptoCoin.CoinMarketCap.Reports.Recommendation
+import CryptoCoin.CoinMarketCap.Reports.Table (csvReport)
+
+import Data.CryptoCurrency.Types (Idx, idx)
 import Data.Monetary.USD
+
+import Store.SQL.Connection (withConnection, Database(ECOIN))
+import Store.SQL.Util.Indexed (IxValue, val, ix)
+import Store.SQL.Util.TaggedTypes
+import Store.SQL.Util.Time (latest)
 
 {--
 so each coin can have multiples of 
@@ -273,7 +285,7 @@ ts' tlas = pipe (\r -> fst <$> tlb tlas r)
 --}
 
 data ResultRow = RRR RecRow USD Score
-   deriving (Eq, Ord, Show)
+   deriving (Eq, Show)
 
 data Score = WIN | EH | LOSE
    deriving (Eq, Ord, Show)
@@ -281,14 +293,32 @@ data Score = WIN | EH | LOSE
 instance Univ ResultRow where
    explode (RRR rr prc score) = explode rr ++ [show prc, show score]
 
-   explode (RR (IxRow i _d (CoinRow sy n sl p r)) exs tlas buys sells) =
-      [show i, sy, n, show p, show r, ts' tlas buys, ts' tlas sells, jexs exs]
+-- okay, we need to compute today's price for the comparison, then we need
+-- to compute the W.
 
-tlb :: TLAs -> Recommendation -> Maybe (String, String)
-tlb tlas (row -> Rekt _ src _) = tupII <$> Map.lookup src tlas
+pricesToday :: Foldable t => Connection -> Day -> t Idx -> IO (Map Idx USD)
+pricesToday conn tday idxn =
+   Map.fromList . map (ix &&& untag . val) <$> p2t conn tday idxn
 
-tupII :: IndicatorInfo -> (String, FilePath)
-tupII (II tla url) = (tla, url)
+p2t :: Foldable t => Connection -> Day -> t Idx -> IO [IxValue (TaggedType USD)]
+p2t conn tday = query conn (pricesQuery tday) . inSet
+
+pricesQuery :: Day -> Query
+pricesQuery date = Query . B.pack $ unlines [
+   "SELECT cmc_id, quote_price FROM coin_market_cap_daily_listing",
+   "WHERE for_date='" ++ show date ++ "' AND cmc_id IN ?"]
+
+theW :: RecRow -> USD -> ResultRow
+theW rr tdayPrice = RRR rr tdayPrice (computeW rr tdayPrice)
+
+computeW :: RecRow -> USD -> Score
+computeW rr prc = undefined
+
+rrrFromRr :: Connection -> Day -> [RecRow] -> IO [ResultRow]
+rrrFromRr conn tday rrs =
+   pricesToday conn tday (map idx rrs) >>= \prices ->
+   return (map (uncurry theW)
+               (mapMaybe (sequence . (id &&& flip Map.lookup prices . idx)) rrs))
 
 go :: IO ()
 go = withConnection ECOIN (\conn -> 

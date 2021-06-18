@@ -217,6 +217,8 @@ data RecRow = RR { coin :: IxRowCoin,
 instance Rank RecRow where
    rank = rank . row . coin
 
+instance Indexed RecRow where idx = idx . coin
+
 type BuySell = (Set Recommendation, Set Recommendation)
 
 buySell :: Set Recommendation -> BuySell
