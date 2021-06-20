@@ -16,16 +16,18 @@ import Data.CryptoCurrency.Types
 import Data.LookupTable
 import Data.Monetary.USD
 
-data TransF' = Tf Day USD Idx Idx
+----- Handling Cash transfers ------------------------------------------------
+
+data CashTransF' = Cxf Day USD Idx Idx
    deriving (Eq, Ord, Show)
 
-instance ToRow TransF' where
-   toRow (Tf d a p dir) = [toField d, toField p, toField dir, toField a]
+instance ToRow CashTransF' where
+   toRow (Cxf d a p dir) = [toField d, toField p, toField dir, toField a]
 
 storeTransFQuery :: Query
 storeTransFQuery = Query . B.pack $ unwords [
    "INSERT INTO transfer_funds (for_date, portfolio_id, transfer_direction_id,",
    "amount) VALUES (?, ?, ?, ?)"]
 
-storeTransF' :: Connection -> [TransF'] -> IO ()
-storeTransF' conn = void . executeMany conn storeTransFQuery
+storeCashTransF' :: Connection -> [CashTransF'] -> IO ()
+storeCashTransF' conn = void . executeMany conn storeTransFQuery

@@ -1,3 +1,5 @@
+{-# LANGUAGE ViewPatterns #-}
+
 module CryptoCoin.CoinMarketCap.ETL.TransferCSVLoader where
 
 -- Transfer funds into and out of portfolii.
@@ -25,20 +27,20 @@ import Data.Time.TimeSeries (today)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 
-makeTransfer :: String -> Maybe Transfer
-makeTransfer = mkTransF . csv
+makeCashTransfer :: String -> Maybe CashTransfer
+makeCashTransfer = mkCashTransF . csv
 
-mkTransF :: [String] -> Maybe Transfer
-mkTransF [dt, port, dir, amt] =
-   Transfer <$> readMaybe dt <*> Just port <*> readMaybe dir <*> readMaybe amt
+mkCashTransF :: [String] -> Maybe CashTransfer
+mkCashTransF [readMaybe -> dt, port, readMaybe -> dir, readMaybe -> amt] =
+   CashTransfer <$> dt <*> Just port <*> dir <*> amt
 
-readTransfers :: FilePath -> IO [Transfer]
-readTransfers file = doesFileExist file >>= rt' file
+readCashTransfers :: FilePath -> IO [CashTransfer]
+readCashTransfers file = doesFileExist file >>= rct' file
 
-rt' :: FilePath -> Bool -> IO [Transfer]
-rt' _ False = return []
-rt' file True =
-   mapMaybe makeTransfer . mbtail . lines <$> readFile file
+rct' :: FilePath -> Bool -> IO [CashTransfer]
+rct' _ False = return []
+rct' file True =
+   mapMaybe makeCashTransfer . mbtail . lines <$> readFile file
       where mbtail [] = []
             mbtail (_:t) = t
 
@@ -69,12 +71,12 @@ and are named transfers.csv
 And with that, we can now do, e.g.:
 
 >>> cr <- getEnv "CRYPTOCOIN_DIR"
->>> transfers <- readTransfers (cr ++ "/data-files/transfers/2021-06-03/transfers.csv")
+>>> transfers <- readCashTransfers (cr ++ "/data-files/transfers/2021-06-03/cash.csv")
 
 >>> transfers
-[Transfer {dt = 2021-06-03, port = "USAA", dir = INCOME, amt = $2000.00},
- Transfer {dt = 2021-06-03, port = "USAA", dir = OUTGO, amt = $800.00},
- Transfer {dt = 2021-06-03, port = "GEMINI", dir = INCOME, amt = $800.00}]
+[CashTransfer {dt = 2021-06-03, port = "USAA", dir = INCOME, amt = $2000.00},
+ CashTransfer {dt = 2021-06-03, port = "USAA", dir = OUTGO, amt = $800.00},
+ CashTransfer {dt = 2021-06-03, port = "GEMINI", dir = INCOME, amt = $800.00}]
 
 So! We want to store these transfers, then group them by portfolio, then update
 each portfolio's cash reserve.
@@ -87,5 +89,5 @@ storeTransfersAndUpdatePortfoliiCSV :: Connection -> Day -> IO ()
 storeTransfersAndUpdatePortfoliiCSV conn date =
    getEnv "CRYPTOCOIN_DIR"                                      >>= \ccd ->
    let dataDir = ccd ++ "/data-files/transfers/" ++ show date in
-   readTransfers (dataDir ++ "/transfers.csv")                  >>=
+   readCashTransfers (dataDir ++ "/cash.csv")                   >>=
    storeTransfersAndUpdatePortfolii conn

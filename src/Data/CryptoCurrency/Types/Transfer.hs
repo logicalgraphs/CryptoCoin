@@ -48,36 +48,38 @@ inorout :: Direction -> Double
 inorout INCOME = 1
 inorout OUTGO = (-1)
 
-data Transfer =
-   Transfer { dt :: Day, port :: Name, dir ::  Direction, amt :: USD }
+data CashTransfer =
+   CashTransfer { dt :: Day, port :: Name, dir ::  Direction, amt :: USD }
      deriving (Eq, Ord, Show)
 
-storeTransfersAndUpdatePortfolii :: Connection -> [Transfer] -> IO ()
+storeTransfersAndUpdatePortfolii :: Connection -> [CashTransfer] -> IO ()
 storeTransfersAndUpdatePortfolii conn xfers =
    report 0 (msg (length xfers))
           (transFContext conn            >>= \tfc ->
-           storeTransfers conn tfc xfers >>
+           storeCashTransfers conn tfc xfers >>
            updatePortfolii conn tfc xfers)
 
 -- INTERNAL FUNCTIONS -------------------------------------------------------
 
-toTransF' :: TransferContext -> Transfer -> Maybe TransF'
-toTransF' (TfC dirLk ports) (Transfer dt p dir amt) =
-   Tf dt amt <$> (idx <$> lk p ports) <*> lk (show dir) dirLk
+toCashTransF' :: TransferContext -> CashTransfer -> Maybe CashTransF'
+toCashTransF' (TfC dirLk ports) (CashTransfer dt p dir amt) =
+   Cxf dt amt <$> (idx <$> lk p ports) <*> lk (show dir) dirLk
       where lk = Map.lookup
 
-type StoreTransferF = Connection -> TransferContext -> [Transfer] -> IO ()
+type StoreCashTransferF = Connection -> TransferContext -> [CashTransfer]
+                       -> IO ()
 
-storeTransfers :: StoreTransferF
-storeTransfers conn ctx = storeTransF' conn . mapMaybe (toTransF' ctx)
+storeCashTransfers :: StoreCashTransferF
+storeCashTransfers conn ctx =
+   storeCashTransF' conn . mapMaybe (toCashTransF' ctx)
 
-toAmt :: Transfer -> Double
+toAmt :: CashTransfer -> Double
 toAmt = (*) . doubledown . amt <*> inorout . dir
 
 updateCashReserveQuery :: Query
 updateCashReserveQuery = "UPDATE portfolio SET cash=? WHERE portfolio_id=?"
 
-updateCashReserves :: StoreTransferF
+updateCashReserves :: StoreCashTransferF
 updateCashReserves conn tfc xfers =
    let adj = sum (map toAmt xfers)
        portName = port (head xfers)
@@ -95,7 +97,7 @@ msg :: Int -> String
 msg su | su == 0 = "Storing no new transfers today."
        | otherwise = "Storing " ++ show su ++ " transfer" ++ plural su
 
-updatePortfolii :: StoreTransferF
+updatePortfolii :: StoreCashTransferF
 updatePortfolii conn tfc =
    mapM_ (updateCashReserves conn tfc) . Map.elems
        . snarfL (pure . (port &&& id))
