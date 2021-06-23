@@ -88,6 +88,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* add "cancel_today" which removes all data for today.
+
 * add "compared to:,,day-after results:" to recommendations report.
 
 * add a transfer protocol for coins (instead of dollars)
