@@ -88,6 +88,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* add "compared to:,,day-after results:" to recommendations report.
+
 * add a transfer protocol for coins (instead of dollars)
 
 * write a comparison of recommendations from yesterday: how did they do today?
