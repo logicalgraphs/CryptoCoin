@@ -26,6 +26,8 @@ import Database.PostgreSQL.Simple.Types
 import Control.Presentation
 import Control.Scan.CSV
 
+import CryptoCoin.CoinMarketCap.Utils (geaux, sanitize)
+
 import Data.CryptoCurrency.Utils (pass', filesAtDir)
 
 import Data.LookupTable
@@ -39,20 +41,24 @@ uploadFileQuery = Query . B.pack $ unwords [
    "INSERT INTO source (source_type_id, file_name, for_day, file)",
    "VALUES (?, ?, ?, ?)"]
  
-uploadFile :: Integer -> FilePath -> Connection -> FilePath -> IO ()
-uploadFile sourceType dir conn filename =
+uploadFile :: Integer -> FilePath -> Connection -> Day -> FilePath -> IO ()
+uploadFile sourceType dir conn tday filename =
    let fullPath = dir ++ ('/':filename) in
-   readFile fullPath                        >>= \file ->
-   today                                    >>= \tday ->
+   readFile fullPath                                 >>= \file ->
    execute conn uploadFileQuery
-         (sourceType, filename, tday, file) >>
-   putStrLn ("Uploaded " ++ filename)       >>
-   removeFile fullPath                      >>
+         (sourceType, filename, tday, sanitize file) >>
+   putStrLn ("Uploaded " ++ filename)                >>
+   removeFile fullPath                               >>
    putStrLn ("Removed file " ++ filename)
 
-uploadAllFilesAt :: FilePath -> Integer -> Connection -> IO ()
-uploadAllFilesAt dir srcTyp conn =
-   filesAtDir (words ".json .csv") dir >>= mapM_ (uploadFile srcTyp dir conn)
+clearSourcesStmt :: Query
+clearSourcesStmt = "DELETE FROM source WHERE for_day=? AND source_type_id=?"
+
+uploadAllFilesAt :: FilePath -> Integer -> Connection -> Day -> IO ()
+uploadAllFilesAt dir srcTyp conn tday =
+   execute conn clearSourcesStmt (tday, srcTyp) >>
+   filesAtDir (words ".json .csv") dir          >>=
+   mapM_ (uploadFile srcTyp dir conn tday)
 
 {--
 >>> conn <- connection >>= connect
@@ -66,15 +72,16 @@ Uploaded listings-2021-03-05.json
 >>> close conn
 --}
 
-uploadFiles :: Connection -> LookupTable -> IO ()
-uploadFiles conn src =
+uploadFiles :: Connection -> Day -> IO ()
+uploadFiles conn tday =
+   lookupTable conn "source_type_lk"          >>= \src ->
    getEnv "CRYPTOCOIN_DIR"                    >>= \cmcDir ->
    let uploader dir typ = uploadAllFilesAt (cmcDir ++ ("/data-files/" ++ dir))
-                                           (src Map.! typ) conn
+                                           (src Map.! typ) conn tday
    in  uploader "listings"     "LISTING"      >>
        uploader "scores"       "FCAS"         >>
        uploader "candlesticks" "CANDLESTICKS" >>
-       sources conn src
+       sources conn src tday
 
 {--
 >>> go
@@ -113,10 +120,9 @@ srcs conn src day =
    mapM (query_ conn . srcQuery) (Map.elems src) >>=
    return . concat
 
-sources :: Connection -> LookupTable -> IO ()
-sources conn src = 
-   getCurrentTime                                                >>=
-   srcs conn src . addDays (-2) . utctDay                        >>=
+sources :: Connection -> LookupTable -> Day -> IO ()
+sources conn src tday = 
+   srcs conn src (addDays (-2) tday)                             >>=
    pass' (putStrLn "id,source_type,for_day,file_name,processed") >>=
    mapM_ (putStrLn . uncsv)
 
@@ -133,5 +139,4 @@ id,source_type,for_day,file_name,processed
 --}
 
 go :: IO ()
-go = withConnection ECOIN (\conn ->
-         lookupTable conn "source_type_lk" >>= uploadFiles conn)
+go = geaux uploadFiles

@@ -88,9 +88,12 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* fix Phemex initial deposit.
+* fix Phemex initial deposit; DONE (database change)
 
-* add "rollback_today" which removes all data for today.
+* add "rollback_today" which removes all data for today. NUPE
+  * I may need to add error-reportage to listing loader (and all loaders?) NUPE
+
+What I did instead was to prefilter the listings file before parsing it to JSON
 
 * add "compared to:,,day-after results:" to recommendations report.
 
@@ -142,6 +145,8 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-06-24: Rearranged the ETL (load-part) and prefiltered file before 
+  parsing it to JSON
 * 2021-06-10: Corrected issue with multiple transactions not being recorded.
 * 2021-06-05: reporting the average price of coin bought; Updated transaction 
   context to favor coins in portfolii; rolling in earnings from staked coins.

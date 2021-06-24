@@ -143,8 +143,10 @@ type NewCoinsCtx = (Listings, NewCoins)
 -- FOR LISTINGS AND QUOTES --------------------------------------------
 
 mkci :: Listing' -> CoinInfo
-mkci (Listing' id name sym slug _num dt _cs _ts _ms _tgs _plat rank _qt) =
-   CoinInfo id name sym slug rank (readDate dt)
+mkci (Listing' id name sym _ num dt _cs _ts _ms _tgs _plat Nothing _qt) =
+   error (unwords [show id, name, sym, show num, dt, "has no rank"])
+mkci (Listing' id name sym slug _num dt _cs _ts _ms _tgs _plat (Just r) _qt) =
+   CoinInfo id name sym slug r (readDate dt)
 
 data Supplies = 
    Supplies { circulatingSupply :: Double,
@@ -176,7 +178,7 @@ fetchTags conn idxn =
       
 data Listing =
    Listing { coin        :: ECoin,
-             marketPairs :: Integer,
+             marketPairs :: Maybe Integer,
              supplies    :: Supplies,
              tags        :: Set Tag,
              quote       :: Maybe Quote }
@@ -187,14 +189,9 @@ l2l l@(Listing' _id _name _sym _slug num dt cs ts ms tgs _plat _rank qt) =
    Listing (raw2coin l) num (Supplies cs ts ms) (Set.fromList (map Tag tgs))
            (Map.lookup "USD" qt)
 
-instance FromJSON Listing where
-   parseJSON v = l2l <$> parseJSON v
-
-instance Indexed Listing where
-   idx = idx . coin
-
-instance Rank Listing where
-   rank = rank . coin
+instance FromJSON Listing where parseJSON v = l2l <$> parseJSON v
+instance Indexed Listing where idx = idx . coin
+instance Rank Listing where rank = rank . coin
 
 -- Database extraction --------------------------------------------------
 

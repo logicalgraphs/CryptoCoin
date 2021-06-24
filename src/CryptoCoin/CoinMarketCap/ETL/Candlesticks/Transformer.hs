@@ -32,7 +32,7 @@ import CryptoCoin.CoinMarketCap.ETL.Candlesticks.Util (fromCSV, cndlstks)
 
 import Data.CryptoCurrency.Types (Cymbal, sym, IxRow(IxRow))
 import Data.CryptoCurrency.Types.OCHLV (OCHLVData(OCHLVData), OCHLV)
-import Data.CryptoCurrency.Utils (plural)
+import Data.CryptoCurrency.Utils (plural, report)
 
 import Data.LookupTable (LookupTable)
 
@@ -100,21 +100,22 @@ storeCandlesticks conn currencyLk srcLk (IxV cmcId (CSVFile sym file)) =
        makr = mkIxOwC srcId (currencyLk Map.! "USD") cmcId
        rows = mapMaybe makr (lines file)
        sz = length rows
-       msg = unwords ["Storing", show sz, "candlestick" ++ plural sz ++ " for",
-                      sym, "..."]
-   in  putStrLn msg                                 >>
-       executeMany conn storeCandlesticksQuery rows >>
-       putStrLn "...done."
+       msg = unwords ["Storing", show sz, "candlestick" ++ plural sz ++ " for"]
+   in  report 0 (unwords [msg, sym])
+                (executeMany conn storeCandlesticksQuery rows)
 
-processAllCandlesticks :: Connection -> LookupTable -> LookupTable -> IO ()
-processAllCandlesticks conn srcLk currLk =
+processAllCandlesticks :: Connection -> IO ()
+processAllCandlesticks conn =
+   let lk = lookupTable conn in
+   lk "source_type_lk" >>= \srcLk ->
+   lk "currency_lk"    >>= \currLk ->
    fetchCandlestickCSVFiles conn srcLk                   >>= \cndls ->
    let sz = length cndls
        msg = unwords ["Processing", show sz, "candlestick file"
                      ++ plural sz ++ "."]
-   in  putStrLn msg                                      >>
-       mapM_ (storeCandlesticks conn currLk srcLk) cndls >>
-       processedCandlesticks conn srcLk
+   in  report 0 msg
+              (mapM_ (storeCandlesticks conn currLk srcLk) cndls >>
+               processedCandlesticks conn srcLk)
 
 processedCandlesticksQuery :: Query
 processedCandlesticksQuery =
@@ -126,11 +127,7 @@ processedCandlesticks conn srcLk =
    putStrLn "All candlesticks files set to processed."
 
 go :: IO ()
-go = withConnection ECOIN (\conn ->
-   let lk = lookupTable conn in
-   lk "source_type_lk" >>= \srcs ->
-   lk "currency_lk"    >>=
-   processAllCandlesticks conn srcs)
+go = withConnection ECOIN processAllCandlesticks
 
 {--
 >>> go

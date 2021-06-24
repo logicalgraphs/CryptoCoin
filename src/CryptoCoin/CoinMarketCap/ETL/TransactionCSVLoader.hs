@@ -18,6 +18,8 @@ import System.Environment (getEnv)
 
 import Control.Scan.CSV
 
+import CryptoCoin.CoinMarketCap.Utils (geaux)
+
 import Data.CryptoCurrency.Types.Recommendation (Call(BUY, SELL))
 import Data.CryptoCurrency.Types.Transaction
 import Data.CryptoCurrency.Types.Transactions.Context
@@ -102,7 +104,7 @@ and are named not-recommended.csv and recommended.csv
 --}
 
 go :: IO ()
-go = today >>= withConnection ECOIN . flip addAllTransactions
+go = geaux addAllTransactions
 
 addAllTransactions :: Connection -> Day -> IO ()
 addAllTransactions conn date =

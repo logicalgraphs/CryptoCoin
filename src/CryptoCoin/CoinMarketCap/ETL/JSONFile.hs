@@ -11,8 +11,6 @@ import Data.Aeson
 
 import qualified Data.ByteString.Lazy.Char8 as BL
 
-import Data.Char (ord)
-
 import Data.Either (rights)
 
 import qualified Data.Map as Map
@@ -37,25 +35,9 @@ instance FromRow JSONFile where
 
 extractFile :: String -> Connection -> LookupTable -> IO [JSONFile]
 extractFile lk conn srcs =
-   map (\(JSONFile i f) -> JSONFile i (sanitize f))
-   <$> query conn extractJSONQuery (False, srcs Map.! lk)
+   query conn extractJSONQuery (False, srcs Map.! lk)
 
-sanitize :: String -> String
-sanitize = map unicodeSubstitution
-
-unicodeSubstitution :: Char-> Char
-unicodeSubstitution = us . id <*> ord
-
-us :: Char -> Int -> Char
-us c o | o == 164 = '$'
-       | o == 304 = 'I'
-       | o == 351 = 'S'
-       | o == 964 = 't'  -- tau, actually
-       | o == 932 = 'T'  -- Tau, actually
-       | o >  127 = '*'  -- I dunno
-       | otherwise = c
-
-type ValOrErr a = Either  String a
+type ValOrErr a = Either String a
 type IxValOrErr = ValOrErr (IxValue MetaData)
 
 extractJSON :: String -> Connection -> LookupTable -> IO [IxValOrErr]
@@ -93,4 +75,3 @@ try proc = withConnection ECOIN (\conn ->
    lookupTable conn "source_type_lk" >>=
    proc conn                         >>=
    mapM_ print)
-

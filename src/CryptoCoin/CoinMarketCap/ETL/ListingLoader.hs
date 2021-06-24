@@ -24,7 +24,7 @@ import Store.SQL.Util.Indexed hiding (idx)
 
 data DayListing =
    DayListing { fileId :: Integer, forDay :: Day, cmcId :: Integer,
-                rank1 :: Integer, numPairs :: Integer,
+                rank1 :: Integer, numPairs :: Maybe Integer,
                 sups :: Supplies, quot :: Quote }
       deriving (Eq, Ord, Show)
 
