@@ -271,6 +271,7 @@ RR {coin = IxRow 1437 2021-04-20 (CoinRow "ZEC" "Zcash" $230.94 50),
 
 thdr :: [String]
 thdr = words "ID symbol name price rank buys sells exchanges"
+    ++ ["compared to:", "", "day-after results:"]
 
 pipe :: Foldable t => (a -> Maybe String) -> t a -> String
 pipe f = intercalate "|" . mapMaybe f . toList
