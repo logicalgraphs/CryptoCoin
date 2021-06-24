@@ -13,10 +13,12 @@ import Database.PostgreSQL.Simple.Types
 
 import CryptoCoin.CoinMarketCap.Analytics.Trends.Indicators
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
+import CryptoCoin.CoinMarketCap.Utils (geaux)
 
 import Data.CryptoCurrency.Types (Idx, IxRow(IxRow))
 import Data.CryptoCurrency.Types.Recommendation
 import Data.CryptoCurrency.Types.Trend
+import Data.CryptoCurrency.Utils (report)
 
 import Data.LookupTable (LookupTable)
 import Data.Time.TimeSeries (today)
@@ -51,13 +53,13 @@ storeTrendQuery = Query . B.pack $ unwords [
 
 storeTrends :: Connection -> Day -> LookupTable -> IO ()
 storeTrends conn tday tracked =
-   let msg = "Storing indicators for " ++ show (length tracked) ++ " e-coins" in
-   putStrLn msg                                                             >>
-   mapM (sequence . (snd &&& runAllIndicatorsOn conn)) (Map.toList tracked) >>=
-   executeMany conn storeTrendQuery . map (uncurry (trendResult tday))      >>
-   putStrLn "...done."
+   let seqr = sequence . (snd &&& runAllIndicatorsOn conn) in
+   report 0 ("Storing indicators for " ++ show (length tracked) ++ " e-coins")
+          (mapM seqr (Map.toList tracked) >>=
+           executeMany conn storeTrendQuery . map (uncurry (trendResult tday)))
+
+storeTrackedTrends :: Connection -> Day -> IO ()
+storeTrackedTrends conn date = trackedCoins conn >>= storeTrends conn date
 
 go :: IO ()
-go = today >>= \tday ->
-     withConnection ECOIN (\conn ->
-        trackedCoins conn >>= storeTrends conn tday)
+go = geaux storeTrackedTrends

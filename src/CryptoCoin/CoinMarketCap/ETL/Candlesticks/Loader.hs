@@ -53,6 +53,7 @@ import Control.Logic.Frege ((-|))
 
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 import CryptoCoin.CoinMarketCap.ETL.Candlesticks.Util (cndlstks)
+import CryptoCoin.CoinMarketCap.Utils (geaux)
 
 import Data.CryptoCurrency.Types (Idx, IxRow(IxRow))
 import Data.CryptoCurrency.Utils (report)
@@ -194,18 +195,20 @@ maybeStoreCandlestickCSVFile _ _ _ ((_, sym), Nothing) =
 -- Okay, now we need to download these files from the yahoo! REST endpoint
 -- then load these files into our database.
 
-downloadCandlesticks :: Connection -> LookupTable -> LookupTable -> IO ()
-downloadCandlesticks conn srcs trackedCoins =
-   today                                                   >>= \tday ->
+deleteCandlesStmt :: Query
+deleteCandlesStmt = "DELETE FROM source WHERE for_day=? AND source_type_id=?"
+
+downloadCandlesticks :: Connection -> Day -> IO ()
+downloadCandlesticks conn tday =
+   lookupTable conn "source_type_lk" >>= \srcs ->
+   trackedCoins conn                 >>= \trackedCoins ->
    let ts f = traverse (sequence . f)
        candlesF = ((id *** fst) &&& fetchOCHLV tday) in
    report 0 ("Downloading and storing candlestick files.")
-            (maxOr250 conn tday trackedCoins               >>=
-             ts candlesF . Map.toList                      >>=
+            (execute conn deleteCandlesStmt (tday, cndlstks srcs) >>
+             maxOr250 conn tday trackedCoins                      >>=
+             ts candlesF . Map.toList                             >>=
              mapM_  (maybeStoreCandlestickCSVFile conn srcs tday))
 
 go :: IO ()
-go = withConnection ECOIN (\conn -> 
-        lookupTable conn "source_type_lk" >>= \srcs ->
-        trackedCoins conn                 >>=
-        downloadCandlesticks conn srcs)
+go = geaux downloadCandlesticks

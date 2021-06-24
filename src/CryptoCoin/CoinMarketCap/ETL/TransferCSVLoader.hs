@@ -17,6 +17,8 @@ import System.Environment (getEnv)
 import Control.Map (snarf)
 import Control.Scan.CSV
 
+import CryptoCoin.CoinMarketCap.Utils (geaux)
+
 import Data.CryptoCurrency.Types.Transfer
 import Data.CryptoCurrency.Types.Transfers.Context
 import Data.CryptoCurrency.Utils (report, plural)
@@ -81,7 +83,7 @@ each portfolio's cash reserve.
 --}
 
 go :: IO ()
-go = today >>= withConnection ECOIN . flip storeTransfersAndUpdatePortfoliiCSV
+go = geaux storeTransfersAndUpdatePortfoliiCSV
 
 storeTransfersAndUpdatePortfoliiCSV :: Connection -> Day -> IO ()
 storeTransfersAndUpdatePortfoliiCSV conn date =

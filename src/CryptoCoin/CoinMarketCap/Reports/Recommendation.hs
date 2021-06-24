@@ -291,8 +291,10 @@ tlb tlas (row -> Rekt _ src _) = tupII <$> Map.lookup src tlas
 tupII :: IndicatorInfo -> (String, FilePath)
 tupII (II tla url) = (tla, url)
 
+collateRecsAndReport :: Connection -> Day -> IO ()
+collateRecsAndReport conn date =
+   collateRecommendations conn date >>= csvReport date "recommendation" thdr
+
 go :: IO ()
 go = withConnection ECOIN (\conn -> 
-        latest conn "recommendation" "for_date" >>= \tday ->
-        collateRecommendations conn tday        >>=
-        csvReport tday "recommendation" thdr)
+        latest conn "recommendation" "for_date" >>= collateRecsAndReport conn)
