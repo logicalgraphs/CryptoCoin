@@ -88,6 +88,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* BUG: portfolio need to use call_id SELL to REMOVE coins (currently ADD coins)
+
 * tracked-coins should now take cmc_ids because of 2x MIR and LUNA, smh
 
 * add error message for listing files that didn't load
