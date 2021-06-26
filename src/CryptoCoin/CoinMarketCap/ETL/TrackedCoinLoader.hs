@@ -3,7 +3,7 @@
 module CryptoCoin.CoinMarketCap.ETL.TrackedCoinLoader where
 
 {--
-Okay, rewrite:
+Okay, (re)rewrite:
 
 * We need to load what we have in tracked coins data table.
 * We need to load the infos from csv files
@@ -14,46 +14,48 @@ Okay, rewrite:
 That's what we need to do.
 --}
 
-import Control.Arrow ((&&&))
-
-import qualified Data.ByteString.Char8 as B
+{--
 
 import Data.Char (toUpper)
 
 import Data.Map (Map)
-import qualified Data.Map as Map
 
 import Data.Maybe (mapMaybe)
 
 import Data.Set (Set)
 import qualified Data.Set as Set
 
-import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromRow
-import Database.PostgreSQL.Simple.Types (Query(Query))
 
 import System.Environment (getEnv)
+
+import Data.CryptoCurrency.Utils (filesAtDir, report)
+
+import Store.SQL.Connection (withConnection, Database(ECOIN))
+import Store.SQL.Util.Pivots (Pivot(Pvt))
+--}
+
+import Control.Arrow ((&&&))
+
+import qualified Data.ByteString.Char8 as B
+import qualified Data.Map as Map
+
+import Database.PostgreSQL.Simple
+import Database.PostgreSQL.Simple.Types (Query(Query))
 
 import Control.Logic.Frege ((<<-))
 import Control.Scan.CSV (csv)
 
-import Data.CryptoCurrency.Utils (filesAtDir, report)
-
 import Data.CryptoCurrency.Types (Idx)
 import Data.LookupTable (LookupTable)
 
-import Store.SQL.Connection (withConnection, Database(ECOIN))
-import Store.SQL.Util.LookupTable (lookupTable, lookupTableFrom)
-import Store.SQL.Util.Pivots (Pivot(Pvt))
-
--- okay, we have a very special lookup table: this lookup table has two-valued
--- lookups: name,symbol that yields the cmc_id. This is from the coin-table
+import Store.SQL.Util.LookupTable (lookupTableFrom)
 
 coinLookupQuery :: Idx -> Query
-coinLookupQuery kind = Query . B.pack $ unwords [
-   "SELECT c.cmc_id,c.symbol FROM coin c",
-   "INNER JOIN j_tracked_coin_tracked_type j ON c.cmc_id=j.tracked_coin_id",
-   "WHERE j.tracked_type_id=", show kind]
+coinLookupQuery exId = Query . B.pack $ unlines [
+   "SELECT c.cmc_id,c.symbol FROM j_tracked_coin_tracked_type j",
+   "INNER JOIN coin c ON c.cmc_id=j.tracked_coin_id",
+   "WHERE j.tracked_type_id=" ++ show exId]
 
 coinLookup :: Connection -> Idx -> IO LookupTable
 coinLookup conn = lookupTableFrom conn . coinLookupQuery
@@ -90,11 +92,19 @@ coinLookup conn = lookupTableFrom conn . coinLookupQuery
 ...
 --}
 
--- Okay, now load in a CSV file
+{-- Okay, now load in a CSV file
 
-loadTrackedCoins :: FilePath -> IO (Set String)
+the file format is:
+
+tracked_type,cmc_id,symbol,name
+TERRA,7857,MIR,Mirror Protocol
+TERRA,7129,UST,TerraUSD
+--}
+
+loadTrackedCoins :: FilePath -> IO LookupTable
 loadTrackedCoins file =
-   Set.fromList . map (last . csv) . tail . lines <$> readFile file
+   Map.fromList . map (toTup . csv) . tail . lines <$> readFile file
+      where toTup [_portfolio, cmcId, sym, _fullName] = (sym, read cmcId)
 
 {--
 >>> dir <- (++ "/data-files/tracked-coins") <$> getEnv "CRYPTOCOIN_DIR"
@@ -109,62 +119,41 @@ insertTrackedCoinsQuery = Query . B.pack $
    unwords ["INSERT INTO j_tracked_coin_tracked_type",
             "(tracked_coin_id, tracked_type_id) VALUES (?, ?)"]
 
-diff :: Set String -> Set String -> [String]
-diff = Set.toList <<- Set.difference
-
-addTrackedCoins :: Connection -> Idx -> LookupTable -> [String] -> IO ()
-addTrackedCoins _ _ _ [] = putStrLn "Tracking no new coins."
-addTrackedCoins conn exchId allCoinz syms =
-   let newIds = mapMaybe (flip Map.lookup allCoinz) syms  -- *
-       ids = zipWith Pvt newIds (repeat exchId)
-   in  report 2 ("Adding new tracked coins: " ++ show syms) $
+addTrackedCoins :: Connection -> Idx -> [(Symbol, Idx)] -> IO ()
+addTrackedCoins _ _ [] = putStrLn "Tracking no new coins."
+addTrackedCoins conn exchId newIds =
+   let ids = zipWith Pvt (map snd newIds) (repeat exchId)
+   in  report 2 ("Adding new tracked coins: " ++ show (map fst syms)) $
               executeMany conn insertTrackedCoinsQuery ids
-
--- * We're going to pretend, for now, that there is one symbol per coin, smh.
 
 -- the coins that are the difference the other way are the coins removed from
 -- being tracked
 
 deleteTrackedCoinsQuery :: Query
-deleteTrackedCoinsQuery = Query . B.pack $ unwords [
+deleteTrackedCoinsQuery = Query . B.pack $ unlines [
    "DELETE FROM j_tracked_coin_tracked_type",
    "WHERE tracked_coin_id IN ? AND tracked_type_id=?"]
 
-deleteTrackedCoins :: Connection -> Idx -> LookupTable -> [String] -> IO ()
-deleteTrackedCoins _ _ _ [] = putStrLn "Not untracking any coins."
-deleteTrackedCoins conn exchId dbktz deletes =
+deleteTrackedCoins :: Connection -> Idx -> [(Symbol, Idx)] -> IO ()
+deleteTrackedCoins _ _ [] = putStrLn "Not untracking any coins."
+deleteTrackedCoins conn exchId deletes =
    let ids = mapMaybe (flip Map.lookup dbktz) deletes
-   in  report 2 ("Removing coins from being tracked: " ++ show deletes) $
-       execute conn deleteTrackedCoinsQuery (In ids, exchId)
+   in report 2 ("Removing coins from being tracked: " ++ show (map fst deletes))
+           $ execute conn deleteTrackedCoinsQuery (In $ map snd deletes, exchId)
 
 -- so, now we have all the pieces. Let's assemble them.
 
-allCoinsQuery :: Query
-allCoinsQuery = "SELECT cmc_id,symbol FROM coin"
+diff :: LookupTable -> LookupTable -> [(Symbol, Idx)]
+diff = Map.toList <<- Map.difference
 
-allCoins :: Connection -> IO LookupTable
-allCoins = flip lookupTableFrom allCoinsQuery
-
-{--
->>> withConnection ECOIN (\conn -> allCoins conn >>=
-                                   mapM_ print . take 5 . Map.toList)
-("$ANRX",8057)
-("$BASED",6570)
-("$COIN",7796)
-("$KING",7569)
-("$NOOB",7646)
---}
-
-uploadCoinCSV :: LookupTable -> FilePath -> FilePath -> Connection -> Idx
-              -> IO ()
-uploadCoinCSV allCoins dir file conn typ =
+uploadCoinCSV :: FilePath -> FilePath -> Connection -> Idx -> IO ()
+uploadCoinCSV dir file conn exId =
    let fileName = dir ++ ('/':file) in
    loadTrackedCoins fileName                            >>= \fileCoins ->
-   coinLookup conn typ                                  >>= \dbCoins   ->
-   let mksDbCoins = Map.keysSet dbCoins in
-   putStrLn ("For " ++ file ++ ":")                              >>
-   addTrackedCoins conn typ allCoins (diff fileCoins mksDbCoins) >>
-   deleteTrackedCoins conn typ dbCoins (diff mksDbCoins fileCoins)
+   coinLookup conn exId                                 >>= \dbCoins   ->
+   report 0 ("For " ++ file ++ ":")
+          (addTrackedCoins conn exId (diff fileCoins mksDbCoins) >>
+           deleteTrackedCoins conn typ dbCoins (diff mksDbCoins fileCoins))
 
 trackedCoinsQuery :: Query
 trackedCoinsQuery = "SELECT tracked_type_id, tracked_type FROM tracked_type_lk"

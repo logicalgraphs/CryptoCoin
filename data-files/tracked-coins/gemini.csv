@@ -1,46 +1,46 @@
-coin,symbol
-Bitcoin,BTC
-Ether,ETH
-Dogecoin,DOGE
-Uniswap,UNI
-Litecoin,LTC
-Chainlink,LINK
-Bitcoin Cash,BCH
-Filecoin,FIL
-Aave,AAVE
-Dai,DAI
-Enjin Coin,ENJ
-Synthetix,SNX
-Fantom,FTM
-Maker,MKR
-The Graph,GRT
-SushiSwap,SUSHI
-Polygon,MATIC
-Compound,COMP
-Basic Attention Token,BAT
-Zcash,ZEC
-Decentraland,MANA
-Uma,UMA
-Bancor Network,BNT
-Yearn.finance,YFI
-0x,ZRX
-ANKR Network,ANKR
-Ren,REN
-Curve,CRV
-Livepeer,LPT
-Loopring,LRC
-1inch,1INCH
-Kyber Network,KNC
-Mirror Protocol,MIR
-Skale,SKL
-The Sandbox,SAND
-Storj,STORJ
-Alchemix,ALCX
-Balancer,BAL
-Orchid,OXT
-Amp,AMP
-Injective Protocol,INJ
-Gemini dollar,GUSD
-PAX Gold,PAXG
-BarnBridge,BOND
-Somnium Space,CUBE
+tracked_type,cmc_id,symbol,name
+GEMINI,8104,1INCH,1inch
+GEMINI,7278,AAVE,Aave
+GEMINI,8613,ALCX,Alchemix
+GEMINI,6945,AMP,Amp
+GEMINI,3783,ANKR,Ankr
+GEMINI,5728,BAL,Balancer
+GEMINI,1697,BAT,Basic Attention Token
+GEMINI,1831,BCH,Bitcoin Cash
+GEMINI,1727,BNT,Bancor
+GEMINI,7500,BOND,Bonded Finance
+GEMINI,1,BTC,Bitcoin
+GEMINI,5692,COMP,Compound
+GEMINI,6538,CRV,Curve DAO Token
+GEMINI,5338,CUBE,Somnium Space Cubes
+GEMINI,4943,DAI,Dai
+GEMINI,74,DOGE,Dogecoin
+GEMINI,2130,ENJ,Enjin Coin
+GEMINI,1027,ETH,Ethereum
+GEMINI,2280,FIL,Filecoin
+GEMINI,9990,FTM,Fitmin Finance
+GEMINI,6719,GRT,The Graph
+GEMINI,3306,GUSD,Gemini Dollar
+GEMINI,7226,INJ,Injective Protocol
+GEMINI,1982,KNC,Kyber Network
+GEMINI,1975,LINK,Chainlink
+GEMINI,3640,LPT,Livepeer
+GEMINI,1934,LRC,Loopring
+GEMINI,2,LTC,Litecoin
+GEMINI,1966,MANA,Decentraland
+GEMINI,3890,MATIC,Polygon
+GEMINI,7857,MIR,Mirror Protocol
+GEMINI,1518,MKR,Maker
+GEMINI,5026,OXT,Orchid
+GEMINI,4705,PAXG,PAX Gold
+GEMINI,2539,REN,Ren
+GEMINI,6210,SAND,The Sandbox
+GEMINI,5691,SKL,SKALE Network
+GEMINI,2586,SNX,Synthetix
+GEMINI,1772,STORJ,Storj
+GEMINI,6758,SUSHI,SushiSwap
+GEMINI,5617,UMA,UMA
+GEMINI,7083,UNI,Uniswap
+GEMINI,5864,YFI,yearn.finance
+GEMINI,1437,ZEC,Zcash
+GEMINI,1896,ZRX,0x
