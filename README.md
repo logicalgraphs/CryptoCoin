@@ -88,6 +88,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* tracked-coins should now take cmc_ids because of 2x MIR and LUNA, smh
+
 * add error message for listing files that didn't load
 
 * write a comparison of recommendations from yesterday: how did they do today?
