@@ -42,6 +42,10 @@ import Store.SQL.Util.LookupTable (lookupTableFrom)
 data Call = BUY | SELL
    deriving (Eq, Ord, Show, Read)
 
+dir :: Call -> Double
+dir BUY = 1
+dir SELL = (-1)
+
 data Source = Pat Pattern | Ind Indicator
    deriving (Eq, Ord, Show)
 

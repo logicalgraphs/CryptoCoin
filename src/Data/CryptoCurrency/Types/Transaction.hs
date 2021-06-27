@@ -52,10 +52,10 @@ data Transaction = Transaction Symbol Day USD USD Double Call String
    deriving (Eq, Ord, Show)
 
 ncoins :: Transaction -> Double
-ncoins (Transaction _ _ _ _ n _ _) = n
+ncoins (Transaction _ _ _ _ n c _) = n * dir c
 
 spent :: Transaction -> USD
-spent (Transaction _ _ s _ _ _ _) = s
+spent (Transaction _ _ (USD s) _ _ c _) = USD $ s * toRational (dir c)
 
 type StoreTransactionsF =
    Connection -> TransactionContext -> [Transaction] -> IO ()
