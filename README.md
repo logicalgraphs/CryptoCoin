@@ -90,8 +90,6 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 * BUG: portfolio need to use call_id SELL to REMOVE coins (currently ADD coins)
 
-* tracked-coins should now take cmc_ids because of 2x MIR and LUNA, smh; DONE
-
 * add error message for listing files that didn't load
 
 * write a comparison of recommendations from yesterday: how did they do today?
@@ -142,6 +140,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-06-26: Tracking coins now via cmc_id
 * 2021-06-24: Rearranged the ETL (load-part) and prefiltered file before 
   parsing it to JSON
 * 2021-06-10: Corrected issue with multiple transactions not being recorded.
