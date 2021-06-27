@@ -15,9 +15,6 @@ That's what we need to do.
 --}
 
 {--
-
-import Data.Char (toUpper)
-
 import Data.Map (Map)
 
 import Data.Maybe (mapMaybe)
@@ -26,30 +23,29 @@ import Data.Set (Set)
 import qualified Data.Set as Set
 
 import Database.PostgreSQL.Simple.FromRow
-
-import System.Environment (getEnv)
-
-import Data.CryptoCurrency.Utils (filesAtDir, report)
-
-import Store.SQL.Connection (withConnection, Database(ECOIN))
-import Store.SQL.Util.Pivots (Pivot(Pvt))
 --}
 
 import Control.Arrow ((&&&))
 
 import qualified Data.ByteString.Char8 as B
+import Data.Char (toUpper)
 import qualified Data.Map as Map
 
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.Types (Query(Query))
 
+import System.Environment (getEnv)
+
 import Control.Logic.Frege ((<<-))
 import Control.Scan.CSV (csv)
 
-import Data.CryptoCurrency.Types (Idx)
+import Data.CryptoCurrency.Types (Idx, Symbol)
+import Data.CryptoCurrency.Utils (filesAtDir, report)
 import Data.LookupTable (LookupTable)
 
+import Store.SQL.Connection (withConnection, Database(ECOIN))
 import Store.SQL.Util.LookupTable (lookupTableFrom)
+import Store.SQL.Util.Pivots (Pivot(Pvt))
 
 coinLookupQuery :: Idx -> Query
 coinLookupQuery exId = Query . B.pack $ unlines [
@@ -104,7 +100,7 @@ TERRA,7129,UST,TerraUSD
 loadTrackedCoins :: FilePath -> IO LookupTable
 loadTrackedCoins file =
    Map.fromList . map (toTup . csv) . tail . lines <$> readFile file
-      where toTup [_portfolio, cmcId, sym, _fullName] = (sym, read cmcId)
+      where toTup (_portfolio:cmcId:sym:_fullNameRest) = (sym, read cmcId)
 
 {--
 >>> dir <- (++ "/data-files/tracked-coins") <$> getEnv "CRYPTOCOIN_DIR"
@@ -121,9 +117,9 @@ insertTrackedCoinsQuery = Query . B.pack $
 
 addTrackedCoins :: Connection -> Idx -> [(Symbol, Idx)] -> IO ()
 addTrackedCoins _ _ [] = putStrLn "Tracking no new coins."
-addTrackedCoins conn exchId newIds =
-   let ids = zipWith Pvt (map snd newIds) (repeat exchId)
-   in  report 2 ("Adding new tracked coins: " ++ show (map fst syms)) $
+addTrackedCoins conn exchId adds =
+   let ids = zipWith Pvt (map snd adds) (repeat exchId)
+   in  report 2 ("Adding new tracked coins: " ++ show (map fst adds)) $
               executeMany conn insertTrackedCoinsQuery ids
 
 -- the coins that are the difference the other way are the coins removed from
@@ -137,9 +133,8 @@ deleteTrackedCoinsQuery = Query . B.pack $ unlines [
 deleteTrackedCoins :: Connection -> Idx -> [(Symbol, Idx)] -> IO ()
 deleteTrackedCoins _ _ [] = putStrLn "Not untracking any coins."
 deleteTrackedCoins conn exchId deletes =
-   let ids = mapMaybe (flip Map.lookup dbktz) deletes
-   in report 2 ("Removing coins from being tracked: " ++ show (map fst deletes))
-           $ execute conn deleteTrackedCoinsQuery (In $ map snd deletes, exchId)
+   report 2 ("Removing coins from being tracked: " ++ show (map fst deletes))
+          $ execute conn deleteTrackedCoinsQuery (In $ map snd deletes, exchId)
 
 -- so, now we have all the pieces. Let's assemble them.
 
@@ -152,8 +147,8 @@ uploadCoinCSV dir file conn exId =
    loadTrackedCoins fileName                            >>= \fileCoins ->
    coinLookup conn exId                                 >>= \dbCoins   ->
    report 0 ("For " ++ file ++ ":")
-          (addTrackedCoins conn exId (diff fileCoins mksDbCoins) >>
-           deleteTrackedCoins conn typ dbCoins (diff mksDbCoins fileCoins))
+          (addTrackedCoins conn exId (diff fileCoins dbCoins) >>
+           deleteTrackedCoins conn exId (diff dbCoins fileCoins))
 
 trackedCoinsQuery :: Query
 trackedCoinsQuery = "SELECT tracked_type_id, tracked_type FROM tracked_type_lk"
@@ -161,11 +156,10 @@ trackedCoinsQuery = "SELECT tracked_type_id, tracked_type FROM tracked_type_lk"
 uploadTrackedCoinsFromCSVs :: Connection -> IO ()
 uploadTrackedCoinsFromCSVs conn =
    getEnv "CRYPTOCOIN_DIR"                >>= \cryptDir ->
-   allCoins conn                          >>= \allCoinz ->
    lookupTableFrom conn trackedCoinsQuery >>= \types ->
    let dir = cryptDir ++ "/data-files/tracked-coins"
-       uploader file = uploadCoinCSV allCoinz dir file conn (typeFrom file)
        typeFrom f = types Map.! map toUpper (fst (break (== '.') f))
+       uploader file = uploadCoinCSV dir file conn (typeFrom file)
    in  filesAtDir [".csv"] dir >>= mapM_ uploader
 
 go :: IO ()
