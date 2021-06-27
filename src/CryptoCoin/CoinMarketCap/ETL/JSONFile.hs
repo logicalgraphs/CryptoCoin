@@ -4,20 +4,19 @@ module CryptoCoin.CoinMarketCap.ETL.JSONFile where
 
 -- types shared across the ETL codebase.
 
+import Control.Monad (filterM)
+
+import Data.Aeson
+import qualified Data.ByteString.Lazy.Char8 as BL
+import Data.Either (rights)
+import qualified Data.Map as Map
+
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromRow
 
-import Data.Aeson
-
-import qualified Data.ByteString.Lazy.Char8 as BL
-
-import Data.Either (rights)
-
-import qualified Data.Map as Map
+import CryptoCoin.CoinMarketCap.Types
 
 import Data.LookupTable
-
-import CryptoCoin.CoinMarketCap.Types
 
 import Store.SQL.Connection
 import Store.SQL.Util.Indexed
@@ -49,7 +48,13 @@ extractJSON' :: String -> Connection -> LookupTable -> IO [(Int, IxValOrErr)]
 extractJSON' lk conn srcs = zip [1..] <$> extractJSON lk conn srcs
 
 extractListings :: Connection -> LookupTable -> IO [IxValue MetaData]
-extractListings conn lk = rights . map snd <$> extractJSON' "LISTING" conn lk
+extractListings conn lk =
+   rights . map snd <$> (extractJSON' "LISTING" conn lk >>= filterM accumJSON)
+
+accumJSON :: (Int, IxValOrErr) -> IO Bool
+accumJSON (ix, Left err) =
+   putStrLn ("For file " ++ show ix ++ ": " ++ err) >> return False
+accumJSON (_, Right _) = return True
 
 {--
 >>> withConnection ECOIN (\conn -> lookupTable conn "source_type_lk" >>=
