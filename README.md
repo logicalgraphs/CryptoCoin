@@ -88,9 +88,9 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* BUG: portfolio need to use call_id SELL to REMOVE coins (currently ADD coins)
+* BUG: portfolio need to use call_id SELL to REMOVE coins (currently ADD coins): FIXED
 
-* add error message for listing files that didn't load
+* add error message for listing files that didn't load; DONE.
 
 * write a comparison of recommendations from yesterday: how did they do today?
 
