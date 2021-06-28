@@ -89,5 +89,5 @@ storeTransfersAndUpdatePortfoliiCSV :: Connection -> Day -> IO ()
 storeTransfersAndUpdatePortfoliiCSV conn date =
    getEnv "CRYPTOCOIN_DIR"                                      >>= \ccd ->
    let dataDir = ccd ++ "/data-files/transfers/" ++ show date in
-   readTransfers (dataDir ++ "/transfers.csv")                  >>=
+   readTransfers (dataDir ++ "/cash.csv")                       >>=
    storeTransfersAndUpdatePortfolii conn
