@@ -89,6 +89,7 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 ## TODOs:
 
 * write a comparison of recommendations from yesterday: how did they do today?
+  This we call a day-after results report. It's a new thing.
 
 * add a transfer protocol for coins (instead of dollars)
 
