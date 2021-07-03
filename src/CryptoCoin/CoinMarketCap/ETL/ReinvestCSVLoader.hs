@@ -25,13 +25,13 @@ import System.Directory (doesFileExist)
 import System.Environment (getEnv)
 
 import Control.Scan.CSV (csv, readMaybe)
+import CryptoCoin.CoinMarketCap.Utils (geaux)
 import Data.CryptoCurrency.Types.Recommendation (Call(BUY))
 import Data.CryptoCurrency.Types.Transaction
 import Data.CryptoCurrency.Types.Transactions.Context
 import Data.CryptoCurrency.Utils (report, plural)
 
 import Data.Monetary.USD
-import Data.Time.TimeSeries (today)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN), connectInfo)
 
@@ -78,7 +78,7 @@ and are named reinvested.csv
 --}
 
 go :: IO ()
-go = today >>= withConnection ECOIN . flip addAllStakes
+go = geaux addAllStakes
 
 addAllStakes :: Connection -> Day -> IO ()
 addAllStakes conn date =
