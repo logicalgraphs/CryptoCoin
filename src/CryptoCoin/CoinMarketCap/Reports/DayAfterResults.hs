@@ -3,10 +3,12 @@
 module CryptoCoin.CoinMarketCap.Reports.DayAfterResults where
 
 import qualified Data.ByteString.Char8 as B
-import Data.Time (Day)
+import Data.Time (Day, addDays)
 
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromRow
+import Database.PostgreSQL.Simple.ToField
+import Database.PostgreSQL.Simple.ToRow
 import Database.PostgreSQL.Simple.Types (Query(Query))
 
 import Control.Presentation (Univ, explode)
@@ -39,6 +41,11 @@ data Result = Result { cmcId :: Idx, sym    :: String,
                        yestPrice, tdayPrice :: USD }
    deriving (Eq, Ord, Show)
 
+data ResultInput = RI Day Day
+
+instance ToRow ResultInput where
+   toRow (RI t y) = [toField t, toField y, toField y]
+
 instance Rank Result where
    rank = yestRank
 
@@ -59,7 +66,9 @@ instance FromRow Result where
                                         <*> field <*> field
 
 allResults :: Connection -> Day -> IO [Result]
-allResults conn tday = undefined
+allResults conn tday =
+   let yest = addDays (-1) tday in
+   query conn allRecsQuery (RI tday yest)
 
 allResultsAndReport :: Connection -> Day -> IO ()
 allResultsAndReport conn date =

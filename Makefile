@@ -31,7 +31,8 @@ PROGRAMS=$(COIN_MARKET_CAP_DIR)/ETL/Candlesticks/Loader.hs \
          $(COIN_MARKET_CAP_DIR)/Analytics/Trends/Trend.hs \
          $(COIN_MARKET_CAP_DIR)/Reports/Portfolio.hs \
          $(COIN_MARKET_CAP_DIR)/Reports/Recommendation.hs \
-         $(COIN_MARKET_CAP_DIR)/Reports/Transaction.hs
+         $(COIN_MARKET_CAP_DIR)/Reports/Transaction.hs \
+         $(COIN_MARKET_CAP_DIR)/Reports/DayAfterResults.hs
 
 # ----- ONE-OFFS ---------------------------------------------------------
 
@@ -116,11 +117,15 @@ $(TREND_PATTERNS): $(TREND_PROCESSOR) FORCE
 	$(TREND_PATTERNS)
 
 RECOMMENDATION_REPORT=$(SCRIPTS_DIR)/run-report-recommendations.exp
+RESULTS_REPORT=$(SCRIPTS_DIR)/run-report-results.exp
 
-reports: recommendations
+reports: recommendations results
 	@echo "Ran the reports"
 
 recommendations: $(RECOMMENDATION_REPORT)
+	true
+
+results: $(RESULTS_REPORT)
 	true
 
 REC_REPORT_DEPENDS=$(COIN_PROCESSOR) \
@@ -129,5 +134,8 @@ REC_REPORT_DEPENDS=$(COIN_PROCESSOR) \
 
 $(RECOMMENDATION_REPORT): $(REC_REPORT_DEPENDS) FORCE
 	$(RECOMMENDATION_REPORT)
+
+$(RESULTS_REPORT): FORCE
+	$(RESULTS_REPORT)
 
 FORCE:
