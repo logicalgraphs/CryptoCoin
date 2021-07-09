@@ -31,8 +31,8 @@ allRecsQuery = Query . B.pack $ unlines [
    "from coin_market_cap_daily_listing a",
    "inner join coin_market_cap_daily_listing b on a.cmc_id=b.cmc_id",
    "inner join coin c on c.cmc_id=b.cmc_id",
-   "where a.for_date = ? and b.for_date= ?",
-   "and a.cmc_id in (select cmc_id from recommendation where for_date=?)",
+   "inner join recommendation r on r.cmc_id=b.cmc_id",
+   "where a.for_date = ? and b.for_date= ? and r.for_date=?",
    "order by b.rank"]
 
 data Result = Result { cmcId :: Idx, sym    :: String,
