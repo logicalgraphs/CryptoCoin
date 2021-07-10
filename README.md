@@ -88,11 +88,6 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* write a comparison of recommendations from yesterday: how did they do today?
-  This we call a day-after results report. It's a new thing. DONE, ... but:
-  * add call: BUY / SELL / EH to yesterday's recommendation for a currency: DONE
-  * improve the query with an inner join to replace the inner select: DONE
-
 * add a transfer protocol for coins (instead of dollars)
 
 * We need to know the best (lowest) average price on a BUY recommendation and
