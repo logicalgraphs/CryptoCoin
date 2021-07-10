@@ -1,67 +1,68 @@
-coin,symbol,cmc_id
-Ox,ZRX
-1inch,1INCH
-Aave,AAVE
-Algorand,ALGO
-Ampleforth Governance Token,FORTH
-Ankr,ANKR
-Augur,REP
-Balancer,BAL
-Bancor Network Token,BNT
-Band Protocol,BAND
-Basic Attention Token,BAT
-Bitcoin,BTC
-Bitcoin Cash,BCH
-Cardano,ADA
-Cartesi,CTSI
-Celo,CGLD
-Chainlink,LINK
-Chiliz,CHZ
-Civic,CVC
-Compound,COMP
-Cosmos,ATOM
-Curve DAO Token,CRV
-Dai,DAI
-Dash,DASH
-Decentraland,MANA
-districtOx,DNT
-Dogecoin,DOGE
-Enjin Coin,ENJ
-EOS,EOS
-Ethereum,ETH
-Ethereum Classic,ETC
-Filecoin,FIL
-iExec RLC,RLC
-Internet Computer,ICP
-KEEP Network,KEEP
-Kyber Network,KNC
-Litecoin,LTC
-Loopring,LRC
-Maker,MKR
-Mirror Protocol,MIR
-NKN,NKN
-NuCypher,NU
-Numeraire,NMR
-OMG Network,OMG
-Orchid,OXT
-Origin Protocol,OGN
-Polkadot,DOT
-Polygon,MATIC
-Ren,REN
-REPv2,REPV2
-SKALE,SKL
-Solana,SOL
-Stellar Lumens,XLM
-Storj,STORJ
-SushiSwap,SUSHI
-Synthetix Network Token,SNX
-Tellor,TRB
-Tether,USDT
-Tezos,XTZ
-The Graph,GRT
-UMA,UMA
-Uniswap,UNI
-USD Coin,USDC
-Wrapped Bitcoin,WBTC
-yearn.finance,YFI
-Zcash,ZEC
+tracked_type,cmc_id,symbol,name
+COINBASE,8104,1INCH,1inch
+COINBASE,7278,AAVE,Aave
+COINBASE,2010,ADA,Cardano
+COINBASE,4030,ALGO,Algorand
+COINBASE,3783,ANKR,Ankr
+COINBASE,3794,ATOM,Cosmos
+COINBASE,5728,BAL,Balancer
+COINBASE,4679,BAND,Band Protocol
+COINBASE,1697,BAT,Basic Attention Token
+COINBASE,1831,BCH,Bitcoin Cash
+COINBASE,1727,BNT,Bancor
+COINBASE,7440,BOND,BarnBridge
+COINBASE,1,BTC,Bitcoin
+COINBASE,4066,CHZ,Chiliz
+COINBASE,5692,COMP,Compound
+COINBASE,6538,CRV,Curve DAO Token
+COINBASE,5444,CTSI,Cartesi
+COINBASE,1816,CVC,Civic
+COINBASE,4943,DAI,Dai
+COINBASE,131,DASH,Dash
+COINBASE,1856,DNT,district0x
+COINBASE,74,DOGE,Dogecoin
+COINBASE,6636,DOT,Polkadot
+COINBASE,2130,ENJ,Enjin Coin
+COINBASE,1765,EOS,EOS
+COINBASE,1321,ETC,Ethereum Classic
+COINBASE,1027,ETH,Ethereum
+COINBASE,2280,FIL,Filecoin
+COINBASE,9421,FORTH,Ampleforth Governance Token
+COINBASE,6719,GRT,The Graph
+COINBASE,10052,GTC,Gitcoin
+COINBASE,8916,ICP,Internet Computer
+COINBASE,5566,KEEP,Keep Network
+COINBASE,1982,KNC,Kyber Network
+COINBASE,1975,LINK,Chainlink
+COINBASE,1934,LRC,Loopring
+COINBASE,2,LTC,Litecoin
+COINBASE,1966,MANA,Decentraland
+COINBASE,3890,MATIC,Polygon
+COINBASE,7857,MIR,Mirror Protocol
+COINBASE,1518,MKR,Maker
+COINBASE,1552,MLN,Enzyme
+COINBASE,2780,NKN,NKN
+COINBASE,1732,NMR,Numeraire
+COINBASE,4761,NU,NuCypher
+COINBASE,5117,OGN,Origin Protocol
+COINBASE,1808,OMG,OMG Network
+COINBASE,5026,OXT,Orchid
+COINBASE,2539,REN,Ren
+COINBASE,1104,REP,Augur
+COINBASE,1637,RLC,iExec RLC
+COINBASE,5691,SKL,SKALE Network
+COINBASE,2586,SNX,Synthetix
+COINBASE,5426,SOL,Solana
+COINBASE,1772,STORJ,Storj
+COINBASE,6758,SUSHI,SushiSwap
+COINBASE,4944,TRB,Tellor
+COINBASE,5617,UMA,UMA
+COINBASE,7083,UNI,Uniswap
+COINBASE,3408,USDC,USD Coin
+COINBASE,825,USDT,Tether
+COINBASE,3717,WBTC,Wrapped Bitcoin
+COINBASE,512,XLM,Stellar
+COINBASE,2011,XTZ,Tezos
+COINBASE,5864,YFI,yearn.finance
+COINBASE,1437,ZEC,Zcash
+COINBASE,1896,ZRX,0x

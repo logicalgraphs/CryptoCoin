@@ -7,6 +7,14 @@ module CryptoCoin.CoinMarketCap.Reports.Recommendation where
 {--
 We extract the recommendations from the data-store and report them out
 (in a nice format, obvs).
+
+Upgrade 1.1: what is our basis?
+
+Find me: 
+
+1. yesterday's price, OR
+2. The lowest average in a portfolio for a buy recommendation, OR
+3. The highest average in a portfolio for a sell recommendation.
 --}
 
 import Control.Arrow ((&&&))
@@ -217,6 +225,8 @@ data RecRow = RR { coin :: IxRowCoin,
 instance Rank RecRow where
    rank = rank . row . coin
 
+instance Indexed RecRow where idx = idx . coin
+
 type BuySell = (Set Recommendation, Set Recommendation)
 
 buySell :: Set Recommendation -> BuySell
@@ -268,7 +278,7 @@ RR {coin = IxRow 1437 2021-04-20 (CoinRow "ZEC" "Zcash" $230.94 50),
 --}
 
 thdr :: [String]
-thdr = words "ID symbol name price rank buys sells exchanges"
+thdr = words "ID symbol name price rank buys sells exchanges comparison"
 
 pipe :: Foldable t => (a -> Maybe String) -> t a -> String
 pipe f = intercalate "|" . mapMaybe f . toList
@@ -289,8 +299,10 @@ tlb tlas (row -> Rekt _ src _) = tupII <$> Map.lookup src tlas
 tupII :: IndicatorInfo -> (String, FilePath)
 tupII (II tla url) = (tla, url)
 
+collateRecsAndReport :: Connection -> Day -> IO ()
+collateRecsAndReport conn date =
+   collateRecommendations conn date >>= csvReport date "recommendation" thdr
+
 go :: IO ()
 go = withConnection ECOIN (\conn -> 
-        latest conn "recommendation" "for_date" >>= \tday ->
-        collateRecommendations conn tday        >>=
-        csvReport tday "recommendation" thdr)
+        latest conn "recommendation" "for_date" >>= collateRecsAndReport conn)

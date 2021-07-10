@@ -23,6 +23,7 @@ import Data.Time (Day, addDays)
 
 import Database.PostgreSQL.Simple
 
+import Control.Logic.Frege ((-|))
 import Control.Presentation hiding (S)
 import CryptoCoin.CoinMarketCap.Reports.Table hiding (ecoin)
 import CryptoCoin.CoinMarketCap.Types
@@ -79,13 +80,16 @@ toHolding :: Foldable t => Listings -> Idx -> t Transaction -> Maybe Holding
 toHolding listings ix transes = 
    Map.lookup ix listings >>= \listing ->
    quote listing          >>= \quot ->
-   return (buildHolding (coin listing) (price quot) transes)
+   buildHolding (coin listing) (price quot) transes
 
-buildHolding :: Foldable t => ECoin -> Double -> t Transaction -> Holding
+buildHolding :: Foldable t => ECoin -> Double -> t Transaction -> Maybe Holding
 buildHolding coin pric transes =
    let coins    = sumOver ncoins transes
        invested = sumOver spent transes
-   in  Holding coin coins invested (USD (toRational pric))
+       ur = USD . toRational
+       currPrice = ur pric
+       stake = ur (coins * pric)
+   in  stake > USD 1 -| Holding coin coins invested currPrice
 
 sumOver :: Foldable t => Num b => (a -> b) -> t a -> b
 sumOver f = sum . map f . toList

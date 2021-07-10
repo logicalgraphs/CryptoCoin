@@ -9,7 +9,7 @@ to generate buy/sell/hold recommendations.
 --}
 
 import Control.Arrow (second, (&&&))
-import Control.Monad (liftM)
+import Control.Monad (void)
 
 import qualified Data.ByteString.Char8 as B
 
@@ -28,6 +28,7 @@ import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeBlackCrows (tbc)
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.AbandonedBaby (ab)
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.EveningStar (es)
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
+import CryptoCoin.CoinMarketCap.Utils (geaux)
 
 import Data.CryptoCurrency.Types
 import Data.CryptoCurrency.Types.OCHLV
@@ -81,16 +82,13 @@ candlesAll conn trackedCoins =
 toRec :: Day -> (Idx, (Pattern, Rec')) -> Recommendation
 toRec d (i, (pat, (Rec c p))) = IxRow i d (Rekt c (Pat pat) (Just p))
 
-computeAndStoreCandlestickRecommendations ::
-   Connection -> Day -> LookupTable -> LookupTable -> LookupTable -> IO ()
-computeAndStoreCandlestickRecommendations conn tday trackedCoins callLk indLk =
-   candlesAll conn trackedCoins >>=
+computeAndStoreCandlestickRecommendations :: Connection -> Day -> IO ()
+computeAndStoreCandlestickRecommendations conn tday =
+   lookupTable conn "call_lk"   >>= \callLk ->
+   lookupInds conn              >>= \indLk ->
+   trackedCoins conn            >>=
+   candlesAll conn              >>=
    insertRecommendations conn callLk indLk . map (toRec tday)
 
 go :: IO ()
-go = today >>= \tday ->
-   withConnection ECOIN (\conn ->
-      trackedCoins conn             >>= \tcs ->
-      lookupTable conn "call_lk"    >>= \callLk ->
-      lookupInds conn               >>=
-      computeAndStoreCandlestickRecommendations conn tday tcs callLk)
+go = geaux computeAndStoreCandlestickRecommendations

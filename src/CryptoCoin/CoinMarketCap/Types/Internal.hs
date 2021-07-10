@@ -39,8 +39,8 @@ instance FromJSON CoinRef' where
 
 data Listing' =
    Listing' Integer String String String
-            Integer String Double Double (Maybe Double) [String]
-            (Maybe CoinRef') Integer
+            (Maybe Integer) String Double Double (Maybe Double) [String]
+            (Maybe CoinRef') (Maybe Integer)
             (Map String Quote)
       deriving Show
 
@@ -50,10 +50,10 @@ plat (Listing' _ _ _ _ _ _ _ _ _ _ p _ _) = p
 instance FromJSON Listing' where
    parseJSON = withObject "listing" $ \v ->
       Listing' <$> v .: "id" <*> v .: "name" <*> v .: "symbol" <*> v .: "slug"
-               <*> v .: "num_market_pairs" <*> v .: "date_added"
+               <*> v .:? "num_market_pairs" <*> v .: "date_added"
                <*> v .: "circulating_supply" <*> v .: "total_supply"
                <*> v .:? "max_supply" <*> v .: "tags" <*> v .:? "platform"
-               <*> v .: "cmc_rank" <*> v .: "quote"
+               <*> v .:? "cmc_rank" <*> v .: "quote"
 
 sample :: String -> IO ByteString
 sample thing =
@@ -63,7 +63,7 @@ sample thing =
 -- and the database-side ---------------------------------------------
 
 data ListingDB =
-   ListingDB Integer (Maybe Double) Double Double Integer Quote
+   ListingDB (Maybe Integer) (Maybe Double) Double Double Integer Quote
       deriving (Eq, Ord, Show)
 
 instance FromRow ListingDB where

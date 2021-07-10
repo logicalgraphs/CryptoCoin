@@ -18,6 +18,7 @@ import Database.PostgreSQL.Simple.Types
 import Control.Logic.Frege ((-|))
 
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
+import CryptoCoin.CoinMarketCap.Utils (geaux)
 
 import Data.CryptoCurrency.Types (Idx, IxRow(IxRow), row)
 import Data.CryptoCurrency.Types.Recommendation
@@ -41,9 +42,9 @@ reportOn :: [Recommendation] -> IO ()
 reportOn [] = return ()
 reportOn ls@(IxRow i _ _:r) =
    let trndz = succ (length r) in
-   putStrLn (unwords ["There" ++ toBe trndz, show trndz,
-                      "trend indicator" ++ plural trndz,
-                      "for", show i])
+   putStrLn (concat ["There", toBe trndz, show trndz,
+                      " trend indicator", plural trndz,
+                      " for ", show i])
 
 patterns :: [Trend] -> [Recommendation]
 patterns [] = []
@@ -114,14 +115,16 @@ rsi30 t = const $ rsi14 (row t) >>= \rsi14t ->
 -- so we take the above patterns and run them on the tracked coins, returning
 -- a set of recommendations, which we save to the data-store.
 
+computeAndStoreRecommendations :: Connection -> Day -> IO ()
+computeAndStoreRecommendations conn date =
+   lookupInds conn                      >>= \indLk ->
+   lookupTable conn "call_lk"           >>= \callLk ->
+   trackedCoins conn                    >>=
+   mapM (buySell conn date) . Map.elems >>=
+   insertRecommendations conn callLk indLk . concat
+
 go :: IO ()
-go = today >>= \tday ->
-     withConnection ECOIN (\conn ->
-        lookupInds conn                      >>= \indLk ->
-        lookupTable conn "call_lk"           >>= \callLk ->
-        trackedCoins conn                    >>=
-        mapM (buySell conn tday) . Map.elems >>=
-        insertRecommendations conn callLk indLk . concat)
+go = geaux computeAndStoreRecommendations
 
 {--
 Here's a fun delete statement:

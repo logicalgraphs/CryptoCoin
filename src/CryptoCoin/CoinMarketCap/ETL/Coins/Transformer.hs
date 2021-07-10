@@ -27,6 +27,7 @@ import CryptoCoin.CoinMarketCap.ETL.JSONFile (extractListings)
 import CryptoCoin.CoinMarketCap.ETL.ListingLoader (insertListings)
 import CryptoCoin.CoinMarketCap.ETL.TagLoader (processTags)
 import CryptoCoin.CoinMarketCap.Types
+
 import Data.CryptoCurrency.Types (date, idx, Idx)
 import Data.CryptoCurrency.Types.Coin (allCoinIds)
 import Data.CryptoCurrency.Utils (report)
@@ -117,12 +118,20 @@ insertAllCoins conn date allCoins =
    report 0 "Inserting all new coins and tokens into new_coin table"
             (insertNewCoinsDate conn date allCoins)
 
+deleteListingsStmt :: Day -> Query
+deleteListingsStmt date = Query . B.pack $ concat [
+   "DELETE FROM coin_market_cap_daily_listing WHERE for_date='", show date, "'"]
+
+deleteListings :: Connection -> Day -> IO ()
+deleteListings conn = void . execute_ conn . deleteListingsStmt
+
 processOneListingFile :: Connection -> Set Idx -> IxValue MetaData
                       -> IO (Set Idx)
 processOneListingFile conn coinz i@(IxV _ md) =
    let nc = newCoins md coinz in
    putStrLn ("\n\nFor listing file " ++ show (date md) ++ ":") >>
    insertAllCoins conn (date md) nc                            >>
+   deleteListings conn (date md)                               >>
    insertListings conn i                                       >>
    processTags conn i                                          >>
    return (Set.union coinz (Set.fromList (map idx nc)))
@@ -137,15 +146,14 @@ setProcessed conn srcs =
            (True, srcs Map.! "LISTING") >>
    putStrLn "Set all listings files as processed."
 
-processFiles :: Connection -> LookupTable -> IO ()
-processFiles conn srcs =
-   putStrLn "Processing coin listings."   >>
-   allCoinIds conn                        >>= \acz ->
-   extractListings conn srcs              >>=
-   foldM (processOneListingFile conn) acz >>
-   setProcessed conn srcs
+processFiles :: Connection -> IO ()
+processFiles conn =
+   report 0 "Processing coin listings."
+          (lookupTable conn "source_type_lk"      >>= \srcs ->
+           allCoinIds conn                        >>= \acz ->
+           extractListings conn srcs              >>=
+           foldM (processOneListingFile conn) acz >>
+           setProcessed conn srcs)
 
 go :: IO ()
-go =
-   withConnection ECOIN (\conn ->
-      lookupTable conn "source_type_lk" >>= processFiles conn)
+go = withConnection ECOIN processFiles

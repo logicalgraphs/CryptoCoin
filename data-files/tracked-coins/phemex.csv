@@ -1,15 +1,14 @@
-coin,symbol,cmc_id
-Bitcoin,BTC
-Bitcoin Cash,BCH
-Ethereum,ETH
-Litecoin,LTC
-Tether,USDT
-Chainlink,LINK
-Doge,DOGE
-Ripple,XRP
-Tezos,XTZ
-Tron,TRX
-Bitcoin Cash,BCH
-EOS,EOS
-Cardano,ADA
-Ontology,ONT
+tracked_type,cmc_id,symbol,name
+PHEMEX,2010,ADA,Cardano
+PHEMEX,1831,BCH,Bitcoin Cash
+PHEMEX,1,BTC,Bitcoin
+PHEMEX,74,DOGE,Dogecoin
+PHEMEX,1765,EOS,EOS
+PHEMEX,1027,ETH,Ethereum
+PHEMEX,1975,LINK,Chainlink
+PHEMEX,2,LTC,Litecoin
+PHEMEX,2566,ONT,Ontology
+PHEMEX,1958,TRX,TRON
+PHEMEX,825,USDT,Tether
+PHEMEX,52,XRP,XRP
+PHEMEX,2011,XTZ,Tezos

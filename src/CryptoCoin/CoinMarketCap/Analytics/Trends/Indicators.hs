@@ -202,4 +202,5 @@ For e-coin ETH (CMC ID: 1027):
 runAllIndicatorsOns :: [String] -> IO ()
 runAllIndicatorsOns coins =
    withConnection ECOIN (\conn ->
-      fetchCmcIds conn coins >>= mapM_ (runAllIndicatorsOn conn) . Map.toList)
+      fetchCmcIds conn coins >>=
+      mapM_ (runAllIndicatorsOn conn) . Map.toList)

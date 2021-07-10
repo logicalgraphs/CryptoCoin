@@ -42,6 +42,15 @@ import Store.SQL.Util.LookupTable (lookupTableFrom)
 data Call = BUY | SELL
    deriving (Eq, Ord, Show, Read)
 
+dir :: Call -> Double
+dir BUY = 1
+dir SELL = (-1)
+
+instance Monoid Call where
+   mempty = BUY
+   BUY `mappend` BUY = BUY
+   _   `mappend` _   = SELL
+
 data Source = Pat Pattern | Ind Indicator
    deriving (Eq, Ord, Show)
 
