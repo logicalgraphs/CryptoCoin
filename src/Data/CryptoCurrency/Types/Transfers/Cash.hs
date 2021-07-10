@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TupleSections     #-}
 
-module Data.CryptoCurrency.Types.Transfer where
+module Data.CryptoCurrency.Types.Transfers.Cash where
 
 {--
 A transfer IS A movement of funds from one portfolio to another. It HAS A
@@ -26,20 +26,20 @@ import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
 import Data.Time (Day)
 
-import Database.PostgreSQL.Simple
+import Database.PostgreSQL.Simple (Connection, Query, execute)
 
 import Control.Map (snarfL)
 
-import Data.CryptoCurrency.Types hiding (idx)
-import Data.CryptoCurrency.Types.Portfolio
+import Data.CryptoCurrency.Types.Portfolio (cash, portfolioName)
 import Data.CryptoCurrency.Types.Transfers.Context
+           (transFContext, TransferContext(TfC), portfolii)
 import Data.CryptoCurrency.Types.Transfers.Internal
-import Data.CryptoCurrency.Utils (report, plural)
-import Data.Monetary.USD
+           (CashTransF'(Cshxf), storeCashTransF', msg)
+import Data.CryptoCurrency.Utils (report)
+import Data.Monetary.USD (USD(USD), doubledown)
 import Data.XHTML (Name)
 
-import Store.SQL.Util.LookupTable
-import Store.SQL.Util.Indexed (IxValue, idx, val)
+import Store.SQL.Util.Indexed (idx, val)
 
 data Direction = INCOME | OUTGO
    deriving (Eq, Ord, Show, Read)
@@ -52,8 +52,8 @@ data CashTransfer =
    CashTransfer { dt :: Day, port :: Name, dir ::  Direction, amt :: USD }
      deriving (Eq, Ord, Show)
 
-storeTransfersAndUpdatePortfolii :: Connection -> [CashTransfer] -> IO ()
-storeTransfersAndUpdatePortfolii conn xfers =
+storeCashTransfersAndUpdatePortfolii :: Connection -> [CashTransfer] -> IO ()
+storeCashTransfersAndUpdatePortfolii conn xfers =
    report 0 (msg (length xfers))
           (transFContext conn            >>= \tfc ->
            storeCashTransfers conn tfc xfers >>
@@ -63,7 +63,7 @@ storeTransfersAndUpdatePortfolii conn xfers =
 
 toCashTransF' :: TransferContext -> CashTransfer -> Maybe CashTransF'
 toCashTransF' (TfC dirLk ports) (CashTransfer dt p dir amt) =
-   Cxf dt amt <$> (idx <$> lk p ports) <*> lk (show dir) dirLk
+   Cshxf dt amt <$> (idx <$> lk p ports) <*> lk (show dir) dirLk
       where lk = Map.lookup
 
 type StoreCashTransferF = Connection -> TransferContext -> [CashTransfer]
@@ -92,10 +92,6 @@ updateCashReserves conn tfc xfers =
                                     showD adj, "to", showD newcash])
                           (execute conn updateCashReserveQuery (newcash,ix)))
          mbIxPort
-
-msg :: Int -> String
-msg su | su == 0 = "Storing no new transfers today."
-       | otherwise = "Storing " ++ show su ++ " transfer" ++ plural su
 
 updatePortfolii :: StoreCashTransferF
 updatePortfolii conn tfc =

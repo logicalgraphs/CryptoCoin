@@ -3,7 +3,7 @@
 module Data.CryptoCurrency.Utils where
 
 import Data.List (isSuffixOf)
-import System.Directory (listDirectory)
+import System.Directory (listDirectory, doesFileExist)
 
 -- eh, just some j-random stuff I need
 
@@ -26,6 +26,9 @@ filesAtDir suffies dir = filter (suffixes suffies) <$> listDirectory dir
 >>> getEnv "COIN_MARKET_CAP_DIR" >>= filesAtDir [".csv"] . (++ "/ETL")
 ["coins_traded_on_binance.csv","coins_traded_on_coinbase.csv"]
 --}
+
+processFile :: (FilePath -> Bool -> IO [a]) -> FilePath -> IO [a]
+processFile fn file = doesFileExist file >>= fn file
 
 -- I do this often enough now, so:
 

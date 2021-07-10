@@ -23,7 +23,7 @@ PROGRAMS=$(COIN_MARKET_CAP_DIR)/ETL/Candlesticks/Loader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/TrackedCoinLoader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/TransactionCSVLoader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/ReinvestCSVLoader.hs \
-         $(COIN_MARKET_CAP_DIR)/ETL/TransferCSVLoader.hs \
+         $(COIN_MARKET_CAP_DIR)/ETL/Transfers/CashCSVLoader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/Coins/Transformer.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/Candlesticks/Transformer.hs \
          $(COIN_MARKET_CAP_DIR)/Analytics/Candlesticks/Patterns.hs \
@@ -31,7 +31,6 @@ PROGRAMS=$(COIN_MARKET_CAP_DIR)/ETL/Candlesticks/Loader.hs \
          $(COIN_MARKET_CAP_DIR)/Analytics/Trends/Trend.hs \
          $(COIN_MARKET_CAP_DIR)/Reports/Portfolio.hs \
          $(COIN_MARKET_CAP_DIR)/Reports/Recommendation.hs \
-         $(COIN_MARKET_CAP_DIR)/Reports/Transaction.hs \
          $(COIN_MARKET_CAP_DIR)/Reports/DayAfterResults.hs
 
 # ----- ONE-OFFS ---------------------------------------------------------
@@ -47,11 +46,9 @@ verify1: FORCE
 # ----- after the system makes the recommendations.
 
 LOAD_TRANSACTIONS=$(SCRIPTS_DIR)/run-load-transactions.exp
-REPORT_TRANSACTIONS=$(SCRIPTS_DIR)/run-report-transactions.exp
 
 transactions: FORCE
 	$(LOAD_TRANSACTIONS)
-	$(REPORT_TRANSACTIONS)
 
 # ----- Same for transfers (transfers show up on portfolii in that report)
 

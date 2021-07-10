@@ -4,7 +4,7 @@ import Database.PostgreSQL.Simple (Connection)
 
 import Data.CryptoCurrency.Types.Portfolio (fetchPortfolii, Portfolii)
 
-import Data.LookupTable
+import Data.LookupTable (LookupTable)
 
 import Store.SQL.Util.LookupTable (lookupTable)
 

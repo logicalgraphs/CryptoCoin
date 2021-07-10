@@ -10,28 +10,23 @@ coins more desirable buys? TUNE IN NEXT WEEK FOR ANSWERS TO THESE QUESTIONS, ...
 AND MORE!
 --}
 
-{--
-import Control.Monad ((>=>))
-import qualified Data.Map as Map
-import Data.LookupTable
---}
-
 import Data.Maybe (mapMaybe)
 import Data.Time (Day)
 
 import Database.PostgreSQL.Simple (Connection)
 
-import System.Directory (doesFileExist)
-import System.Environment (getEnv)
-
+import Control.List (softtail)
 import Control.Scan.CSV (csv, readMaybe)
-import CryptoCoin.CoinMarketCap.Utils (geaux)
+
+import CryptoCoin.CoinMarketCap.Utils (geaux, dateDir)
+
 import Data.CryptoCurrency.Types.Recommendation (Call(BUY))
 import Data.CryptoCurrency.Types.Transaction
-import Data.CryptoCurrency.Types.Transactions.Context
-import Data.CryptoCurrency.Utils (report, plural)
+           (Transaction(Transaction), StoreTransactionsF, storeTransaction)
+import Data.CryptoCurrency.Types.Transactions.Context (transContext)
+import Data.CryptoCurrency.Utils (report, plural, processFile)
 
-import Data.Monetary.USD
+import Data.Monetary.USD (USD(USD))
 
 import Store.SQL.Connection (withConnection, Database(ECOIN), connectInfo)
 
@@ -46,15 +41,10 @@ mkReinvest [sym,date,amt,portfolio] =
    Transaction sym <$> readMaybe date <*> nomonay <*> nomonay
                    <*> readMaybe amt <*> Just BUY <*> Just portfolio
 
-readReinvestments :: FilePath -> IO [Transaction]
-readReinvestments file = doesFileExist file >>= rr' file
-
 rr' :: FilePath -> Bool -> IO [Transaction]
 rr' _ False = return []
 rr' file True =
-   mapMaybe (mkReinvest . csv) . mbtail . lines <$> readFile file
-      where mbtail [] = []
-            mbtail (_:t) = t
+   mapMaybe (mkReinvest . csv) . softtail . lines <$> readFile file
 
 {--
 >>> transs <- readTransactions "holdings.csv" 
@@ -82,11 +72,8 @@ go = geaux addAllStakes
 
 addAllStakes :: Connection -> Day -> IO ()
 addAllStakes conn date =
-  getEnv "CRYPTOCOIN_DIR"                                    >>= \ccd ->
-  let dataDir = ccd ++ "/data-files/stakes/" ++ show date in
-  readReinvestments (dataDir ++ "/reinvested.csv")           >>= \reinvs ->
-  report 0 (msg (length reinvs))
-         (transContext conn >>= flip (reinvest conn) reinvs)
+  dateDir "stakes" date >>= processFile rr' . (++ "/reinvested.csv") >>= \rs ->
+  report 0 (msg (length rs)) (transContext conn >>= flip (reinvest conn) rs)
 
 msg :: Int -> String
 msg su | su == 0 = "Storing no new reinvestments today."

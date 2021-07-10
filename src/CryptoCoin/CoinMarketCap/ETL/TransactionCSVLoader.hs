@@ -11,23 +11,24 @@ import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
 import Data.Time (Day)
 
-import Database.PostgreSQL.Simple
+import Database.PostgreSQL.Simple (Connection)
 
-import System.Directory (doesFileExist)
-import System.Environment (getEnv)
+import Control.Scan.CSV (csv, readMaybe)
 
-import Control.Scan.CSV
-
-import CryptoCoin.CoinMarketCap.Utils (geaux)
+import CryptoCoin.CoinMarketCap.Utils (geaux, dateDir)
 
 import Data.CryptoCurrency.Types.Recommendation (Call(BUY, SELL))
 import Data.CryptoCurrency.Types.Transaction
+           (StoreTransactionsF, storeTransaction, Transaction(Transaction),
+            joinRecommendations)
 import Data.CryptoCurrency.Types.Transactions.Context
-import Data.CryptoCurrency.Types.Transfer hiding (msg)
-import Data.CryptoCurrency.Utils (report, conj, plural)
-import Data.LookupTable
-import Data.Monetary.USD
-import Data.Time.TimeSeries (today)
+           (TransactionContext(TaC), transContext)
+import Data.CryptoCurrency.Types.Transfers.Cash
+           (CashTransfer(CashTransfer), Direction(OUTGO, INCOME),
+            storeCashTransfersAndUpdatePortfolii)
+import Data.CryptoCurrency.Utils (report, conj, plural, processFile)
+import Data.LookupTable (LookDown, lookdown)
+import Data.Monetary.USD (USD(USD))
 
 import Store.SQL.Connection (withConnection, Database(ECOIN), connectInfo)
 
@@ -52,7 +53,7 @@ mkTrans [sym,date,spent,surcharge,amt,call,portfolio] =
                    <*> readMaybe call <*> Just portfolio
 
 readTransactions :: FilePath -> IO [Transaction]
-readTransactions file = doesFileExist file >>= rt' file
+readTransactions = processFile rt'
 
 rt' :: FilePath -> Bool -> IO [Transaction]
 rt' _ False = return []
@@ -108,8 +109,7 @@ go = geaux addAllTransactions
 
 addAllTransactions :: Connection -> Day -> IO ()
 addAllTransactions conn date =
-  getEnv "CRYPTOCOIN_DIR"                                    >>= \ccd ->
-  let dataDir = ccd ++ "/data-files/transactions/" ++ show date in
+  dateDir "transactions" date                                >>= \dataDir ->
   readTransactions (dataDir ++ "/recommended.csv")           >>= \recs ->
   readTransactions (dataDir ++ "/not-recommended.csv")       >>= \nrecs ->
   report 0 (msg recs nrecs)
@@ -118,21 +118,21 @@ addAllTransactions conn date =
               transfers = mapMaybe (reifyFrom tc portNames) (recs ++ nrecs) in
           onlyStoreTransactions conn tc nrecs                >>
           storeTransactionsAssocRecommendations conn tc recs >>
-          storeTransfersAndUpdatePortfolii conn transfers)
+          storeCashTransfersAndUpdatePortfolii conn transfers)
 
 -- for buys, we transfer in from out linked account. For sells, we 'transfer'
 -- to our own account's cash-reserve
 
 reifyFrom :: TransactionContext -> LookDown String -> Transaction
-          -> Maybe Transfer
+          -> Maybe CashTransfer
 reifyFrom (TaC _ _ portLk links) portNames
           (Transaction _ dt amt _ _ BUY port) =
    Map.lookup port portLk    >>=
    flip Map.lookup links     >>=
    flip Map.lookup portNames >>= \p ->
-   return (Transfer dt p OUTGO amt)
+   return (CashTransfer dt p OUTGO amt)
 reifyFrom _ _ (Transaction _ dt (USD amt) (USD charge) _ SELL port) =
-   pure (Transfer dt port INCOME (USD (amt - charge)))
+   pure (CashTransfer dt port INCOME (USD (amt - charge)))
 
 msg :: [a] -> [b] -> String
 msg (length -> recs) (length -> nonrecs) = msg' recs nonrecs (recs + nonrecs)

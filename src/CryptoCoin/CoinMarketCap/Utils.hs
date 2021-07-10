@@ -7,11 +7,19 @@ import Data.Time (Day)
 
 import Database.PostgreSQL.Simple (Connection)
 
+import System.Environment (getEnv)
+
 import Data.Time.TimeSeries (today)
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 
 geaux :: (Connection -> Day -> IO a) -> IO ()
 geaux fn = today >>= withConnection ECOIN . flip fn
+
+dateDir :: FilePath -> Day -> IO FilePath
+dateDir dir date =
+  (++ "/data-files/" ++ dir ++ ('/':show date)) <$> getEnv "CRYPTOCOIN_DIR"
+
+----- UTF8 file cleaning (BEFORE JSONing, I'll note right here) ---------------
 
 sanitize :: String -> String
 sanitize = map unicodeSubstitution

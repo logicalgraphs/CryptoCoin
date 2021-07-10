@@ -1,6 +1,6 @@
 {-# LANGUAGE ViewPatterns #-}
 
-module CryptoCoin.CoinMarketCap.ETL.TransferCSVLoader where
+module CryptoCoin.CoinMarketCap.ETL.Transfers.CashCSVLoader where
 
 -- Transfer funds into and out of portfolii.
 
@@ -11,21 +11,16 @@ import Data.Maybe (mapMaybe, catMaybes)
 import qualified Data.Set as Set
 import Data.Time (Day)
 
-import Database.PostgreSQL.Simple
-
-import System.Directory (doesFileExist)
-import System.Environment (getEnv)
+import Database.PostgreSQL.Simple (Connection)
 
 import Control.Map (snarf)
-import Control.Scan.CSV
+import Control.Scan.CSV (csv, readMaybe)
 
-import CryptoCoin.CoinMarketCap.Utils (geaux)
+import CryptoCoin.CoinMarketCap.Utils (geaux, dateDir)
 
-import Data.CryptoCurrency.Types.Transfer
-import Data.CryptoCurrency.Types.Transfers.Context
-import Data.CryptoCurrency.Utils (report, plural)
-import Data.Monetary.USD
-import Data.Time.TimeSeries (today)
+import Data.CryptoCurrency.Types.Transfers.Cash
+           (CashTransfer(CashTransfer), storeCashTransfersAndUpdatePortfolii)
+import Data.CryptoCurrency.Utils (report, plural, processFile)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 
@@ -35,9 +30,6 @@ makeCashTransfer = mkCashTransF . csv
 mkCashTransF :: [String] -> Maybe CashTransfer
 mkCashTransF [readMaybe -> dt, port, readMaybe -> dir, readMaybe -> amt] =
    CashTransfer <$> dt <*> Just port <*> dir <*> amt
-
-readCashTransfers :: FilePath -> IO [CashTransfer]
-readCashTransfers file = doesFileExist file >>= rct' file
 
 rct' :: FilePath -> Bool -> IO [CashTransfer]
 rct' _ False = return []
@@ -85,11 +77,9 @@ each portfolio's cash reserve.
 --}
 
 go :: IO ()
-go = geaux storeTransfersAndUpdatePortfoliiCSV
+go = geaux storeCashTransfersAndUpdatePortfoliiCSV
 
-storeTransfersAndUpdatePortfoliiCSV :: Connection -> Day -> IO ()
-storeTransfersAndUpdatePortfoliiCSV conn date =
-   getEnv "CRYPTOCOIN_DIR"                                      >>= \ccd ->
-   let dataDir = ccd ++ "/data-files/transfers/" ++ show date in
-   readCashTransfers (dataDir ++ "/cash.csv")                   >>=
-   storeTransfersAndUpdatePortfolii conn
+storeCashTransfersAndUpdatePortfoliiCSV :: Connection -> Day -> IO ()
+storeCashTransfersAndUpdatePortfoliiCSV conn date =
+   dateDir "transfers" date >>= processFile rct' . (++ "/cash.csv") >>=
+   storeCashTransfersAndUpdatePortfolii conn

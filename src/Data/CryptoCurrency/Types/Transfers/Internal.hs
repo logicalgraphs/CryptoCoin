@@ -5,16 +5,17 @@ module Data.CryptoCurrency.Types.Transfers.Internal where
 import Control.Monad (void)
 
 import qualified Data.ByteString.Char8 as B
-import Data.Time
+import Data.Time (Day)
 
-import Database.PostgreSQL.Simple
-import Database.PostgreSQL.Simple.ToField
-import Database.PostgreSQL.Simple.ToRow
+import Database.PostgreSQL.Simple (Connection, executeMany)
+import Database.PostgreSQL.Simple.ToField (toField)
+import Database.PostgreSQL.Simple.ToRow (ToRow, toRow)
 import Database.PostgreSQL.Simple.Types (Query(Query))
 
-import Data.CryptoCurrency.Types
-import Data.LookupTable
-import Data.Monetary.USD
+import Data.CryptoCurrency.Types (Idx)
+import Data.CryptoCurrency.Utils (plural)
+
+import Data.Monetary.USD (USD)
 
 ----- Handling Cash transfers ------------------------------------------------
 
@@ -31,6 +32,10 @@ storeCashTransFQuery = Query . B.pack $ unwords [
 
 storeCashTransF' :: Connection -> [CashTransF'] -> IO ()
 storeCashTransF' conn = void . executeMany conn storeCashTransFQuery
+
+msg :: Int -> String
+msg su | su == 0 = "Transfering no cash today."
+       | otherwise = "Storing " ++ show su ++ " transfer" ++ plural su
 
 ----- Now: coin transfers ---------------------------------------------------
 
