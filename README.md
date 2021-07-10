@@ -90,8 +90,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 * write a comparison of recommendations from yesterday: how did they do today?
   This we call a day-after results report. It's a new thing. DONE, ... but:
-  * add call: BUY / SELL / EH to yesterday's recommendation for a currency
-  * improve the query with an inner join to replace the inner select
+  * add call: BUY / SELL / EH to yesterday's recommendation for a currency: DONE
+  * improve the query with an inner join to replace the inner select: DONE
 
 * add a transfer protocol for coins (instead of dollars)
 
@@ -139,6 +139,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-07-10: Day-after reports now also report yesterday's recommended call.
 * 2021-06-26: Tracking coins now via cmc_id
 * 2021-06-24: Rearranged the ETL (load-part) and prefiltered file before 
   parsing it to JSON
