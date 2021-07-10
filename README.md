@@ -140,6 +140,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ### ... or feeping creatures! AHA!
 
 * 2021-07-10: Day-after reports now also report yesterday's recommended call.
+* 2021-07-04: Automated day-after results report
 * 2021-06-26: Tracking coins now via cmc_id
 * 2021-06-24: Rearranged the ETL (load-part) and prefiltered file before 
   parsing it to JSON
