@@ -1,5 +1,12 @@
 # Revision History
 
+* 2021-07-11: transfer_coin table to transfer coins between exchanges.
+* 2021-07-10: Day-after reports now also report yesterday's recommended call.
+* 2021-07-04: Automated day-after results report
+* 2021-06-26: Tracking coins now via cmc_id
+* 2021-06-24: Rearranged the ETL (load-part) and prefiltered file before
+  parsing it to JSON
+* 2021-06-10: Corrected issue with multiple transactions not being recorded.
 * 2021-06-05: reporting the average price of coin bought.
 * 2021-06-04: added transfers of funds between accounts. Transactions now 
   transfer funds from the linked-account, updating that account's balance.

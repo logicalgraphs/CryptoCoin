@@ -263,6 +263,24 @@ CREATE TABLE "transfer_funds" (
 
 CREATE INDEX ON transfer_funds (portfolio_id);
 
+CREATE TABLE "transfer_coin" (
+	"transfer_coin_id" serial NOT NULL,
+	"cmc_id" bigint NOT NULL,
+	"for_date" DATE NOT NULL DEFAULT now(),
+	"amount" double precision NOT NULL,
+	"surcharge" double precision NOT NULL DEFAULT 0,
+	"transfer_from" bigint NOT NULL,
+	"transfer_to" bigint NOT NULL,
+	"cost_basis" double precision NOT NULL,
+	CONSTRAINT "transfer_coin_pk" PRIMARY KEY ("transfer_coin_id")
+) WITH (
+  OIDS=FALSE
+);
+
+CREATE INDEX ON transfer_coin (cmc_id);
+CREATE INDEX ON transfer_coin (transfer_from);
+CREATE INDEX ON transfer_coin (transfer_to);
+
 CREATE TABLE "candlesticks" (
 	"candlestick_id" serial NOT NULL,
 	"for_date" DATE NOT NULL DEFAULT now(),
