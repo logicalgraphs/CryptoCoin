@@ -24,6 +24,7 @@ PROGRAMS=$(COIN_MARKET_CAP_DIR)/ETL/Candlesticks/Loader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/TransactionCSVLoader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/ReinvestCSVLoader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/Transfers/CashCSVLoader.hs \
+         $(COIN_MARKET_CAP_DIR)/ETL/Transfers/CoinCSVLoader.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/Coins/Transformer.hs \
          $(COIN_MARKET_CAP_DIR)/ETL/Candlesticks/Transformer.hs \
          $(COIN_MARKET_CAP_DIR)/Analytics/Candlesticks/Patterns.hs \
@@ -52,7 +53,8 @@ transactions: FORCE
 
 # ----- Same for transfers (transfers show up on portfolii in that report)
 
-LOAD_TRANSFERS=$(SCRIPTS_DIR)/run-load-transfers.exp
+LOAD_TRANSFERS=$(SCRIPTS_DIR)/run-load-cash-transfers.exp \
+               $(SCRIPTS_DIR)/run-load-coin-transfers.exp
 
 transfers: FORCE
 	$(LOAD_TRANSFERS)

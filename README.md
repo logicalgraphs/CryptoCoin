@@ -89,7 +89,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 ## TODOs:
 
 * add a transfer protocol for coins (instead of dollars): STARTED; refactored
-  Transfer to CashTransfer; added transfer_coin table
+  Transfer to CashTransfer; added transfer_coin table; reading coin-transfer
+  rows. Need to add dates to rows: DONE
 
 * We need a coin exchange from coin to coin, called CoinConvert, that is, when
   we convert COMP to ETH (to MIR)

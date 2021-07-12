@@ -6,6 +6,10 @@ module CryptoCoin.CoinMarketCap.Reports.Portfolio where
 Gives a report of the coins and the balances and the totals of each portfolio.
 
 Woo, boy!
+
+1.1: First do the transactions (DONE), then add and subtract each coin transfer
+     from-portfolio = coins - amt xfered
+     to-portfolio   = coins + (amt - surcharge) xfered
 --}
 
 import Control.Arrow ((&&&))

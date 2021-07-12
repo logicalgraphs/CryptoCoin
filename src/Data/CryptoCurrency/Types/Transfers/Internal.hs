@@ -7,7 +7,8 @@ import Control.Monad (void)
 import qualified Data.ByteString.Char8 as B
 import Data.Time (Day)
 
-import Database.PostgreSQL.Simple (Connection, executeMany)
+import Database.PostgreSQL.Simple (Connection, executeMany, query_, FromRow)
+import Database.PostgreSQL.Simple.FromRow (fromRow, field)
 import Database.PostgreSQL.Simple.ToField (toField)
 import Database.PostgreSQL.Simple.ToRow (ToRow, toRow)
 import Database.PostgreSQL.Simple.Types (Query(Query))
@@ -39,16 +40,32 @@ msg su | su == 0 = "Transfering no cash today."
 
 ----- Now: coin transfers ---------------------------------------------------
 
-                      --  dt  amt    coin surcharge from to
-data CoinTransF' = Cnxf Day Double Idx Double Idx Idx
+                      --  dt  amt    coin surcharge basis from to
+data CoinTransF' = Cnxf Day Double Idx Double USD Idx Idx
    deriving (Eq, Ord, Show)
-
-instance ToRow CoinTransF' where
-   toRow (Cnxf dt amt cn sur frm to) =
-      [toField dt, toField amt, toField cn,
-       toField sur, toField frm, toField to]
 
 storeCoinTransFQuery :: Query
 storeCoinTransFQuery = Query . B.pack $ unwords [
    "INSERT INTO transfer_coin (for_date,amount,cmc_id,surcharge,transfer_from,",
-   "transfer_to) VALUES (?, ?, ?, ?, ?, ?)"]
+   "transfer_to,cost_basis) VALUES (?, ?, ?, ?, ?, ?, ?)"]
+
+instance ToRow CoinTransF' where
+   toRow (Cnxf dt amt cn sur bas frm to) =
+      [toField dt, toField amt, toField cn,
+       toField sur, toField frm, toField to, toField bas]
+
+storeCnXs :: Connection -> [CoinTransF'] -> IO ()
+storeCnXs conn = void . executeMany conn storeCoinTransFQuery
+
+fetchAllCoinTransFQuery :: Query
+fetchAllCoinTransFQuery = Query . B.pack $ unwords [
+   "SELECT for_date,amount,cmc_id,surcharge,cost_basis,",
+   "transfer_from,transfer_to,",
+   "FROM transfer_coin"]
+
+instance FromRow CoinTransF' where
+   fromRow = Cnxf <$> field <*> field <*> field
+                  <*> field <*> field <*> field <*> field
+
+fetchAllCoinTransFs :: Connection -> IO [CoinTransF']
+fetchAllCoinTransFs = flip query_ fetchAllCoinTransFQuery
