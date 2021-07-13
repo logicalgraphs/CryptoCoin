@@ -32,7 +32,7 @@ import Control.Map (snarfL)
 
 import Data.CryptoCurrency.Types.Portfolio (cash, portfolioName)
 import Data.CryptoCurrency.Types.Transfers.Context
-           (transFContext, TransferContext(TfC), portfolii)
+           (transFContext, TransferFundsContext(TfC), portfolii)
 import Data.CryptoCurrency.Types.Transfers.Internal
            (CashTransF'(Cshxf), storeCashTransF', msg)
 import Data.CryptoCurrency.Utils (report)
@@ -61,12 +61,12 @@ storeCashTransfersAndUpdatePortfolii conn xfers =
 
 -- INTERNAL FUNCTIONS -------------------------------------------------------
 
-toCashTransF' :: TransferContext -> CashTransfer -> Maybe CashTransF'
+toCashTransF' :: TransferFundsContext -> CashTransfer -> Maybe CashTransF'
 toCashTransF' (TfC dirLk ports) (CashTransfer dt p dir amt) =
    Cshxf dt amt <$> (idx <$> lk p ports) <*> lk (show dir) dirLk
       where lk = Map.lookup
 
-type StoreCashTransferF = Connection -> TransferContext -> [CashTransfer]
+type StoreCashTransferF = Connection -> TransferFundsContext -> [CashTransfer]
                        -> IO ()
 
 storeCashTransfers :: StoreCashTransferF

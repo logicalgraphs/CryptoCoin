@@ -18,13 +18,16 @@ import Data.Time (Day)
 import Database.PostgreSQL.Simple (Connection)
 
 import Control.Scan.CSV (csv,readMaybe)
-import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
+
+import CryptoCoin.CoinMarketCap.Utils (geaux, dateDir)
 
 import Data.CryptoCurrency.Types (IxRow(IxRow))
 import Data.CryptoCurrency.Types.Transfers.Coin
            (storeCoinTransfers, CoinTransfer,
             CoinTransferDatum(CoinTransferDatum))
-import Data.CryptoCurrency.Types.Portfolio (portfoliiLk)
+import Data.CryptoCurrency.Types.Transfers.Context
+           (transCContext, TransferCoinContext(TcC))
+import Data.CryptoCurrency.Utils (report, plural)
 
 import Data.LookupTable (LookupTable)
 import Data.Monetary.USD (USD)
@@ -50,8 +53,7 @@ toCnXf coinLk (tail . csv -> [dt, amt, cn, mtu -> fr, mtu -> xt, sur, bas]) =
 >>> import Database.PostgreSQL.Simple
 >>> import Store.SQL.Connection 
 >>> conn <- connectInfo ECOIN >>= connect
->>> portLk <- portfoliiLk conn
->>> cnLk <- trackedCoins conn
+>>> (TcC cnLk portLk) <- transCContext conn
 >>> storeCoinTransfers conn portLk (mapMaybe (toCnXf cnLk) sampCoinXfer)
 
 psql> select * from transfer_coin
@@ -60,5 +62,19 @@ transfer_coin_id,cmc_id,for_date,amount,surcharge,transfer_from,transfer_to,cost
 1,5692,2021-07-06,0.12445026,0.0073138,1,3,0.005
 --}
 
+readCoinTransfers :: LookupTable -> FilePath -> IO [CoinTransfer]
+readCoinTransfers coinLk file =
+   mapMaybe (toCnXf coinLk) . tail . lines <$> readFile file
+
+transferCoins :: Connection -> Day -> IO ()
+transferCoins conn date =
+   transCContext conn                        >>= \(TcC cnLk portLk) ->
+   dateDir "transfers" date                  >>=
+   readCoinTransfers cnLk . (++ "/coin.csv") >>=
+   report 0 . msg <*> storeCoinTransfers conn portLk
+
+msg :: [a] -> String
+msg (length -> ss) = "Storing " ++ show ss ++ " coin transfer" ++ plural ss
+
 go :: IO ()
-go = putStrLn "Not executing coin transfers between exchanges yet."
+go = geaux transferCoins
