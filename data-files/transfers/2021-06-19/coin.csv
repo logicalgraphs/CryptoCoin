@@ -1,0 +1,2 @@
+call,date,amount,coin,from,to,surcharge,basis
+XFER,2021-06-19,0.00366589,BTC,COINBASE,PHEMEX,0.00000808,$150.00

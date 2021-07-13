@@ -1,0 +1,2 @@
+call,date,amount,coin,from,to,surcharge,basis
+XFER,2021-07-04,259.4124246,DOGE,coinbase,gemini,1.44,$100.00

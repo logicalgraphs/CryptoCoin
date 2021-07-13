@@ -98,6 +98,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 * We need to know the best (lowest) average price on a BUY recommendation and
   the best (highest) average price on a SELL recommendation... and not $0.00.
 
+* we need a bounty adder? Or is this going too far?
+
 * provide year-to-date transaction history with the portfolio report
 
 * start building predictive model: STARTED
