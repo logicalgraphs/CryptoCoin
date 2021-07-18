@@ -1,0 +1,4 @@
+sym,date,spent,surcharge,amt,call,portfolio,reference
+BNB,2021-07-17,$100.00,$0.50,0.33,BUY,BINANCE
+UNI,2021-07-17,$0.00,$0.00,2.13,BUY,COINBASE
+UNI,2021-07-17,$0.00,$0.00,4.25,BUY,GEMINI
