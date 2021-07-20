@@ -1,0 +1,2 @@
+call,date,amount,coin,from,to,surcharge,basis
+XFER,2021-07-20,1.74396771,LTC,GEMINI,COINBASE,0,$200.00
