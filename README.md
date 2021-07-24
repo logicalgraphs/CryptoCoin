@@ -88,6 +88,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* update the coin-transfers after 2021-07-13
+
 * add a transfer protocol for coins (instead of dollars): STARTED; refactored
   Transfer to CashTransfer; added transfer_coin table; reading coin-transfer
   rows. Need to add dates to rows: DONE
