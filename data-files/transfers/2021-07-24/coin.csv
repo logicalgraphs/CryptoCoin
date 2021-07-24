@@ -1,0 +1,2 @@
+call,date,amount,coin,from,to,surcharge,basis
+XFER,2021-07-24,0.23326991,ETH,GEMINI,COINBASE,$0.00,$700.00
