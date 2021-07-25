@@ -147,7 +147,8 @@ VALUES (1, 'NEW', null),
        (7, 'PRICE_VARIANCE', null), 
        (8, 'MENTIONED_IN_NEWS', null),
        (9, 'BANK_ACCOUNT', null),
-       (10, 'TERRA', 'https://www.terra.money/');
+       (10, 'TERRA', 'https://www.terra.money/'),
+       (11, 'IPHONE', null);
 
 CREATE TABLE "j_tracked_coin_tracked_type" (
 	"jtctt_id" serial NOT NULL,
@@ -173,7 +174,7 @@ CREATE TABLE "portfolio" (
 
 INSERT INTO portfolio (portfolio_id, portfolio_name, tracked_type_id)
 VALUES (1, 'COINBASE', 2), (2, 'BINANCE', 3), (3, 'GEMINI', 5), (4, 'USAA', 9),
-       (5, 'PHEMEX', 4), (6, 'TERRA', 10);
+       (5, 'PHEMEX', 4), (6, 'TERRA', 10), (7, 'IPHONE', 11);
 
 -- Tells us which (bank) account is tied to a portfolio, so that when a 
 -- transaction occurs, we pull (transfer) the funds from that account.
