@@ -35,6 +35,11 @@ http://logicalgraphs.blogspot.com/2021/03/top-10-e-coins-for-2021-03-09.html
 
 <img src="src/CryptoCoin/CoinMarketCap/ETL/imgs/e-coin-erd.png"/>
 
+### Tools used
+
+* dbdesigner: dbdesigner.net for the ERD
+* clever-cloud.com: db hosting
+
 ## Architecture
 ### Recommendation Architecture
 
@@ -65,7 +70,12 @@ transaction-based (not price-of-the-day for the coin, as the buy/sell price
 fluctuates per transaction). The portfolio is the sum of the costs of the 
 transactions verses the current values of the holdings.
 
-## Patterns used
+### Tools used
+
+* umletino: http://www.umlet.com/umletino/umletino.html
+* designs archived at src/CryptoCoin/CoinMarketCap/design/
+
+## Patterns
 
 ### Candlesticks
 
@@ -88,11 +98,12 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* update the coin-transfers after 2021-07-13
+* update the coin-transfers after 2021-07-13: DONE
 
 * add a transfer protocol for coins (instead of dollars): STARTED; refactored
   Transfer to CashTransfer; added transfer_coin table; reading coin-transfer
-  rows. Need to add dates to rows: DONE
+  rows. Need to add dates to rows: DONE. Now we need to convert the
+  coin-transfers to materialize in the portfolio report.
 
 * We need a coin exchange from coin to coin, called CoinConvert, that is, when
   we convert COMP to ETH (to MIR)
