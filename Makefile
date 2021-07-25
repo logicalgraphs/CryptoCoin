@@ -53,8 +53,8 @@ transactions: FORCE
 
 # ----- Same for transfers (transfers show up on portfolii in that report)
 
-LOAD_TRANSFERS=$(SCRIPTS_DIR)/run-load-cash-transfers.exp \
-               $(SCRIPTS_DIR)/run-load-coin-transfers.exp
+LOAD_TRANSFERS=$(SCRIPTS_DIR)/run-load-transfers-cash.exp; \
+               $(SCRIPTS_DIR)/run-load-transfers-coin.exp
 
 transfers: FORCE
 	$(LOAD_TRANSFERS)
