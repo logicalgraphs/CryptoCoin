@@ -1,0 +1,2 @@
+call,date,amount,coin,from,to,surcharge,basis
+XFER,2021-07-22,201.232342,MATIC,GEMINI,COINBASE,0,$200.00
