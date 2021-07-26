@@ -11,7 +11,7 @@ import Control.Monad (join)
 import qualified Data.ByteString.Char8 as B
 
 import Data.Char (isLower)
-import Data.List (groupBy)
+import Data.List (groupBy, sortOn)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
@@ -190,3 +190,40 @@ allRektsByDay = snarf (Just . (date &&& id))
 -- the coin-ids are simply Set.map idx on (Set Recommendation)
 
 -- also: let allcoins = Set.unions (Map.elems dailyRektx)
+
+{--
+World's crazyest SQL:
+
+WITH recs(cmcId, buys, sells) AS (select * from crosstab($$
+select r.cmc_id as cmcId, cl.call as cll, count(cl.call)
+from recommendation r
+inner join call_lk cl on cl.call_id=r.call_id
+where r.for_date='2021-07-07'
+group by cmcId, cll
+                                           $$,
+                                           $$VALUES ('BUY'::text), ('SELL')$$)
+as ct ("cmcId" bigint, "buys" bigint, "sells" bigint))
+select r.cmcId, c.symbol, b.rank as yestRank, a.rank as tdayRank,
+b.quote_price as yestPrice,a.quote_price as tdayPrice, r.buys, r.sells
+from recs r
+inner join coin_market_cap_daily_listing b on r.cmcId=b.cmc_id
+inner join coin_market_cap_daily_listing a on r.cmcId=a.cmc_id
+inner join coin c on c.cmc_id=b.cmc_id
+where a.for_date ='2021-07-08' and b.for_date='2021-07-07'
+order by b.rank
+
+... but we're not going to do this, I just showed you that you could, is all.
+
+Okay, back to reality. First we fetch the recommendation from yesterday,
+and return a mapping of idxn to buy-sell counts.
+
+I'm going off the assumption that ANY sell indicator means sell. That's how
+it's kinda played out in the markets.
+--}
+
+type Recs = Map Idx Call
+
+fetchRecs :: Connection -> Day -> IO Recs
+fetchRecs conn (addDays (-1) -> yest) =
+   Map.fromList . sortOn snd . map (idx &&& call . row)
+   <$> fetchRecommendations conn yest
