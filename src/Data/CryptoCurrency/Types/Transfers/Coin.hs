@@ -16,6 +16,13 @@ surcharge (as coin)
 transfer_from: Portfolio (id)
 transfer_to: ditto
 cost_bases (like: $100)
+
+Now coin-transfers are a horse of a different color. Whereas cash transfers
+merely affect the portfolio's bottom line, and, therefore, can be executed on
+SQL store, coin-transfers affect two porfolii holdings. Holdings are reified
+during the report phase, that is, on reads from the data store, so we store
+coin-transfers, fine, but to affect porfolio holdings, we have to read them
+all out, then apply them to the paired portfolii, transfer-by-transfer.
 --}
 
 import Data.Map (Map)

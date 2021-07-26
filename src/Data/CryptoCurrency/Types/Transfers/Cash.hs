@@ -10,12 +10,11 @@ A transfer IS A movement of funds from one portfolio to another. It HAS A
    direction (IN or OUT)
    and an amount (USD) transferred.
 
-WHEN a transfer (actually an income or an outgo) occurs the portfolio's cash
+WHEN a transfer (actually an income or an outgo) occurs, the portfolio's cash
 reserve is adjusted by that amount.
 
 SO! If I do a transaction (you heard me correctly) on gemini, I transfer $100
-out of my USAA portfolio and then (also) transfer $100 into my gemini portfolio
-to effect the transaction.
+out of my USAA portfolio to cover the gemini coin purchase.
 
 This way, I can stay on top of my cash reserves.
 --}

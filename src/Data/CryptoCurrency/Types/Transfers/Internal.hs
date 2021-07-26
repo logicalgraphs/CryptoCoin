@@ -60,8 +60,8 @@ storeCnXs conn = void . executeMany conn storeCoinTransFQuery
 fetchAllCoinTransFQuery :: Query
 fetchAllCoinTransFQuery = Query . B.pack $ unwords [
    "SELECT for_date,amount,cmc_id,surcharge,cost_basis,",
-   "transfer_from,transfer_to,",
-   "FROM transfer_coin"]
+   "transfer_from,transfer_to",
+   "FROM transfer_coin ORDER BY for_date"]
 
 instance FromRow CoinTransF' where
    fromRow = Cnxf <$> field <*> field <*> field
