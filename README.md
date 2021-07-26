@@ -98,19 +98,18 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
-* Added buy/sell recommendations for today to portfolio report: DONE
+* We need to move holdings to its own data type
 
 * We need a coin exchange from coin to coin, called CoinConvert, that is, when
   we convert COMP to ETH (to MIR)
+  * we need to add a data-table for this
+  * as well as the ETL process
+  * as well as updating how we compute holdings
 
 * We need to know the best (lowest) average price on a BUY recommendation and
   the best (highest) average price on a SELL recommendation... and not $0.00.
 
-* we need a bounty adder? Or is this going too far?
-
 * provide year-to-date transaction history with the portfolio report
-
-* start building predictive model: STARTED
 
 * we need to analyze the trades vis-à-vis recommendations and find which ones
 are effective and which ones aren't, or combinations, or what. ... Bayes?
@@ -120,8 +119,6 @@ are effective and which ones aren't, or combinations, or what. ... Bayes?
 * represent coins-as-graph
 
 * create a spot-check that runs the numbers on any arbitrary yahoo-symbol
-
-* build predictive model based off of recommendations
 
 * download FCAS scores: ... once we have cmc_id-to-flipside_crypto_uuid mapping
   * map FCAS coin uuids to cmc_ids
