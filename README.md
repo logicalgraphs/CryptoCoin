@@ -103,7 +103,7 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 * add a transfer protocol for coins (instead of dollars): STARTED; refactored
   Transfer to CashTransfer; added transfer_coin table; reading coin-transfer
   rows. Need to add dates to rows: DONE. Now we need to convert the
-  coin-transfers to materialize in the portfolio report.
+  coin-transfers to materialize in the portfolio report: DONE
 
 * We need a coin exchange from coin to coin, called CoinConvert, that is, when
   we convert COMP to ETH (to MIR)
@@ -154,6 +154,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-07-25: transfer coin protocol added to portfolio reports.
 * 2021-07-11: transfer_coin table to transfer coins between exchanges.
 * 2021-07-10: Day-after reports now also report yesterday's recommended call.
 * 2021-07-04: Automated day-after results report
