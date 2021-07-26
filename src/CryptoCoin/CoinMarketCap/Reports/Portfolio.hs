@@ -50,7 +50,7 @@ import Data.CryptoCurrency.Types.Coin (allCoinsLk)
 import Data.CryptoCurrency.Types.Portfolio
        (Portfolio(Portfolio), fetchPortfolii, portfolioName, fetchCoinIdsFor,
         cash, Portfolii)
-import Data.CryptoCurrency.Types.Recommendation (Call(BUY))
+import Data.CryptoCurrency.Types.Recommendation (Call(BUY), Recs, fetchRecs)
 import Data.CryptoCurrency.Types.Transaction
        (Transaction(Transaction), fetchTransactionsByPortfolio, spent, ncoins)
 import Data.CryptoCurrency.Types.Transactions.Context
@@ -72,11 +72,18 @@ data Holding =
    Holding { ecoin :: ECoin, amount :: Double, invested, currentPrice :: USD }
       deriving (Eq, Ord, Show)
 
+data HoldRec = HR { holding :: Holding, call :: Maybe Call }
+   deriving (Eq, Ord, Show)
+
 instance Indexed Holding where
    idx = idx . ecoin
+instance Indexed HoldRec where
+   idx = idx . holding
 
 instance Rank Holding where
    rank = rank . ecoin
+instance Rank HoldRec where
+   rank = rank . holding
 
 instance Univ Holding where
    explode h@(Holding e amt ui@(USD inv) up@(USD pric)) =
@@ -86,8 +93,13 @@ instance Univ Holding where
       [show (rank h), show (idx h), sym e, namei e, show amt, show ui, show up,
        show ave, show (USD currVal), show (change inv currVal)]
 
+instance Univ HoldRec where
+   explode (HR h c) = explode h ++ mbshow c
+      where mbshow Nothing = []
+            mbshow (Just c) = [show c]
+
 data PortfolioReport =
-   PR { portfolio :: Portfolio, holdings :: Map Idx Holding }
+   PR { portfolio :: Portfolio, holdings :: Map Idx HoldRec }
       deriving (Eq, Ord, Show)
 
 instance Monoid PortfolioReport where
@@ -97,15 +109,18 @@ instance Monoid PortfolioReport where
           (Map.union h0 h1)
 
 totalInvested, totalValue :: PortfolioReport -> USD
-totalInvested (PR _ holds) = sumOver invested holds
-totalValue (PR _ holds) = sumOver val holds
-   where val h = USD (toRational (amount h * doubledown (currentPrice h)))
+totalInvested (PR _ holds) = sumOver (invested . holding) holds
+totalValue (PR _ holds) =
+   let val h = USD (toRational (amount h * doubledown (currentPrice h))) in
+   sumOver (val . holding) holds
 
-toHolding :: Foldable t => Listings -> Idx -> t Transaction -> Maybe Holding
-toHolding listings ix transes = 
-   Map.lookup ix listings >>= \listing ->
-   quote listing          >>= \quot ->
-   buildHolding (coin listing) (price quot) transes
+toHolding :: Foldable t => Recs -> Listings -> Idx -> t Transaction
+          -> Maybe HoldRec
+toHolding r listings ix transes = 
+   Map.lookup ix listings                           >>= \listing ->
+   quote listing                                    >>= \quot ->
+   buildHolding (coin listing) (price quot) transes >>=
+   return . flip HR (Map.lookup ix r)
 
 buildHolding :: Foldable t => ECoin -> Double -> t Transaction -> Maybe Holding
 buildHolding coin pric transes =
@@ -152,17 +167,17 @@ instance Show PorNot where
    show (Perc p) = show p
    show PNOT = "N/A"
    
-forEachPortfolioDo :: Connection -> Day -> TransactionContext
+forEachPortfolioDo :: Connection -> Day -> TransactionContext -> Recs
                    -> ([PortfolioReport], Listings) -> IxValue Portfolio
                    -> IO ([PortfolioReport], Listings)
-forEachPortfolioDo conn tday tc (prs, lists) i@(IxV ix port) =
+forEachPortfolioDo conn tday tc recs (prs, lists) i@(IxV ix port) =
    fetchCoinIdsFor conn i                                     >>= \coinIds ->
    let newIds = Set.difference coinIds (Map.keysSet lists)
        portName = portfolioName port in
    fetchListings conn tday newIds                             >>= \newLists ->
    fetchTransactionsByPortfolio conn tc portName              >>= \transs ->
    let combinedListings = Map.union newLists lists
-       coinsHeld = mapMaybe (uncurry (toHolding combinedListings))
+       coinsHeld = mapMaybe (uncurry (toHolding recs combinedListings))
                             (Map.toList transs)
    in  return (PR port (Map.fromList $ map (idx &&& id) coinsHeld):prs,
                combinedListings)
@@ -209,49 +224,49 @@ Voilà. Now we know what to do, ... at least for the coin-transfer-part.
 
 type PortfolioReports = Map Name PortfolioReport
 
-transferCoins :: Connection -> Portfolii -> ([PortfolioReport], Listings)
-              -> IO PortfolioReports
-transferCoins conn (Map.map idx -> pLk) (reports, listings) =
+transferCoins :: Connection -> Portfolii -> Recs
+              -> ([PortfolioReport], Listings) -> IO PortfolioReports
+transferCoins conn (Map.map idx -> pLk) recs (reports, listings) =
    let toMap = Map.fromList . map (portfolioName . portfolio &&& id) in
    putStrLn "Transferring coins between portfolii" >>
    fetchCoinTransfers conn pLk                     >>=
-   foldM (transferCoin listings) (toMap reports)
+   foldM (transferCoin listings recs) (toMap reports)
 
 data Haben = REQUIRED | OPTIONAL
    deriving Eq
 
-transferCoin :: Listings -> PortfolioReports -> CoinTransfer
+transferCoin :: Listings -> Recs -> PortfolioReports -> CoinTransfer
              -> IO PortfolioReports
-transferCoin l m x@(IxRow cid _dt (CoinTransferDatum amt sur bas fr xto)) =
+transferCoin l r m x@(IxRow cid _dt (CoinTransferDatum amt sur bas fr xto)) =
    maybe (error ("Could not record transfer " ++ show x)) return
-         (adjustHolding m fr l cid (-1 * amt) (-1 * bas) REQUIRED >>= \m1 ->
-          adjustHolding m1 xto l cid (amt - sur) bas OPTIONAL)
+         (adjustHolding m fr l r cid (-1 * amt) (-1 * bas) REQUIRED >>= \m1 ->
+          adjustHolding m1 xto l r cid (amt - sur) bas OPTIONAL)
 
-adjustHolding :: PortfolioReports -> Name -> Listings -> Idx -> Double -> USD
-              -> Haben -> Maybe PortfolioReports
+adjustHolding :: PortfolioReports -> Name -> Listings -> Recs -> Idx -> Double
+              -> USD -> Haben -> Maybe PortfolioReports
 adjustHolding reps port = ah' port reps (Map.lookup port reps)
 
-ah' :: Name -> PortfolioReports -> Maybe PortfolioReport -> Listings -> Idx
-    -> Double -> USD -> Haben -> Maybe PortfolioReports
-ah' n _ Nothing _ _ _ _ _ = error ("Could not find portfolio named " ++ n)
-ah' port reps (Just pr) listings cid amt bas hab =
+ah' :: Name -> PortfolioReports -> Maybe PortfolioReport -> Listings -> Recs
+    -> Idx -> Double -> USD -> Haben -> Maybe PortfolioReports
+ah' n _ Nothing _ _ _ _ _ _ = error ("Could not find portfolio named " ++ n)
+ah' port reps (Just pr) listings recs cid amt bas hab =
    let hs = holdings pr in
-   ah'' listings port reps pr hs (Map.lookup cid hs) cid amt bas hab
+   ah'' listings recs port reps pr hs (Map.lookup cid hs) cid amt bas hab
 
-ah'' :: Listings -> Name -> PortfolioReports -> PortfolioReport
-     -> Map Idx Holding -> Maybe Holding -> Idx -> Double -> USD -> Haben
+ah'' :: Listings -> Recs -> Name -> PortfolioReports -> PortfolioReport
+     -> Map Idx HoldRec -> Maybe HoldRec -> Idx -> Double -> USD -> Haben
      -> Maybe PortfolioReports
-ah'' _ port _ _ _ Nothing cid _ _ REQUIRED =
+ah'' _ _ port _ _ _ Nothing cid _ _ REQUIRED =
    error ("No holdings for coin #" ++ show cid ++ " for portfolio " ++ port)
-ah'' listings port reps pr hs Nothing cid amt bas OPTIONAL =
+ah'' listings recs port reps pr hs Nothing cid amt bas OPTIONAL =
    let transs = [Transaction "" undefined bas undefined amt BUY ""] in
-   updateHolding port reps pr hs cid <$> toHolding listings cid transs
-ah'' _ port reps pr hs (Just h@(Holding _ am inv _)) cid amt bas _ =
-   Just (updateHolding port reps pr hs cid
-                       (h { amount = am + amt, invested = inv + bas }))
+   updateHolding port reps pr hs cid <$> toHolding recs listings cid transs
+ah'' _ _ port reps pr hs (Just hr@(HR h@(Holding _ am inv _) _)) cid amt bas _ =
+   let newholding = h { amount = am + amt, invested = inv + bas } in
+   Just (updateHolding port reps pr hs cid (hr { holding = newholding }))
 
-updateHolding :: Name -> PortfolioReports -> PortfolioReport -> Map Idx Holding
-              -> Idx -> Holding -> PortfolioReports
+updateHolding :: Name -> PortfolioReports -> PortfolioReport -> Map Idx HoldRec
+              -> Idx -> HoldRec -> PortfolioReports
 updateHolding port reps pr hs cid newhold =
    Map.insert port (pr { holdings = Map.insert cid newhold hs }) reps
 
@@ -261,8 +276,8 @@ cleanPortfolii = map cleanPortfolio . Map.elems
 cleanPortfolio :: PortfolioReport -> PortfolioReport
 cleanPortfolio pr = let hs = holdings pr in pr { holdings = cleanHoldings hs }
 
-cleanHoldings :: Map Idx Holding -> Map Idx Holding
-cleanHoldings = Map.filter ((> 0) . amount)
+cleanHoldings :: Map Idx HoldRec -> Map Idx HoldRec
+cleanHoldings = Map.filter ((> 0) . amount . holding)
 
 buildSummary :: PortfolioReport -> [KV]
 buildSummary pr@(PR (Portfolio name reserve _) holdings) =
@@ -281,17 +296,18 @@ summarizePortfolio date pr@(PR (Portfolio name _ _) holdings) =
 summarizePortfolii :: Day -> [PortfolioReport] -> IO ()
 summarizePortfolii date = summarizePortfolio date . mconcat
 
-realizePortfolioReports :: Connection -> Day -> Portfolii
+realizePortfolioReports :: Connection -> Day -> Portfolii -> Recs
                         -> IO ([PortfolioReport], Listings)
-realizePortfolioReports conn date ports =
-   transContext conn                                          >>= \tc ->
-   foldM (forEachPortfolioDo conn date tc) ([], Map.empty) (Map.elems ports)
+realizePortfolioReports conn date ports r =
+   transContext conn   >>= \tc ->
+   foldM (forEachPortfolioDo conn date tc r) ([], Map.empty) (Map.elems ports)
 
 go :: IO ()
 go = withConnection ECOIN (\conn ->
         latest conn "coin_market_cap_daily_listing" "for_date"     >>= \tday ->
         fetchPortfolii conn                                        >>= \ports ->
-        realizePortfolioReports conn tday ports                    >>=
-        transferCoins conn ports                                   >>=
+        fetchRecs conn tday                                        >>= \recs ->
+        realizePortfolioReports conn tday ports recs               >>=
+        transferCoins conn ports recs                              >>=
         pass (summarizePortfolii tday) . cleanPortfolii            >>=
         mapM_ (printPortfolioCSV tday))
