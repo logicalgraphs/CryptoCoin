@@ -17,7 +17,7 @@ import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
 import Data.Set (Set)
 import qualified Data.Set as Set
-import Data.Time (Day, addDays)
+import Data.Time (Day)
 
 import Database.PostgreSQL.Simple (Connection, executeMany, query_)
 import Database.PostgreSQL.Simple.ToRow
@@ -224,6 +224,6 @@ it's kinda played out in the markets.
 type Recs = Map Idx Call
 
 fetchRecs :: Connection -> Day -> IO Recs
-fetchRecs conn (addDays (-1) -> yest) =
+fetchRecs conn date =
    Map.fromList . sortOn snd . map (idx &&& call . row)
-   <$> fetchRecommendations conn yest
+   <$> fetchRecommendations conn date
