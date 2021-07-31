@@ -98,6 +98,10 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 
 ## TODOs:
 
+* We need to update coin transfers as fees can be in other coin.
+
+* We need to add loans.
+
 * We need to move holdings to its own data type
 
 * We need a coin exchange from coin to coin, called CoinConvert, that is, when
