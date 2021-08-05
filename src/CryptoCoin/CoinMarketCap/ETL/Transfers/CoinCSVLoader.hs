@@ -41,7 +41,8 @@ mtu :: String -> String
 mtu = map toUpper
 
 toCnXf :: LookupTable -> String -> Maybe CoinTransfer
-toCnXf coinLk (tail . csv -> [dt, amt, cn, mtu -> fr, mtu -> xt, sur, bas]) =
+toCnXf coinLk
+       (tail . csv -> [dt, amt, cn, mtu -> fr, mtu -> xt, sur, _scn, bas]) =
    Map.lookup cn coinLk >>= \cid ->
    readMaybe dt         >>= \date ->
    readMaybe amt        >>= \amount ->
