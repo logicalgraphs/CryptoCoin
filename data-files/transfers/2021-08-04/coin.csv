@@ -1,0 +1,2 @@
+call,date,amount,coin,from,to,surcharge,basis
+XFER,2021-08-04,139.74684039,ZRX,COINBASE,BINANCE,5.55038011,ZRX,$100.00
