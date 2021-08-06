@@ -238,7 +238,9 @@ data Haben = REQUIRED | OPTIONAL
 transferCoin :: Listings -> Recs -> PortfolioReports -> CoinTransfer
              -> IO PortfolioReports
 transferCoin l r m x@(IxRow cid _dt (CoinTransferDatum amt sur bas fr xto)) =
-   maybe (error ("Could not record transfer " ++ show x)) return
+   maybe (putStrLn ("***ERROR! Could not record transfer " ++ show x) >>
+          return m)
+         return
          (adjustHolding m fr l r cid (-1 * amt) (-1 * bas) REQUIRED >>= \m1 ->
           adjustHolding m1 xto l r cid (amt - sur) bas OPTIONAL)
 
@@ -257,7 +259,8 @@ ah'' :: Listings -> Recs -> Name -> PortfolioReports -> PortfolioReport
      -> Map Idx HoldRec -> Maybe HoldRec -> Idx -> Double -> USD -> Haben
      -> Maybe PortfolioReports
 ah'' _ _ port _ _ _ Nothing cid _ _ REQUIRED =
-   error ("No holdings for coin #" ++ show cid ++ " for portfolio " ++ port)
+   -- error ("No holdings for coin #" ++ show cid ++ " for portfolio " ++ port)
+   Nothing
 ah'' listings recs port reps pr hs Nothing cid amt bas OPTIONAL =
    let transs = [Transaction "" undefined bas undefined amt BUY ""] in
    updateHolding port reps pr hs cid <$> toHolding recs listings cid transs
