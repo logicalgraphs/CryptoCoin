@@ -1,0 +1,261 @@
+
+---- ========================================================================================================
+---- written by brian_#3619
+---- 
+---- All msg_value json queries from terra.msgs by msg_module + msg_type
+---- 
+---- Note - I did not add any ::string json for these. It is very easy to do, though.
+---- For example, most of these have quotation marks around the data field. 
+---- You can use msg_value:from_address::string 
+---- and it will turn (msg_value:from_address) |  "terra1mzj9nsxx0lxlaxnekleqdy8xnyw2qrh3uz6h8p"  | 
+---- into |  terra1mzj9nsxx0lxlaxnekleqdy8xnyw2qrh3uz6h8p  |
+----
+---- Reach out to me if you have any questions/comments. I am certain this can be improved upon! Thanks!
+---- ========================================================================================================
+
+
+bank:
+
+	bank/MsgMultiSend  **CANT** - too many results
+
+	bank/MsgSend
+		msg_value:amount[0]:amount,
+		msg_value:amount[0]:denom,
+		msg_value:from_address,
+		msg_value:to_address
+
+
+cosmos:
+
+	cosmos/MsgUnjail
+		msg_value:address
+
+
+distribution:
+
+	distribution/MsgFundCommunityPool
+		msg_value:amount[0]:amount,
+		msg_value:amount[0]:denom,
+		msg_value:depositor
+
+	distribution/MsgModifyWithdrawAddress
+		msg_value:delegator_address,
+		msg_value:withdraw_address
+
+	distribution/MsgWithdrawDelegationReward
+		msg_value:delegator_address,
+		msg_value:validator_address
+
+	distribution/MsgWithdrawValidatorCommission
+		msg_value:validator_address
+
+
+gov:
+
+	gov/MsgDeposit
+		msg_value:amount[0]:amount,
+		msg_value:amount[0]:denom,
+		msg_value:depositor,
+		msg_value:proposal_id
+
+	gov/MsgSubmitProposal
+		msg_value:content:value:title,
+  		msg_value:content:value:description,
+		msg_value:initial_deposit[0]:amount,
+		msg_value:initial_deposit[0]:denom,
+		msg_value:proposer
+
+	gov/MsgVote
+		msg_value:option,
+  		msg_value:proposal_id,
+  		msg_value:voter
+
+
+market:
+
+	market/MsgSwap
+		msg_value:ask_denom,
+  		msg_value:offer_coin:amount,
+  		msg_value:offer_coin:denom,
+  		msg_value:trader
+
+	market/MsgSwapSend
+		msg_value:ask_denom,
+  		msg_value:from_address,
+  		msg_value:offer_coin:amount,
+  		msg_value:offer_coin:denom,
+  		msg_value:to_address
+
+
+msgauth:
+
+	msgauth/MsgExecAuthorized
+		msg_value:grantee,
+  		msg_value:msgs[0]:type,
+  		msg_value:msgs[0]:value:amount[0]:amount,
+  		msg_value:msgs[0]:value:amount[0]:denom,
+  		msg_value:msgs[0]:value:from_address,
+		msg_value:msgs[0]:value:to_address
+
+	msgauth/MsgExecAuthorized
+		msg_value:authorization:type,
+		msg_value:authorization:value:spend_limit[0]:amount,
+		msg_value:authorization:value:spend_limit[0]:denom,
+		msg_value:authorization:value:grant_msg_type,
+  		msg_value:grantee,
+  		msg_value:granter,
+  		msg_value:period
+
+
+oracle:
+
+	oracle/MsgAggregateExchangeRatePrevote
+		msg_value:feeder,
+  		msg_value:hash,
+  		msg_value:validator
+
+	oracle/MsgAggregateExchangeRateVote  **CANT** - too many results
+
+	oracle/MsgDelegateFeedConsent
+		msg_value:delegate,
+  		msg_value:operator
+
+	oracle/MsgExchangeRatePrevote
+		msg_value:denom,
+  		msg_value:feeder,
+  		msg_value:hash,
+  		msg_value:validator
+
+	oracle/MsgExchangeRateVote
+		msg_value:denom,
+  		msg_value:exchange_rate,
+  		msg_value:feeder,
+		msg_value:salt,
+  		msg_value:validator
+
+
+slashing:
+
+	slashing/MsgUnjail
+		msg_value:address
+
+
+staking:
+
+	staking/MsgBeginRedelegate
+		msg_value:amount:amount,
+  		msg_value:amount:denom,
+  		msg_value:delegator_address,
+  		msg_value:validator_dst_address,
+  		msg_value:validator_src_address
+
+	staking/MsgCreateValidator
+		msg_value:commission,
+  		msg_value:commission:max_change_rate,
+  		msg_value:commission:max_rate,
+  		msg_value:commission:rate,
+  		msg_value:delegator_address,
+  		msg_value:description:details,
+  		msg_value:description:moniker,
+  		msg_value:description:security_contact,
+  		msg_value:description:website,
+  		msg_value:min_self_delegation,
+  		msg_value:pubkey,
+  		msg_value:validator_address,
+  		msg_value:value:amount,
+  		msg_value:value:denom
+
+	staking/MsgDelegate
+		msg_value:amount:amount,
+  		msg_value:amount:denom,
+  		msg_value:delegator_address,
+  		msg_value:validator_address
+
+	staking/MsgEditValidator -- sometimes the capital D works, sometimes it is lowercase. super weird.
+		msg_value:Description:details,
+  		msg_value:Description:identity,
+  		msg_value:Description:moniker,
+  		msg_value:Description:website,
+  		msg_value:address,
+  		msg_value:commission_rate,
+  		msg_value:description,
+  		msg_value:description:details,
+  		msg_value:description:identity,
+  		msg_value:description:moniker,
+  		msg_value:description:security_contact,
+  		msg_value:description:website
+
+	staking/MsgUndelegate
+		msg_value:amount:amount,
+  		msg_value:amount:denom,
+  		msg_value:delegator_address,
+  		msg_value:validator_address
+
+
+wasm:
+
+	wasm/MsgExecuteContract -   **CANT** - too many results
+
+	wasm/MsgInstantiateContract - I parsed a lot of these, there is more data but it quickly became too much to include here.
+		msg_value:code_id,
+  		msg_value:init_coins,
+  		msg_value:init_msg:effective_delay,
+  		msg_value:init_msg:expiration_period,
+  		msg_value:init_msg:mind_end,
+  		msg_value:init_msg:mint_per_block,
+  		msg_value:init_msg:mint_start,
+  		msg_value:init_msg:owner,
+  		msg_value:init_msg:proposal_deposit,
+  		msg_value:init_msg:quorum,
+  		msg_value:init_msg:threshold,
+  		msg_value:init_msg:voting_period,
+  		msg_value:init_msg:warchest_ratio,
+  		msg_value:init_msg:decimals,
+  		msg_value:init_msg:initial_balances[0]:address,
+  		msg_value:init_msg:initial_balances[0]:amount,
+  		msg_value:init_msg:name,
+  		msg_value:init_msg:symbol,
+  		msg_value:init_msg:count,
+  		msg_value:init_msg:fee:amount,
+  		msg_value:init_msg:fee:denom,
+  		msg_value:migratable,
+  		msg_value:owner
+
+	wasm/MsgMigrateContract
+		msg_value:contract,
+		msg_value:migrate_msg:address,
+		msg_value:migrate_msg:addresses,
+		msg_value:migrate_msg:can_override_distribution_ratio,
+		msg_value:migrate_msg:fee_receiver_address,
+		msg_value:migrate_msg:fee_type,
+		msg_value:migrate_msg:fee_value,
+		msg_value:migrate_msg:operator_addresses,
+		msg_value:migrate_msg:remnant_receiver_address,
+		msg_value:migrate_msg:restrict_campaign,
+		msg_value:migrate_msg:address,
+  		msg_value:migrate_msg:anchor_market,
+  		msg_value:migrate_msg:aust_token,
+  		msg_value:migrate_msg:bluna_swap_denom,
+  		msg_value:migrate_msg:bluna_token,
+		msg_value:migrate_msg:collector_contract,
+		msg_value:migrate_msg:target_deposit_rate,
+		msg_value:migrate_msg:threshold_deposit_rate,
+		msg_value:migrate_msg:collateral_oracle,
+		msg_value:migrate_msg:lock,
+		msg_value:migrate_msg:network,
+		msg_value:migrate_msg:staking,
+		msg_value:migrate_msg:terraswap_factory,
+		msg_value:migrate_msg:effective_delay,
+		msg_value:migrate_msg:expiration_period,
+		msg_value:migrate_msg:snapshot_period,
+		msg_value:migrate_msg:voter_weight,
+		msg_value:migrate_msg:voter_period,
+		msg_value:migrate_msg:base_denom,
+		msg_value:migrate_msg:mint_contract,
+		msg_value:migrate_msg:oracle_contract,
+		msg_value:migrate_msg:premium_min_update_interval,
+		msg_value:migrate_msg:short_reward_contract,
+  		msg_value:new_code_id,
+  		msg_value:owner
+
+
