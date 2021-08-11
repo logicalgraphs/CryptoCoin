@@ -161,3 +161,9 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 * 2021-06-10: Corrected issue with multiple transactions not being recorded.
 
 ... the complete revision history is [here](HISTORY.md)
+
+## NOTES ... to self:
+
+* 'Buy' $MIR by exchanging loaned $UST on Mirror-site. Do that weekly.
+* Watch the recurring buys: I'm buying $300 coin each ha'-month: keep $900
+in reserve.
