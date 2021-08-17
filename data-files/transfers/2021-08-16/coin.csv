@@ -1,0 +1,2 @@
+call,date,amount,coin,from,to,surcharge,basis
+XFER,2021-08-16,0.00213811,BTC,GEMINI,PHEMEX,0.0,BTC,$100.00
