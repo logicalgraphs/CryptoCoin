@@ -36,6 +36,7 @@ DROP TABLE IF EXISTS "staking";
 
 DROP TABLE IF EXISTS "transfer_funds";
 DROP TABLE IF EXISTS "transfer_coin";
+DROP TABLE IF EXISTS "convert_coin"
 
 -- LOOKUP TABLES -- (drop with care) ---------------------------------------
 

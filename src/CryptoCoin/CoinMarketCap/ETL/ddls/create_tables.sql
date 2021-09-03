@@ -422,3 +422,26 @@ CREATE TABLE "j_transaction_recommendation" (
 );
 
 Create index on j_transaction_recommendation (transaction_id);
+
+CREATE TABLE "convert_coin" (
+	"convert_coin_id" serial NOT NULL,
+	"from_cmc_id" bigint NOT NULL,
+	"to_cmc_id" bigint NOT NULL,
+	"portfolio_id" bigint NOT NULL,
+	"for_date" DATE NOT NULL DEFAULT 'now()',
+	"from_quote_price" double precision NOT NULL,
+	"to_quote_price" double precision NOT NULL,
+	"from_amount" double precision NOT NULL,
+	"to_amount" double precision NOT NULL,
+	"coin_fee" double precision NOT NULL,
+	"commission" double precision NOT NULL,
+	"tax" double precision NOT NULL,
+	"confirmation" TEXT,
+	CONSTRAINT "convert_coin_pk" PRIMARY KEY ("convert_coin_id")
+) WITH (
+  OIDS=FALSE
+);
+
+Create index on convert_coin (from_cmc_id);
+Create index on convert_coin (to_cmc_id);
+Create index on convert_coin (for_date);
