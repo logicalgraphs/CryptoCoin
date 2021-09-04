@@ -14,29 +14,19 @@ import Data.Time (Day)
 import Database.PostgreSQL.Simple (Connection)
 
 import Control.Map (snarf)
-import Control.Scan.CSV (csv, readMaybe)
+import Control.Scan.CSV (readMaybe)
 
 import CryptoCoin.CoinMarketCap.Utils (geaux, dateDir)
 
 import Data.CryptoCurrency.Types.Transfers.Cash
            (CashTransfer(CashTransfer), storeCashTransfersAndUpdatePortfolii)
-import Data.CryptoCurrency.Utils (report, plural, processFile)
+import Data.CryptoCurrency.Utils (report, plural, fileProcessor)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
-
-makeCashTransfer :: String -> Maybe CashTransfer
-makeCashTransfer = mkCashTransF . csv
 
 mkCashTransF :: [String] -> Maybe CashTransfer
 mkCashTransF [readMaybe -> dt, port, readMaybe -> dir, readMaybe -> amt] =
    CashTransfer <$> dt <*> Just port <*> dir <*> amt
-
-rct' :: FilePath -> Bool -> IO [CashTransfer]
-rct' _ False = return []
-rct' file True =
-   mapMaybe makeCashTransfer . mbtail . lines <$> readFile file
-      where mbtail [] = []
-            mbtail (_:t) = t
 
 {--
 >>> withConnection ECOIN (\conn -> transFContext conn >>= print)
@@ -81,5 +71,6 @@ go = geaux storeCashTransfersAndUpdatePortfoliiCSV
 
 storeCashTransfersAndUpdatePortfoliiCSV :: Connection -> Day -> IO ()
 storeCashTransfersAndUpdatePortfoliiCSV conn date =
-   dateDir "transfers" date >>= processFile rct' . (++ "/cash.csv") >>=
+   dateDir "transfers" date                      >>=
+   fileProcessor mkCashTransF . (++ "/cash.csv") >>=
    storeCashTransfersAndUpdatePortfolii conn

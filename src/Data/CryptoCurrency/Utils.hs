@@ -3,7 +3,13 @@
 module Data.CryptoCurrency.Utils where
 
 import Data.List (isSuffixOf)
+
+import Data.Maybe (mapMaybe)
+
 import System.Directory (listDirectory, doesFileExist)
+
+import Control.List (softtail)
+import Control.Scan.CSV (csv)
 
 -- eh, just some j-random stuff I need
 
@@ -27,8 +33,13 @@ filesAtDir suffies dir = filter (suffixes suffies) <$> listDirectory dir
 ["coins_traded_on_binance.csv","coins_traded_on_coinbase.csv"]
 --}
 
-processFile :: (FilePath -> Bool -> IO [a]) -> FilePath -> IO [a]
-processFile fn file = doesFileExist file >>= fn file
+fileProcessor :: ([String] -> Maybe a) -> FilePath -> IO [a]
+fileProcessor fn file = doesFileExist file >>= fileProcessorGuard fn file
+
+fileProcessorGuard :: ([String] -> Maybe a) -> FilePath -> Bool -> IO [a]
+fileProcessorGuard fn file False = return []
+fileProcessorGuard fn file True =
+   mapMaybe (fn . csv) . softtail . lines <$> readFile file
 
 -- I do this often enough now, so:
 

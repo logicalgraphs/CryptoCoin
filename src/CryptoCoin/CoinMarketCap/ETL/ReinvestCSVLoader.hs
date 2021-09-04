@@ -16,7 +16,7 @@ import Data.Time (Day)
 import Database.PostgreSQL.Simple (Connection)
 
 import Control.List (softtail)
-import Control.Scan.CSV (csv, readMaybe)
+import Control.Scan.CSV (readMaybe)
 
 import CryptoCoin.CoinMarketCap.Utils (geaux, dateDir)
 
@@ -24,7 +24,7 @@ import Data.CryptoCurrency.Types.Recommendation (Call(BUY))
 import Data.CryptoCurrency.Types.Transaction
            (Transaction(Transaction), StoreTransactionsF, storeTransaction)
 import Data.CryptoCurrency.Types.Transactions.Context (transContext)
-import Data.CryptoCurrency.Utils (report, plural, processFile)
+import Data.CryptoCurrency.Utils (report, plural, fileProcessor)
 
 import Data.Monetary.USD (USD(USD))
 
@@ -40,11 +40,6 @@ mkReinvest [sym,date,amt,portfolio] =
    let nomonay = Just (USD 0) in
    Transaction sym <$> readMaybe date <*> nomonay <*> nomonay
                    <*> readMaybe amt <*> Just BUY <*> Just portfolio
-
-rr' :: FilePath -> Bool -> IO [Transaction]
-rr' _ False = return []
-rr' file True =
-   mapMaybe (mkReinvest . csv) . softtail . lines <$> readFile file
 
 {--
 >>> transs <- readTransactions "holdings.csv" 
@@ -72,7 +67,8 @@ go = geaux addAllStakes
 
 addAllStakes :: Connection -> Day -> IO ()
 addAllStakes conn date =
-  dateDir "stakes" date >>= processFile rr' . (++ "/reinvested.csv") >>= \rs ->
+  dateDir "stakes" date                             >>=
+  fileProcessor mkReinvest . (++ "/reinvested.csv") >>= \rs ->
   report 0 (msg (length rs)) (transContext conn >>= flip (reinvest conn) rs)
 
 msg :: Int -> String

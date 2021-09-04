@@ -13,7 +13,7 @@ import Data.Time (Day)
 
 import Database.PostgreSQL.Simple (Connection)
 
-import Control.Scan.CSV (csv, readMaybe)
+import Control.Scan.CSV (readMaybe)
 
 import CryptoCoin.CoinMarketCap.Utils (geaux, dateDir)
 
@@ -26,7 +26,7 @@ import Data.CryptoCurrency.Types.Transactions.Context
 import Data.CryptoCurrency.Types.Transfers.Cash
            (CashTransfer(CashTransfer), Direction(OUTGO, INCOME),
             storeCashTransfersAndUpdatePortfolii)
-import Data.CryptoCurrency.Utils (report, conj, plural, processFile)
+import Data.CryptoCurrency.Utils (report, conj, plural, fileProcessor)
 import Data.LookupTable (LookDown, lookdown)
 import Data.Monetary.USD (USD(USD))
 
@@ -41,9 +41,6 @@ storeTransactionsAssocRecommendations conn tc =
 onlyStoreTransactions :: StoreTransactionsF
 onlyStoreTransactions conn tc = mapM_ (storeTransaction conn tc)
 
-makeTransaction :: String -> Maybe Transaction
-makeTransaction = mkTrans . csv
-
 mkTrans :: [String] -> Maybe Transaction
 mkTrans [sym,date,spent,surcharge,amt,call,portfolio,_confirmation] =
    mkTrans [sym,date,spent,surcharge,amt,call,portfolio]
@@ -53,14 +50,7 @@ mkTrans [sym,date,spent,surcharge,amt,call,portfolio] =
                    <*> readMaybe call <*> Just portfolio
 
 readTransactions :: FilePath -> IO [Transaction]
-readTransactions = processFile rt'
-
-rt' :: FilePath -> Bool -> IO [Transaction]
-rt' _ False = return []
-rt' file True =
-   mapMaybe makeTransaction . mbtail . lines <$> readFile file
-      where mbtail [] = []
-            mbtail (_:t) = t
+readTransactions = fileProcessor mkTrans
 
 {--
 >>> withConnection ECOIN (\conn -> transContext conn >>= \(TC cns a b) ->
