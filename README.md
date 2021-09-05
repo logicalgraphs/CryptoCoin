@@ -103,12 +103,13 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
 * We REALLY need to add loans.
 
 * We need to move holdings to its own data type
+* We need a report of holdings, irrespective of portfolio
 
 * We need a coin exchange from coin to coin, called CoinConvert, that is, when
   we convert COMP to ETH (to MIR)
-  * we need to add a data-table for this
-  * as well as the ETL process
-  * as well as updating how we compute holdings
+  * DONE: we need to add a data-table for this
+  * DONE: as well as the ETL process
+  * TODO: as well as updating how we compute holdings
 
 * We need to know the best (lowest) average price on a BUY recommendation and
   the best (highest) average price on a SELL recommendation... and not $0.00.

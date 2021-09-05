@@ -4,6 +4,7 @@ module Data.CryptoCurrency.Types.Conversion where
 
 import Control.Monad (void)
 
+import Data.Char (toUpper)
 import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
 import qualified Data.Set as Set
@@ -19,9 +20,11 @@ import Data.CryptoCurrency.Types.Transactions.Context (TransactionContext(TaC))
 
 import Data.LookupTable (LookupTable)
 
+import Data.Monetary.USD (USD)
+
 import Data.XHTML (Name)
 
-data Spot = Spot { coin :: Name, amount, quote :: Double }
+data Spot = Spot { coin :: Name, amount :: Double, quote :: USD }
    deriving (Eq, Ord, Show)
 
 toSpot' :: CoinIdsLookup -> Spot -> Maybe Spot'
@@ -41,9 +44,9 @@ data ConvertData =
 
 toConvert' :: TransactionContext -> ConvertData -> Maybe Convert'
 toConvert' (TaC coinLk _ portLk _) (CD dt port c1 c2 fee comm tx confirm) =
-   Map.lookup port portLk >>= \porti ->
-   toSpot' coinLk c1      >>= \s1 ->
-   toSpot' coinLk c2      >>= \s2 ->
+   Map.lookup (map toUpper port) portLk >>= \porti ->
+   toSpot' coinLk c1                    >>= \s1 ->
+   toSpot' coinLk c2                    >>= \s2 ->
    return (IxRow porti dt (CD' s1 s2 fee comm tx confirm))
 
 storeConvertData :: Connection -> TransactionContext -> [ConvertData] -> IO ()

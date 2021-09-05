@@ -10,13 +10,16 @@ import Database.PostgreSQL.Simple.ToRow (ToRow, toRow)
 import Database.PostgreSQL.Simple.Types (Query(Query))
 
 import Data.CryptoCurrency.Types (Idx, IxRow(IxRow))
+
+import Data.Monetary.USD (USD)
+
 import Data.XHTML (Name)
 
-data Spot' = Spot' Idx Double Double
+data Spot' = Spot' Idx Double USD
    deriving (Eq, Ord, Show)
 
 instance ToRow Spot' where
-   toRow (Spot' ix amt quot) = toField ix:map toField [amt,quot]
+   toRow (Spot' ix amt quot) = [toField ix, toField amt, toField quot]
 
 data ConvertData' =
    CD' Spot' Spot' Double Double Double (Maybe Name)
