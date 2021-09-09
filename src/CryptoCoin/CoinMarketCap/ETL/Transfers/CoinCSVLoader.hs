@@ -42,13 +42,22 @@ mtu = map toUpper
 
 toCnXf :: LookupTable -> String -> Maybe CoinTransfer
 toCnXf coinLk
-       (tail . csv -> [dt, amt, cn, mtu -> fr, mtu -> xt, sur, _scn, bas]) =
+       (readRowWithPossibleConfirmation -> [dt, amt, cn, mtu -> fr, mtu -> xt, sur, _scn, bas]) =
    Map.lookup cn coinLk >>= \cid ->
    readMaybe dt         >>= \date ->
    readMaybe amt        >>= \amount ->
    readMaybe sur        >>= \surcharge ->
    readMaybe bas        >>= \basis ->
    return (IxRow cid date (CoinTransferDatum amount surcharge basis fr xt))
+
+readRowWithPossibleConfirmation :: String -> [String]
+readRowWithPossibleConfirmation = rrwpc' . tail . csv
+
+rrwpc' :: [String] -> [String]
+rrwpc' a@[dt, amt, cn, mtu -> fr, mtu -> xt, sur, _scn, bas] = a
+rrwpc' b@[dt, amt, cn, mtu -> fr, mtu -> xt, sur, _scn, bas, confirmation] =
+   init b
+rrwpc' row = error ("Unable to read row: " ++ show row)
 
 {--
 >>> import Database.PostgreSQL.Simple
