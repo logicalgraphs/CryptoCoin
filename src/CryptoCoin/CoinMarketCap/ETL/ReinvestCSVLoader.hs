@@ -20,7 +20,7 @@ import Control.Scan.CSV (readMaybe)
 
 import CryptoCoin.CoinMarketCap.Utils (geaux, dateDir)
 
-import Data.CryptoCurrency.Types.Recommendation (Call(BUY))
+import Data.CryptoCurrency.Types.Recommendation (Call(CLAIM))
 import Data.CryptoCurrency.Types.Transaction
            (Transaction(Transaction), StoreTransactionsF, storeTransaction)
 import Data.CryptoCurrency.Types.Transactions.Context (transContext)
@@ -36,10 +36,12 @@ reinvest conn tc = mapM_ (storeTransaction conn tc)
 mkReinvest :: [String] -> Maybe Transaction
 mkReinvest [sym,date,amt,portfolio,_confirmation] =
    mkReinvest [sym,date,amt,portfolio]
-mkReinvest [sym,date,amt,portfolio] =
+mkReinvest a@[sym,date,amt,portfolio] =
+   mkReinvest $ a ++ words "xyz abc"
+mkReinvest [sym,date,amt,portfolio,surcharge,_confirmation] =
    let nomonay = Just (USD 0) in
-   Transaction sym <$> readMaybe date <*> nomonay <*> nomonay
-                   <*> readMaybe amt <*> Just BUY <*> Just portfolio
+   Transaction sym <$> readMaybe date <*> nomonay <*> readMaybe surcharge
+                   <*> readMaybe amt <*> Just CLAIM <*> Just portfolio
 
 {--
 >>> transs <- readTransactions "holdings.csv" 

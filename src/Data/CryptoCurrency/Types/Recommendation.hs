@@ -39,17 +39,20 @@ import Data.Time.TimeSeries (today)
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 import Store.SQL.Util.LookupTable (lookupTableFrom)
 
-data Call = BUY | SELL
+data Call = BUY | SELL | XFER | CLAIM
    deriving (Eq, Ord, Show, Read)
 
 dir :: Call -> Double
 dir BUY = 1
 dir SELL = (-1)
+dir XFER = error "A call of 'XFER' should never happen as a transaction."
+dir CLAIM = dir BUY
 
 instance Monoid Call where
    mempty = BUY
-   BUY `mappend` BUY = BUY
-   _   `mappend` _   = SELL
+   a `mappend` b =
+      let buyish = Set.fromList [BUY,CLAIM] in
+      if all (flip Set.member buyish) [a,b] then BUY else SELL
 
 data Source = Pat Pattern | Ind Indicator
    deriving (Eq, Ord, Show)
