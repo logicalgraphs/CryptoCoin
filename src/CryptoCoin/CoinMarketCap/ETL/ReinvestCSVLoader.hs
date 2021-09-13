@@ -33,14 +33,19 @@ import Store.SQL.Connection (withConnection, Database(ECOIN), connectInfo)
 reinvest :: StoreTransactionsF
 reinvest conn tc = mapM_ (storeTransaction conn tc)
 
+nomonay :: Maybe USD
+nomonay = Just (USD 0)
+
 mkReinvest :: [String] -> Maybe Transaction
-mkReinvest [sym,date,amt,portfolio,_confirmation] =
-   mkReinvest [sym,date,amt,portfolio]
-mkReinvest a@[sym,date,amt,portfolio] =
-   mkReinvest $ a ++ words "xyz abc"
+mkReinvest a@[sym,date,amt,portfolio,_confirmation] = mr' nomonay (init a)
+mkReinvest a@[sym,date,amt,portfolio] = mr' nomonay a
 mkReinvest [sym,date,amt,portfolio,surcharge,_confirmation] =
-   let nomonay = Just (USD 0) in
-   Transaction sym <$> readMaybe date <*> nomonay <*> readMaybe surcharge
+   mr' (readMaybe surcharge) [sym,date,amt,portfolio]
+mkReinvest row = error ("Could not process: " ++ show row)
+
+mr' :: Maybe USD -> [String] -> Maybe Transaction
+mr' surcharge [sym,date,amt,portfolio] =
+   Transaction sym <$> readMaybe date <*> nomonay <*> surcharge
                    <*> readMaybe amt <*> Just CLAIM <*> Just portfolio
 
 {--
