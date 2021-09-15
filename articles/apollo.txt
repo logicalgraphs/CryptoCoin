@@ -1,0 +1,45 @@
+The Terra ecosphere was abuzz this past week, with the impending launch of its new product: Apollo.
+
+And 'abuzz' rightly so! The launch did not disappoint with the incentive of the Community Farming of Apollo tokens being so successful in attracting subscribers and LPs with their cold, hard crypto-cash, that prior estimates of this honeymoon phase had to be thrown right out the window in the face of the onslaught of LUNAtics bustin' down Apollo's doors, screaming: "SHUT UP AND TAKE MUH MONEY!"
+
+I was going to do an analysis of how people unstaked their pre-existing LPs to transfer to Apollo, but these events are still too fresh in the data stream, and the sample transaction of me unstaking my ANC-UST LP on Anchor to restake into Apollo doesn't yet exist in the `msg_events`-table.
+
+So, let's take a step back, then, and look at the activity in the Terra Ecosphere leading up to Apollo's launch.
+
+What kinds of contracts were being executed leading up to Icarus' accent into Apollo's Sun?
+
+I consider the above chart a baseline of things to come. What I'd like to do next week is to compare the unbounding of this week to the unbounding of next week.
+
+### Hypothesis
+
+Next week's unbounding-count will be much higher.
+
+Why do I say that?
+
+Because, and I did not know this until Apollo was upon us, you can destake a currently existing LP, but not (necessarily) disband it, because Apollo accepts LP-tokens, directly.
+
+### Hypothesis
+
+Purchase of UST will go way up next week.
+
+Why do I say this?
+
+Because Apollo has an auto-split feature that users have fallen in love with, as mentioned in [this post on the Apollo discord](https://discord.com/channels/830099985969971211/835979926851158057/887472877543235615), where UST goes in, and Apollo halves that UST to create the balanced LP of your choice. Neat! That saves a step and a few transactional fees.
+
+So: I posit that UST will be snarfed up like candy from a piñata! ... VIVA PIÑATA!
+
+Okay. So, we've generated a couple of hypothesis from a baseline of data, and, here: I would like to make a humble request.
+
+### A Humble Request.
+
+The only way to unstake Mirror LPs so that they are usable in the Apollo domain is to disband them, then to restake them *not* on Mirror, but by creating the LP on Terraswap.
+
+That seems to be an unnecessarily violent approach, possibly (I'm not sure, and I hope not) creating tax-events in some contries.
+
+Some other environment either have a manual staking step (e.g.: Pylon's MINE or Anchor's, ... well: ANC) for their LPs, or their LPs are available to stake on Apollo without issue (e.g.: Terraswap). Can we have Mirror do one or the other. This way: the LPs on Mirror keep their integrity when transitioned to Apollo.
+
+Okay. Let's take a look at what kinds of `execute_contract`s occurred, leading up to the Apollo launch.
+
+What does this chart tell us? Well, what it tells me is that the Terra ecosphere hummed along, blithely unaware of the game-changer that was about to happen: Apollo.
+
+It'll be interesting to see if there are patterns that emerge in contracts when the dust settles from the post-Apollo launch.
