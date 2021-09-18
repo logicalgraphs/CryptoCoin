@@ -19,7 +19,7 @@ import Database.PostgreSQL.Simple (Connection)
 
 import Control.Scan.CSV (csv,readMaybe)
 
-import CryptoCoin.CoinMarketCap.Utils (geaux, dateDir)
+import CryptoCoin.CoinMarketCap.Utils (geaux, gon, dateDir)
 
 import Data.CryptoCurrency.Types (IxRow(IxRow))
 import Data.CryptoCurrency.Types.Transfers.Coin
@@ -31,6 +31,7 @@ import Data.CryptoCurrency.Utils (report, plural)
 
 import Data.LookupTable (LookupTable)
 import Data.Monetary.USD (USD)
+
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 
 sampCoinXfer :: [String]

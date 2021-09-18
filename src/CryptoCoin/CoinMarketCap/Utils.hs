@@ -9,11 +9,12 @@ import Database.PostgreSQL.Simple (Connection)
 
 import System.Environment (getEnv)
 
-import Data.Time.TimeSeries (today)
+import Data.Time.TimeSeries (today, yest)
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 
-geaux :: (Connection -> Day -> IO a) -> IO ()
+geaux, gon :: (Connection -> Day -> IO a) -> IO ()
 geaux fn = today >>= withConnection ECOIN . flip fn
+gon fn = yest >>= withConnection ECOIN . flip fn
 
 dateDir :: FilePath -> Day -> IO FilePath
 dateDir dir date =
