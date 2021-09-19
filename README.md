@@ -112,7 +112,8 @@ First, the [Five Most Powerful Candlestick Patterns](https://www.investopedia.co
   * TODO: as well as updating how we compute holdings
 
 * We need to know the best (lowest) average price on a BUY recommendation and
-  the best (highest) average price on a SELL recommendation... and not $0.00.
+  the best (highest) average price on a SELL recommendation... and not $0.00:
+  DONE-...ish. We grab the previous recommended price.
 
 * provide year-to-date transaction history with the portfolio report
 
@@ -151,6 +152,7 @@ https://github.com/geophf/1HaskellADay/tree/master/exercises/HAD/Graph/D3
 ## Revision History
 ### ... or feeping creatures! AHA!
 
+* 2021-09-18: Updated recommendation report, automating all data-gathering
 * 2021-07-26: Added buy/sell recommendations to portfolio holdings
 * 2021-07-25: transfer coin protocol added to portfolio reports.
 * 2021-07-11: transfer_coin table to transfer coins between exchanges.
