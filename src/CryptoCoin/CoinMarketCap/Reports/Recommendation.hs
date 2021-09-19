@@ -7,14 +7,6 @@ module CryptoCoin.CoinMarketCap.Reports.Recommendation where
 {--
 We extract the recommendations from the data-store and report them out
 (in a nice format, obvs).
-
-Upgrade 1.1: what is our basis?
-
-Find me: 
-
-1. yesterday's price, OR
-2. The lowest average in a portfolio for a buy recommendation, OR
-3. The highest average in a portfolio for a sell recommendation.
 --}
 
 import Control.Arrow ((&&&))
@@ -24,7 +16,7 @@ import Data.Foldable (toList)
 import Data.List (intercalate)
 import Data.Map (Map)
 import qualified Data.Map as Map
-import Data.Maybe (mapMaybe)
+import Data.Maybe (mapMaybe, maybeToList)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.Time (Day, addDays)
@@ -40,14 +32,17 @@ import Control.Presentation hiding (S)
 
 import CryptoCoin.CoinMarketCap.Reports.Table (csvReport)
 
-import Data.LookupTable (LookupTable)
-import Data.Monetary.USD
 import Data.CryptoCurrency.Types (IxRow(IxRow), idx, Idx, row, Indexed, 
            Rank, rank, namei, Named)
 import Data.CryptoCurrency.Types.Recommendation
           (Recommendation, RecommendationData(Rekt), call, Call(BUY), 
            fetchRecommendations, Source, toSource)
 import Data.CryptoCurrency.Utils (plural, pass)
+
+import Data.LookupTable (LookupTable)
+import Data.Monetary.USD
+import Data.Percentage
+import Data.XHTML (Name)
 
 import Store.SQL.Connection (withConnection, Database(ECOIN))
 import Store.SQL.Util.LookupTable (lookupTable)
@@ -227,6 +222,10 @@ instance Rank RecRow where
 
 instance Indexed RecRow where idx = idx . coin
 
+instance Univ RecRow where
+   explode (RR (IxRow i _d (CoinRow sy n sl p r)) exs tlas buys sells) =
+      [show i, sy, n, show p, show r, ts' tlas buys, ts' tlas sells, jexs exs]
+
 type BuySell = (Set Recommendation, Set Recommendation)
 
 buySell :: Set Recommendation -> BuySell
@@ -277,8 +276,96 @@ RR {coin = IxRow 1437 2021-04-20 (CoinRow "ZEC" "Zcash" $230.94 50),
 ...
 --}
 
+data RecHist =
+   RH { lastPrice :: Double,
+        lastRank  :: Integer,
+        diff      :: Percentage,
+        wow       :: String,
+        port      :: Maybe Name }
+      deriving (Eq, Show)
+
+instance Rank RecHist where rank = lastRank
+
+fetchRecHistsQuery :: Day -> Query
+fetchRecHistsQuery dt = Query . B.pack $ unlines [
+   "with todays as (",
+   "select c.cmc_id cmc_id,c.symbol sym,c.name as name,quote_price price,rank",
+   "from coin_market_cap_daily_listing cmc",
+   "inner join coin c on c.cmc_id=cmc.cmc_id",
+   "where for_date='" ++ show dt ++ "' and c.cmc_id in ?),",
+   "last_days as (",
+   "select r.cmc_id cmc_id,max(for_date) last_date",
+   "from recommendation r ",
+   "inner join todays t on t.cmc_id=r.cmc_id",
+   "where for_date < '" ++ show dt ++ "'",
+   "group by 1",
+   "),",
+   "diffs as (",
+   "select t.cmc_id,sym,name,price,t.rank,last_date,",
+   "quote_price last_price,cmc.rank last_rank,",
+   "((price - quote_price) / price * 100) diff",
+   "from todays t",
+   "inner join last_days l on l.cmc_id=t.cmc_id",
+   "inner join coin_market_cap_daily_listing cmc on cmc.cmc_id=l.cmc_id ",
+   "and l.last_date=cmc.for_date),",
+   "wows as (",
+   "select cmc_id, (case when diff < -10 then 'vvv'",
+   "when diff > 10 then '^^^'",
+   "else ' ' end) as wow",
+   "from diffs),",
+   "xacts as (",
+   "select d.cmc_id as cmc_id,portfolio_id,for_date dt",
+   "from transaction_log t",
+   "inner join diffs d on d.cmc_id=t.cmc_id),",
+   "xfers as (",
+   "select d.cmc_id as cmc_id, transfer_to as portfolio_id,for_date dt",
+   "from transfer_coin t",
+   "inner join diffs d on d.cmc_id=t.cmc_id),",
+   "xs_raw as (select * from xfers union select * from xacts),",
+   "xs_maxs as (select cmc_id,max(dt) max_dt from xs_raw group by 1),",
+   "xs as (",
+   "select a.cmc_id cmc_id,portfolio_id,dt",
+   "from xs_raw a",
+   "inner join xs_maxs m on m.cmc_id=a.cmc_id and m.max_dt=a.dt",
+   "group by 1,2,3)",
+   "select d.cmc_id,last_date,last_price, last_rank, diff || '%' diff,wow,",
+   "portfolio_name portfolio",
+   "from diffs d",
+   "inner join wows w on w.cmc_id=d.cmc_id",
+   "left join xs x on x.cmc_id=d.cmc_id",
+   "left join portfolio p on p.portfolio_id=x.portfolio_id"]
+
+instance FromRow RecHist where
+   fromRow = RH <$> field <*> field <*> field <*> field <*> field
+
+instance Univ RecHist where
+   explode (RH p r d w o) =
+      [show (USD $ toRational p), show r, show d, w] ++ maybeToList o
+
+fetchRecHists :: Connection -> Day -> [RecRow] -> IO [IxRow RecHist]
+fetchRecHists conn dt = query conn (fetchRecHistsQuery dt) . inSet . map idx
+
+data SuperRec = SR { rr :: RecRow, rh :: IxRow RecHist }
+   deriving (Eq, Show)
+
+instance Rank SuperRec where rank = rank . rr
+
+instance Univ SuperRec where
+   explode (SR rr (IxRow _ d rh)) = explode rr ++ (show d:explode rh)
+
+mindMeld :: [RecRow] -> [IxRow RecHist] -> [SuperRec]
+mindMeld rr = flip mm rr . Map.fromList . map (idx &&& id)
+
+mm :: Map Idx (IxRow RecHist) -> [RecRow] -> [SuperRec]
+mm m = mapMaybe (\r -> SR r <$> Map.lookup (idx r) m)
+
+fetchSuperRecs :: Connection -> Day -> [RecRow] -> IO [SuperRec]
+fetchSuperRecs conn dt recs =
+   mindMeld recs <$> fetchRecHists conn dt recs
+
 thdr :: [String]
-thdr = words "ID symbol name price rank buys sells exchanges comparison"
+thdr = words ("ID symbol name price rank buys sells exchanges last_recommended "
+              ++ "last_price last_rank diff WOW! portfolio")
 
 pipe :: Foldable t => (a -> Maybe String) -> t a -> String
 pipe f = intercalate "|" . mapMaybe f . toList
@@ -289,10 +376,6 @@ jexs = pipe (pure . namei)
 ts' :: Foldable t => TLAs -> t Recommendation -> String
 ts' tlas = pipe (\r -> fst <$> tlb tlas r)
 
-instance Univ RecRow where
-   explode (RR (IxRow i _d (CoinRow sy n sl p r)) exs tlas buys sells) =
-      [show i, sy, n, show p, show r, ts' tlas buys, ts' tlas sells, jexs exs]
-
 tlb :: TLAs -> Recommendation -> Maybe (String, String)
 tlb tlas (row -> Rekt _ src _) = tupII <$> Map.lookup src tlas
 
@@ -301,7 +384,9 @@ tupII (II tla url) = (tla, url)
 
 collateRecsAndReport :: Connection -> Day -> IO ()
 collateRecsAndReport conn date =
-   collateRecommendations conn date >>= csvReport date "recommendation" thdr
+   collateRecommendations conn date >>= 
+   fetchSuperRecs conn date         >>=
+   csvReport date "recommendation" thdr
 
 go :: IO ()
 go = withConnection ECOIN (\conn -> 
