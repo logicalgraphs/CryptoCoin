@@ -1,4 +1,4 @@
-module CryptoCoin.CoinMarketCap.Utils where
+module CryptoCoin.Utils where
 
 -- just a li'l sumthin to help our suite of apps get going
 
