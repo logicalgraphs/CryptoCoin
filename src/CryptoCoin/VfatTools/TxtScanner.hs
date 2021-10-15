@@ -6,7 +6,7 @@ module CryptoCoin.DefiKingdoms.VfatTools.TxtScanner where
 
 import Control.Arrow
 
-import Data.List (isPrefixOf, sortOn, intercalate)
+import Data.List (isPrefixOf, dropWhile, sortOn, intercalate)
 import Data.Maybe (catMaybes)
 import Data.Ord
 
@@ -29,7 +29,7 @@ fastForwardTo :: String -> [String] -> [String]
 fastForwardTo _ [] = []
 fastForwardTo start lines@(l:ines)
    | l == []                     = fastForwardTo start ines
-   | start `isPrefixOf` (tail l) = lines
+   | start `isPrefixOf` (dropWhile (/= ' ') l) = lines
    | otherwise                   = fastForwardTo start ines
 
 {--
@@ -104,14 +104,22 @@ ppYieldFarm (YFOut (YieldFarm n t j) o) =
 The result of which is:
 
 >>> go
+JEWEL yield-farm report for 2021-10-15: (ranked highest-yield first)
+
+lp,tvl,jewels per week,jewels/dollar/week yield
 [JEWEL]-[bscBNB],$3238734.51,607839.2,0.18767799496526502
 [UST]-[JEWEL],$3434142.36,607839.2,0.17699883563213897
 [JEWEL]-[XYA],$1717237.62,303919.6,0.1769816800980004
 [JEWEL]-[BUSD],$3789566.95,607839.2,0.16039806321353145
+[JEWEL]-[MIS],$1536246.69,243135.68,0.1582660394266951
 [JEWEL]-[1USDC],$3906428.91,607839.2,0.1555997083848126
 [1WBTC]-[JEWEL],$4035600.15,607839.2,0.15061928254881832
 [1ETH]-[JEWEL],$4208499.00,607839.2,0.14443135171894855
 [JEWEL]-[WONE],$51097846.16,7294070.35,0.14274711944700613
+[1SUPERBID]-[JEWEL],$1203858.00,109411.06,9.088369188524024e-2
+[1SUPERBID]-[WONE],$326842.99,12156.78,3.7194555752984707e-2
 [WONE]-[BUSD],$5476445.84,121567.84,2.219830953153523e-2
+[1USDC]-[WONE],$5542266.80,121567.84,2.193467840457024e-2
 [1ETH]-[WONE],$6290152.85,121567.84,1.9326690909167103e-2
+[1WBTC]-[1ETH],$34686433.67,121567.84,3.504766190120581e-3
 --}
