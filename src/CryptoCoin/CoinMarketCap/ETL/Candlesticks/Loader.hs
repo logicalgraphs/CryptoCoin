@@ -53,7 +53,7 @@ import Control.Logic.Frege ((-|))
 
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
 import CryptoCoin.CoinMarketCap.ETL.Candlesticks.Util (cndlstks)
-import CryptoCoin.CoinMarketCap.Utils (geaux)
+import CryptoCoin.Utils (geaux)
 
 import Data.CryptoCurrency.Types (Idx, IxRow(IxRow))
 import Data.CryptoCurrency.Utils (report)

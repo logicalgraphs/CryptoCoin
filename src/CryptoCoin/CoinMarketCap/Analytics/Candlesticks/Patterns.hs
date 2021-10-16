@@ -28,7 +28,7 @@ import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.ThreeBlackCrows (tbc)
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.AbandonedBaby (ab)
 import CryptoCoin.CoinMarketCap.Analytics.Candlesticks.EveningStar (es)
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
-import CryptoCoin.CoinMarketCap.Utils (geaux)
+import CryptoCoin.Utils (geaux)
 
 import Data.CryptoCurrency.Types
 import Data.CryptoCurrency.Types.OCHLV

@@ -26,7 +26,7 @@ import Database.PostgreSQL.Simple.Types
 import Control.Presentation
 import Control.Scan.CSV
 
-import CryptoCoin.CoinMarketCap.Utils (geaux, sanitize)
+import CryptoCoin.Utils (geaux, sanitize)
 
 import Data.CryptoCurrency.Utils (pass', filesAtDir)
 

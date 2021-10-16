@@ -18,7 +18,7 @@ import Database.PostgreSQL.Simple.Types
 import Control.Logic.Frege ((-|))
 
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
-import CryptoCoin.CoinMarketCap.Utils (geaux)
+import CryptoCoin.Utils (geaux)
 
 import Data.CryptoCurrency.Types (Idx, IxRow(IxRow), row)
 import Data.CryptoCurrency.Types.Recommendation

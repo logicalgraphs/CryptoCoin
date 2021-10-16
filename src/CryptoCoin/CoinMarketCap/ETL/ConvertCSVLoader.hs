@@ -22,7 +22,7 @@ import Database.PostgreSQL.Simple (Connection)
 
 import Control.Scan.CSV (readMaybe)
 
-import CryptoCoin.CoinMarketCap.Utils (geaux, dateDir)
+import CryptoCoin.Utils (geaux, dateDir)
 
 import Data.CryptoCurrency.Types.Conversion
        (ConvertData(CD), Spot(Spot), storeConvertData)

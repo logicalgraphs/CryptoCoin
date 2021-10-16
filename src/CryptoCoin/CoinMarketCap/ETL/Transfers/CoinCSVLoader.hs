@@ -19,7 +19,7 @@ import Database.PostgreSQL.Simple (Connection)
 
 import Control.Scan.CSV (csv,readMaybe)
 
-import CryptoCoin.CoinMarketCap.Utils (geaux, gon, dateDir)
+import CryptoCoin.Utils (geaux, gon, dateDir)
 
 import Data.CryptoCurrency.Types (IxRow(IxRow))
 import Data.CryptoCurrency.Types.Transfers.Coin

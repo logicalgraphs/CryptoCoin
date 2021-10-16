@@ -18,7 +18,7 @@ import Database.PostgreSQL.Simple (Connection)
 import Control.List (softtail)
 import Control.Scan.CSV (readMaybe)
 
-import CryptoCoin.CoinMarketCap.Utils (geaux, dateDir, gon)
+import CryptoCoin.Utils (geaux, dateDir, gon)
 
 import Data.CryptoCurrency.Types.Recommendation (Call(CLAIM))
 import Data.CryptoCurrency.Types.Transaction

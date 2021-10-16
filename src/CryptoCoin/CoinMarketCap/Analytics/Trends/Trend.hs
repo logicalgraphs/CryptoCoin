@@ -13,7 +13,7 @@ import Database.PostgreSQL.Simple.Types
 
 import CryptoCoin.CoinMarketCap.Analytics.Trends.Indicators
 import CryptoCoin.CoinMarketCap.Data.TrackedCoin (trackedCoins)
-import CryptoCoin.CoinMarketCap.Utils (geaux)
+import CryptoCoin.Utils (geaux)
 
 import Data.CryptoCurrency.Types (Idx, IxRow(IxRow))
 import Data.CryptoCurrency.Types.Recommendation

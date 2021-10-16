@@ -16,7 +16,7 @@ import Database.PostgreSQL.Simple (Connection)
 import Control.Map (snarf)
 import Control.Scan.CSV (readMaybe)
 
-import CryptoCoin.CoinMarketCap.Utils (geaux, gon, dateDir)
+import CryptoCoin.Utils (geaux, gon, dateDir)
 
 import Data.CryptoCurrency.Types.Transfers.Cash
            (CashTransfer(CashTransfer), storeCashTransfersAndUpdatePortfolii)
