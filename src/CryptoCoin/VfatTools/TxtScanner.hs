@@ -87,18 +87,19 @@ mkYFOutput :: YieldFarm -> YFOutput
 mkYFOutput = YFOut <*> jewelsPerDollar
 
 go :: IO ()
-go = today                             >>= \tday ->
+go = today                                                      >>= \tday ->
      let title = "JEWEL yield-farm report for " ++ show tday ++ ":"
          caveat = " (ranked highest-yield first)\n\n"
          row = "lp,tvl,jewels per week,jewels/dollar/week yield" in
-     putStrLn (title ++ caveat ++ row) >>
-     dateDir "kingdoms" tday           >>=
-     readFarms . (++ "/scrape.txt")    >>=
-     mapM_ ppYieldFarm . sortOn (Down . output) . map mkYFOutput
+     putStrLn (title ++ caveat ++ row)                          >>
+     dateDir "kingdoms" tday                                    >>=
+     readFarms . (++ "/scrape.txt")                             >>=
+     mapM ppYieldFarm . sortOn (Down . output) . map mkYFOutput >>=
+     tweetIt tday
 
-ppYieldFarm :: YFOutput -> IO ()
+ppYieldFarm :: YFOutput -> IO String
 ppYieldFarm (YFOut (YieldFarm n t j) o) =
-   putStrLn (intercalate "," [n,show t, show j, show o])
+   putStrLn (intercalate "," [n,show t, show j, show o]) >> return n
 
 {--
 The result of which is:
@@ -123,3 +124,13 @@ lp,tvl,jewels per week,jewels/dollar/week yield
 [1ETH]-[WONE],$6290152.85,121567.84,1.9326690909167103e-2
 [1WBTC]-[1ETH],$34686433.67,121567.84,3.504766190120581e-3
 --}
+
+tweetIt :: Show day => day -> [String] -> IO ()
+tweetIt date lps =
+   mapM_ putStrLn
+     ["", 
+      "\"What is the LP that yields the most @DefiKingdoms $JEWEL per USD?\"",
+      "",
+      head lps ++ " is the top $JEWEL-yielding LP for " ++ show date,
+      "",
+      "data scraped from: https://vfat.tools/harmony/defikingdoms/"]
