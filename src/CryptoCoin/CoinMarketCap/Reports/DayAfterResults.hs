@@ -21,7 +21,7 @@ import Database.PostgreSQL.Simple.Types (Query(Query))
 import Control.Presentation (Univ, explode)
 
 import CryptoCoin.CoinMarketCap.Reports.Table (csvReport)
-import CryptoCoin.Utils (geaux)
+import CryptoCoin.Utils (geaux, gon)
 
 import Data.CryptoCurrency.Types (Idx, Rank, rank, row, idx)
 import Data.CryptoCurrency.Types.Recommendation
