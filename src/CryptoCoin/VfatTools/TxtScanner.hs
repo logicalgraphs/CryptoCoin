@@ -1,4 +1,7 @@
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE ViewPatterns  #-}
+
+-- TODO: MIS analysis so: data-files/yield-farming/jewel /mis ... /etc
 
 module CryptoCoin.DefiKingdoms.VfatTools.TxtScanner where
 
@@ -6,19 +9,32 @@ module CryptoCoin.DefiKingdoms.VfatTools.TxtScanner where
 
 import Control.Arrow
 
-import Data.List (isPrefixOf, dropWhile, sortOn, intercalate)
-import Data.Maybe (catMaybes)
+import Data.List (isPrefixOf, dropWhile, sortOn)
+import Data.Map (Map)
+import qualified Data.Map as Map
+import Data.Maybe (catMaybes, mapMaybe)
 import Data.Ord
+import Data.Time (Day)
 
+import Control.List (weave)
+import Control.Presentation (laxmi)
 import Control.Scan.CSV (readMaybe)
 
 import CryptoCoin.Utils (dateDir)
 
+import Data.CryptoCurrency.Utils (pass')
 import Data.Monetary.USD
-import Data.Time.TimeSeries (today)
+import Data.Time.TimeSeries (today, yest)
+
+type Coin = String
+
+type CoinPrices = Map Coin USD
 
 data YieldFarm =
-   YieldFarm { name :: String, tvl :: USD, jewels :: Double }
+   YieldFarm { name   :: String,
+               coins  :: CoinPrices,
+               tvl    :: USD,
+               jewels :: Double }
       deriving (Eq, Ord, Show)
 
 readFarms :: FilePath -> IO [YieldFarm]
@@ -37,7 +53,7 @@ First iteration of scanFile where YieldFarm = String:
 
 >>> today >>= dateDir "kingdoms" >>= readFarms . (++ "/scrape.txt") >>= mapM_ putStrLn . take 5
 0 - [JEWEL]-[WONE] Uni LP [+] [-] [<=>] Price: $2.02 TVL: $51,097,846.16
-JEWEL Price: $4.40n
+JEWEL Price: $4.40
 WONE Price: $0.22
 Staked: 24970606.4902 JEWEL-LP ($50,340,218.91)
 JEWEL Per Week: 7294070.35 ($32,088,439.83)
@@ -52,14 +68,23 @@ scanFile lines@(_:_) =
 
 convertOneBlock :: [String] -> (Maybe YieldFarm, [String])
 convertOneBlock [] = (Nothing, [])
-convertOneBlock (t:_:_:_:jpw:rest) = (convertYieldFarm t jpw, rest)
+convertOneBlock (t:a:b:_:jpw:rest) = (convertYieldFarm t a b jpw, rest)
 
-convertYieldFarm :: String -> String -> Maybe YieldFarm
-convertYieldFarm t jpw =
-   let l@(_:_:n:r) = words t
-       j@(_:_:_:a:_) = words jpw
-   in  YieldFarm n <$> readMaybe (filter (/= ',') (last r)) <*> readMaybe a
+readCleenUSD :: String -> Maybe USD
+readCleenUSD = readMaybe . filter (/= ',')
+
+convertYieldFarm :: String -> String -> String -> String -> Maybe YieldFarm
+convertYieldFarm t a b jpw =
+   let (_:_:n:r) = words t
+       (_:_:_:j:_) = words jpw
+   in  YieldFarm n (scanCoins a b) <$> readCleenUSD (last r) <*> readMaybe j
    -- in  if yf == Nothing then error (unwords ["Couldn't read",t,jpw]) else yf
+
+scanCoins :: String -> String -> CoinPrices
+scanCoins a b = Map.fromList (mapMaybe scanCoin [a,b])
+
+scanCoin :: String -> Maybe (Coin, USD)
+scanCoin (words -> [c,_,v]) = (c,) <$> readCleenUSD v
 
 {--
 With those 3 new functions, we now have:
@@ -75,31 +100,48 @@ YieldFarm {name = "[JEWEL]-[1USDC]", tvl = $3906428.91, jewels = 607839.2}
 YieldFarm {name = "[1WBTC]-[JEWEL]", tvl = $4035600.15, jewels = 607839.2}
 YieldFarm {name = "[UST]-[JEWEL]", tvl = $3434142.36, jewels = 607839.2}
 YieldFarm {name = "[1ETH]-[WONE]", tvl = $6290152.85, jewels = 121567.84}
+
+... along with the embedded coin prices.
 --}
 
-jewelsPerDollar :: YieldFarm -> Double
-jewelsPerDollar (YieldFarm _ (USD d) j) = j / fromRational d
+jewelsPer100Dollar :: YieldFarm -> Double
+jewelsPer100Dollar (YieldFarm _ _ (USD d) j ) = j * 100 / fromRational d
 
 data YFOutput = YFOut { yf :: YieldFarm, output :: Double }
    deriving (Eq, Ord, Show)
 
 mkYFOutput :: YieldFarm -> YFOutput
-mkYFOutput = YFOut <*> jewelsPerDollar
+mkYFOutput = YFOut <*> jewelsPer100Dollar
 
-go :: IO ()
-go = today                                                      >>= \tday ->
-     let title = "JEWEL yield-farm report for " ++ show tday ++ ":"
+reportYields :: Day -> IO ()
+reportYields date =
+     let title = "JEWEL yield-farm report for " ++ show date ++ ":"
          caveat = " (ranked highest-yield first)\n\n"
-         row = "lp,tvl,jewels per week,jewels/dollar/week yield" in
-     putStrLn (title ++ caveat ++ row)                          >>
-     dateDir "kingdoms" tday                                    >>=
-     readFarms . (++ "/scrape.txt")                             >>=
-     mapM ppYieldFarm . sortOn (Down . output) . map mkYFOutput >>=
-     tweetIt tday
+         row = "lp,tvl,jewels per week,jewels/100 dollars/week yield" in
+     putStrLn (title ++ caveat ++ row)                              >>
+     dateDir "kingdoms" date                                        >>=
+     readFarms . (++ "/scrape.txt")                                 >>= \yfs ->
+     mapM ppYieldFarm (sortOn (Down . output) (map mkYFOutput yfs)) >>=
+     pass' (reportPrices date yfs)                                  >>=
+     tweetIt date
 
 ppYieldFarm :: YFOutput -> IO String
-ppYieldFarm (YFOut (YieldFarm n t j) o) =
-   putStrLn (intercalate "," [n,show t, show j, show o]) >> return n
+ppYieldFarm (YFOut (YieldFarm n _ t j) o) =
+   putStrLn (weave [n,show t, show j, laxmi 2 (toRational o)]) >> return n
+
+reportPrices :: Day -> [YieldFarm] -> IO ()
+reportPrices (show -> date) (Map.unions . map coins -> cns) =
+   putStrLn "\nCoin prices\n\nfor_date,cmc_id,coin,price (USD)" >>
+   mapM_ (putStrLn . weave . (date:) . tup2list) (Map.toList cns)
+
+tup2list :: (String, USD) -> [String]
+tup2list (a,b) = [a, show b]
+
+gon :: IO ()
+gon = yest >>= reportYields
+
+go :: IO ()
+go = today >>= reportYields
 
 {--
 The result of which is:
@@ -125,7 +167,7 @@ lp,tvl,jewels per week,jewels/dollar/week yield
 [1WBTC]-[1ETH],$34686433.67,121567.84,3.504766190120581e-3
 --}
 
-tweetIt :: Show day => day -> [String] -> IO ()
+tweetIt :: Day -> [String] -> IO ()
 tweetIt date lps =
    mapM_ putStrLn
      ["", 
