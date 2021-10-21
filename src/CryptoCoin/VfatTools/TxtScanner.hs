@@ -9,6 +9,7 @@ module CryptoCoin.DefiKingdoms.VfatTools.TxtScanner where
 
 import Control.Arrow
 
+import Data.Char (toUpper)
 import Data.List (isPrefixOf, dropWhile, sortOn)
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -113,17 +114,18 @@ data YFOutput = YFOut { yf :: YieldFarm, output :: Double }
 mkYFOutput :: YieldFarm -> YFOutput
 mkYFOutput = YFOut <*> jewelsPer100Dollar
 
-reportYields :: Day -> IO ()
-reportYields date =
-     let title = "JEWEL yield-farm report for " ++ show date ++ ":"
+reportYields :: String -> Day -> IO ()
+reportYields coin date =
+     let capCoin = map toUpper coin
+         title = capCoin ++ " yield-farm report for " ++ show date ++ ":"
          caveat = " (ranked highest-yield first)\n\n"
-         row = "lp,tvl,jewels per week,jewels/100 dollars/week yield" in
+         row = "lp,tvl," ++ coin ++ " per week," ++ coin ++ "/$100/week" in
      putStrLn (title ++ caveat ++ row)                              >>
-     dateDir "kingdoms" date                                        >>=
+     dateDir ("yield-farming/" ++ coin) date                        >>=
      readFarms . (++ "/scrape.txt")                                 >>= \yfs ->
      mapM ppYieldFarm (sortOn (Down . output) (map mkYFOutput yfs)) >>=
      pass' (reportPrices date yfs)                                  >>=
-     tweetIt date
+     tweetIt date capCoin
 
 ppYieldFarm :: YFOutput -> IO String
 ppYieldFarm (YFOut (YieldFarm n _ t j) o) =
@@ -132,16 +134,16 @@ ppYieldFarm (YFOut (YieldFarm n _ t j) o) =
 reportPrices :: Day -> [YieldFarm] -> IO ()
 reportPrices (show -> date) (Map.unions . map coins -> cns) =
    putStrLn "\nCoin prices\n\nfor_date,cmc_id,coin,price (USD)" >>
-   mapM_ (putStrLn . weave . (date:) . tup2list) (Map.toList cns)
+   mapM_ (putStrLn . weave . ([date,""] ++) . tup2list) (Map.toList cns)
 
 tup2list :: (String, USD) -> [String]
 tup2list (a,b) = [a, show b]
 
-gon :: IO ()
-gon = yest >>= reportYields
+gon :: String -> IO ()
+gon coin = yest >>= reportYields coin
 
-go :: IO ()
-go = today >>= reportYields
+go :: String -> IO ()
+go coin = today >>= reportYields coin
 
 {--
 The result of which is:
@@ -167,12 +169,12 @@ lp,tvl,jewels per week,jewels/dollar/week yield
 [1WBTC]-[1ETH],$34686433.67,121567.84,3.504766190120581e-3
 --}
 
-tweetIt :: Day -> [String] -> IO ()
-tweetIt date lps =
+tweetIt :: Day -> String -> [String] -> IO ()
+tweetIt date (('$':) -> coin) lps =
    mapM_ putStrLn
      ["", 
-      "\"What is the LP that yields the most @DefiKingdoms $JEWEL per USD?\"",
+      "\"What is the LP that yields the most " ++ coin ++ " per USD?\"",
       "",
-      head lps ++ " is the top $JEWEL-yielding LP for " ++ show date,
+      head lps ++ " is the top " ++ coin ++ "-yielding LP for " ++ show date,
       "",
-      "data scraped from: https://vfat.tools/harmony/defikingdoms/"]
+      "data scraped from: https://vfat.tools/"]
