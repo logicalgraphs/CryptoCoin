@@ -1,0 +1,234 @@
+Home - MCN - All - BSC - ARBITRUM - HECO - POLYGON - xDAI - AVAX - FANTOM - HARMONY - FUSE - ThunderCore - OKEX - KUCOIN - CELO - IoTeX - Moonriver - Optimism - SmartBCH - Seigniorage
+
+[light mode]
+*************** 👨‍🌾 UNOFFICIAL DEFI KINGDOMS FARMING CALCULATOR 👨‍🌾 ***************
+INFO  : https://game.defikingdoms.com/
+**************************************************************************************
+
+Thu Oct 21 2021 13:26:21 GMT-0400 (Eastern Daylight Time)
+
+[CHANGE WALLET] -=- [CLEAR BROWSER STORAGE]
+
+Initialized 0x9ac3c1b5a436d2b6dda16c539550c15304208857
+
+Reading smart contracts...
+
+Found 15 pools.
+
+Showing incentivized pools only.
+
+Finished reading smart contracts.
+
+0 - [JEWEL]-[WONE] Uni LP [+] [-] [<=>] Price: $2.14 TVL: $67,479,003.59
+JEWEL Price: $4.37
+WONE Price: $0.24
+Staked: 31113339.9421 JEWEL-LP ($66,549,135.81)
+JEWEL Per Week: 5835256.28 ($25,501,263.99)
+APR: Day 5.47% Week 38.32% Year 1992.61%
+You are staking 224.02 [JEWEL]-[WONE] Uni LP ($479.16), 0.00% of the pool.
+Estimated JEWEL earnings: Day 6.00 ($26.23) Week 42.01 ($183.61) Year 2184.73 ($9,547.74)
+Your LP tokens comprise of 54.8209 JEWEL + 985.9806 WONE
+Stake 0.00 [JEWEL]-[WONE] Uni LP
+Unstake 224.02 [JEWEL]-[WONE] Uni LP
+Claim 3.65 JEWEL ($15.95)
+Staking or unstaking also claims rewards.
+
+1 - [JEWEL]-[BUSD] Uni LP [+] [-] [<=>] Price: $4.31 TVL: $4,925,776.11
+JEWEL Price: $4.37
+BUSD Price: $1.01
+Staked: 1126283.8821 JEWEL-LP ($4,856,010.78)
+JEWEL Per Week: 486271.36 ($2,125,105.33)
+APR: Day 6.25% Week 43.76% Year 2275.64%
+You are staking 57.96 [JEWEL]-[BUSD] Uni LP ($249.89), 0.01% of the pool.
+Estimated JEWEL earnings: Day 3.57 ($15.62) Week 25.02 ($109.36) Year 1301.23 ($5,686.63)
+Your LP tokens comprise of 28.5903 JEWEL + 124.0367 BUSD
+Stake 0.00 [JEWEL]-[BUSD] Uni LP
+Unstake 57.96 [JEWEL]-[BUSD] Uni LP
+Claim 2.17 JEWEL ($9.50)
+Staking or unstaking also claims rewards.
+
+2 - [JEWEL]-[bscBNB] Uni LP [+] [-] [<=>] Price: $94.08 TVL: $4,765,500.98
+JEWEL Price: $4.37
+bscBNB Price: $478.18
+Staked: 49827.6389 JEWEL-LP ($4,687,952.76)
+JEWEL Per Week: 486271.36 ($2,125,105.33)
+APR: Day 6.48% Week 45.33% Year 2357.22%
+You are staking 4.99 [JEWEL]-[bscBNB] Uni LP ($469.77), 0.01% of the pool.
+Estimated JEWEL earnings: Day 6.96 ($30.42) Week 48.73 ($212.95) Year 2533.85 ($11,073.46)
+Your LP tokens comprise of 53.7466 JEWEL + 0.4912 bscBNB
+Stake 0.00 [JEWEL]-[bscBNB] Uni LP
+Unstake 4.99 [JEWEL]-[bscBNB] Uni LP
+Claim 4.26 JEWEL ($18.63)
+Staking or unstaking also claims rewards.
+
+3 - [1ETH]-[JEWEL] Uni LP [+] [-] [<=>] Price: $274.45 TVL: $5,581,818.27
+1ETH Price: $4,102.82
+JEWEL Price: $4.37
+Staked: 20152.3422 JEWEL-LP ($5,530,712.69)
+JEWEL Per Week: 486271.36 ($2,125,105.33)
+APR: Day 5.49% Week 38.42% Year 1998.03%
+You are staking 0.28 [1ETH]-[JEWEL] Uni LP ($78.21), 0.00% of the pool.
+Estimated JEWEL earnings: Day 0.98 ($4.29) Week 6.88 ($30.05) Year 357.58 ($1,562.70)
+Your LP tokens comprise of 0.0095 1ETH + 8.9483 JEWEL
+Stake 0.00 [1ETH]-[JEWEL] Uni LP
+Unstake 0.28 [1ETH]-[JEWEL] Uni LP
+Claim 0.59 JEWEL ($2.58)
+Staking or unstaking also claims rewards.
+
+4 - [WONE]-[BUSD] Uni LP [+] [-] [<=>] Price: $1.03 TVL: $6,298,709.02
+WONE Price: $0.24
+BUSD Price: $1.01
+Staked: 6088438.9880 JEWEL-LP ($6,258,398.55)
+JEWEL Per Week: 97254.27 ($425,021.07)
+APR: Day 0.97% Week 6.79% Year 353.14%
+You are staking 0.00 [WONE]-[BUSD] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [WONE]-[BUSD] Uni LP
+Unstake 0.00 [WONE]-[BUSD] Uni LP
+Claim 0.00 JEWEL ($0.00)
+Staking or unstaking also claims rewards.
+
+5 - [JEWEL]-[XYA] Uni LP [+] [-] [<=>] Price: $2.79 TVL: $2,595,947.42
+JEWEL Price: $4.37
+XYA Price: $0.43
+Staked: 896113.0259 JEWEL-LP ($2,501,594.65)
+JEWEL Per Week: 243135.68 ($1,062,552.67)
+APR: Day 6.07% Week 42.48% Year 2208.70%
+You are staking 202.94 [JEWEL]-[XYA] Uni LP ($566.53), 0.02% of the pool.
+Estimated JEWEL earnings: Day 7.87 ($34.38) Week 55.06 ($240.63) Year 2863.24 ($12,512.95)
+Your LP tokens comprise of 64.8173 JEWEL + 658.2544 XYA
+Stake 0.00 [JEWEL]-[XYA] Uni LP
+Unstake 202.94 [JEWEL]-[XYA] Uni LP
+Claim 4.46 JEWEL ($19.47)
+Staking or unstaking also claims rewards.
+
+6 - [JEWEL]-[1USDC] Uni LP [+] [-] [<=>] Price: $257,737,100.46 TVL: $5,220,475.52
+JEWEL Price: $4.37
+1USDC Price: $1.00
+Staked: 0.0199 JEWEL-LP ($5,136,152.92)
+JEWEL Per Week: 486271.36 ($2,125,105.33)
+APR: Day 5.91% Week 41.38% Year 2151.52%
+You are staking 0.00 [JEWEL]-[1USDC] Uni LP ($113.90), 0.00% of the pool.
+Estimated JEWEL earnings: Day 1.54 ($6.73) Week 10.78 ($47.13) Year 560.73 ($2,450.52)
+Your LP tokens comprise of 13.0811 JEWEL + 56.7300 1USDC
+Stake 0.00 [JEWEL]-[1USDC] Uni LP
+Unstake 0.00 [JEWEL]-[1USDC] Uni LP
+Claim 0.95 JEWEL ($4.17)
+Staking or unstaking also claims rewards.
+
+7 - [1WBTC]-[JEWEL] Uni LP [+] [-] [<=>] Price: $106,873,532.12 TVL: $5,483,396.23
+1WBTC Price: $63,043.14
+JEWEL Price: $4.37
+Staked: 0.0508 JEWEL-LP ($5,428,237.42)
+JEWEL Per Week: 486271.36 ($2,125,105.33)
+APR: Day 5.59% Week 39.15% Year 2035.75%
+You are staking 0.00 [1WBTC]-[JEWEL] Uni LP ($738.00), 0.01% of the pool.
+Estimated JEWEL earnings: Day 9.44 ($41.27) Week 66.11 ($288.92) Year 3437.81 ($15,023.94)
+Your LP tokens comprise of 0.0059 1WBTC + 84.4359 JEWEL
+Stake 0.00 [1WBTC]-[JEWEL] Uni LP
+Unstake 0.00 [1WBTC]-[JEWEL] Uni LP
+Claim 5.56 JEWEL ($24.30)
+Staking or unstaking also claims rewards.
+
+8 - [UST]-[JEWEL] Uni LP [+] [-] [<=>] Price: $4.33 TVL: $5,089,943.39
+UST Price: $1.01
+JEWEL Price: $4.37
+Staked: 1163522.7908 JEWEL-LP ($5,043,372.92)
+JEWEL Per Week: 486271.36 ($2,125,105.33)
+APR: Day 6.02% Week 42.14% Year 2191.10%
+You are staking 101.72 [UST]-[JEWEL] Uni LP ($440.92), 0.01% of the pool.
+Estimated JEWEL earnings: Day 6.07 ($26.54) Week 42.51 ($185.79) Year 2210.66 ($9,661.05)
+Your LP tokens comprise of 218.6468 UST + 50.4464 JEWEL
+Stake 0.00 [UST]-[JEWEL] Uni LP
+Unstake 101.72 [UST]-[JEWEL] Uni LP
+Claim 3.72 JEWEL ($16.25)
+Staking or unstaking also claims rewards.
+
+9 - [1ETH]-[WONE] Uni LP [+] [-] [<=>] Price: $64.74 TVL: $8,642,016.81
+1ETH Price: $4,102.82
+WONE Price: $0.24
+Staked: 133137.4400 JEWEL-LP ($8,619,350.32)
+JEWEL Per Week: 97254.27 ($425,021.07)
+APR: Day 0.70% Week 4.93% Year 256.41%
+You are staking 0.00 [1ETH]-[WONE] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [1ETH]-[WONE] Uni LP
+Unstake 0.00 [1ETH]-[WONE] Uni LP
+Claim 0.00 JEWEL ($0.00)
+Staking or unstaking also claims rewards.
+
+10 - [1USDC]-[WONE] Uni LP [+] [-] [<=>] Price: $1,018,661.10 TVL: $6,817,353.29
+1USDC Price: $1.00
+WONE Price: $0.24
+Staked: 6.6419 JEWEL-LP ($6,765,819.07)
+JEWEL Per Week: 97254.27 ($425,021.07)
+APR: Day 0.90% Week 6.28% Year 326.66%
+You are staking 0.00 [1USDC]-[WONE] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [1USDC]-[WONE] Uni LP
+Unstake 0.00 [1USDC]-[WONE] Uni LP
+Claim 0.00 JEWEL ($0.00)
+Staking or unstaking also claims rewards.
+
+11 - [1WBTC]-[1ETH] Uni LP [+] [-] [<=>] Price: $3,223,253,397.62 TVL: $36,976,248.88
+1WBTC Price: $63,043.14
+1ETH Price: $4,102.82
+Staked: 0.0115 JEWEL-LP ($36,936,360.78)
+JEWEL Per Week: 97254.27 ($425,021.07)
+APR: Day 0.16% Week 1.15% Year 59.84%
+You are staking 0.00 [1WBTC]-[1ETH] Uni LP ($268.06), 0.00% of the pool.
+Estimated JEWEL earnings: Day 0.10 ($0.44) Week 0.71 ($3.08) Year 36.70 ($160.40)
+Your LP tokens comprise of 0.0021 1WBTC + 0.0327 1ETH
+Stake 0.00 [1WBTC]-[1ETH] Uni LP
+Unstake 0.00 [1WBTC]-[1ETH] Uni LP
+Claim 0.06 JEWEL ($0.24)
+Staking or unstaking also claims rewards.
+
+12 - [1SUPERBID]-[JEWEL] Uni LP [+] [-] [<=>] Price: $7.94 TVL: $1,115,127.86
+1SUPERBID Price: $3.55
+JEWEL Price: $4.37
+Staked: 105249.7385 JEWEL-LP ($836,058.45)
+JEWEL Per Week: 87528.84 ($382,518.96)
+APR: Day 6.54% Week 45.75% Year 2379.14%
+You are staking 0.00 [1SUPERBID]-[JEWEL] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [1SUPERBID]-[JEWEL] Uni LP
+Unstake 0.00 [1SUPERBID]-[JEWEL] Uni LP
+Claim 0.00 JEWEL ($0.00)
+Staking or unstaking also claims rewards.
+
+13 - [1SUPERBID]-[WONE] Uni LP [+] [-] [<=>] Price: $1.87 TVL: $317,436.70
+1SUPERBID Price: $3.55
+WONE Price: $0.24
+Staked: 69522.3782 JEWEL-LP ($130,156.20)
+JEWEL Per Week: 9725.43 ($42,502.11)
+APR: Day 4.66% Week 32.65% Year 1698.04%
+You are staking 0.00 [1SUPERBID]-[WONE] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [1SUPERBID]-[WONE] Uni LP
+Unstake 0.00 [1SUPERBID]-[WONE] Uni LP
+Claim 0.00 JEWEL ($0.00)
+Staking or unstaking also claims rewards.
+
+14 - [JEWEL]-[MIS] Uni LP [+] [-] [<=>] Price: $5.19 TVL: $1,766,246.75
+JEWEL Price: $4.37
+MIS Price: $1.50
+Staked: 287587.3101 JEWEL-LP ($1,491,948.08)
+JEWEL Per Week: 194508.54 ($850,042.13)
+APR: Day 8.14% Week 56.98% Year 2962.72%
+You are staking 41.14 [JEWEL]-[MIS] Uni LP ($213.43), 0.01% of the pool.
+Estimated JEWEL earnings: Day 3.98 ($17.37) Week 27.83 ($121.60) Year 1446.91 ($6,323.29)
+Your LP tokens comprise of 24.4186 JEWEL + 71.1551 MIS
+Stake 0.00 [JEWEL]-[MIS] Uni LP
+Unstake 41.14 [JEWEL]-[MIS] Uni LP
+Claim 2.15 JEWEL ($9.38)
+Staking or unstaking also claims rewards.
+
+Bank TVL: $37,216,696.35
+JEWEL Price: $4.37
+Staked: 8516007.73 JEWEL ($37,216,696.35)
+You are staking 211.98 JEWEL ($926.41), 0.00% of the pool.
+Stake 0.00 JEWEL
+Unstake 211.98 JEWEL
+Bank rewards are visible after unstaking / exiting the pool.
+
+Total Staked: $197,987,957.77
+
+You are staking a total of $3,617.87 at an average APR of 2045.48% in LP staking pools.
+Estimated earnings: Day $202.75 Week $1,423.13 Year $74,002.67
+You are staking a total of $926.41 in the Bank single staking pool.
