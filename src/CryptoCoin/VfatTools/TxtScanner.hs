@@ -119,17 +119,18 @@ reportYields coin date =
      let capCoin = map toUpper coin
          title = capCoin ++ " yield-farm report for " ++ show date ++ ":"
          caveat = " (ranked highest-yield first)\n\n"
-         row = "lp,tvl," ++ coin ++ " per week," ++ coin ++ "/$100/week" in
+         row = "rank,lp,tvl," ++ coin ++ " per week," ++ coin ++ "/$100/week" in
      putStrLn (title ++ caveat ++ row)                              >>
      dateDir ("yield-farming/" ++ coin) date                        >>=
      readFarms . (++ "/scrape.txt")                                 >>= \yfs ->
-     mapM ppYieldFarm (sortOn (Down . output) (map mkYFOutput yfs)) >>=
+     let sorts = sortOn (Down . output) (map mkYFOutput yfs) in
+     mapM ppYieldFarm (zip [1..] sorts)                             >>=
      pass' (reportPrices date yfs)                                  >>=
      tweetIt date capCoin
 
-ppYieldFarm :: YFOutput -> IO String
-ppYieldFarm (YFOut (YieldFarm n _ t j) o) =
-   putStrLn (weave [n,show t, show j, laxmi 2 (toRational o)]) >> return n
+ppYieldFarm :: (Int, YFOutput) -> IO String
+ppYieldFarm (show -> n, YFOut (YieldFarm nm _ t j) o) =
+   putStrLn (weave [n, nm, show t, show j, laxmi 2 (toRational o)]) >> return nm
 
 reportPrices :: Day -> [YieldFarm] -> IO ()
 reportPrices (show -> date) (Map.unions . map coins -> cns) =
