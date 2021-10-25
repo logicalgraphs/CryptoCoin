@@ -1,0 +1,2 @@
+call,date,amount,coin,from,to,surcharge,coin_surcharge,basis,confirmation
+XFER,2021-10-24,0.26154505,BNB,BINANCE,THORCHAIN,0.001,BNB,$100.00
