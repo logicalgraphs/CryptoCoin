@@ -73,39 +73,51 @@ with "uddduududdduduuudduud", predicted 10.19% (u), was: d
 readHist :: FilePath -> IO [Call]
 readHist file = map (readPrice . last) . tail . lines <$> readFile file
 
-go :: IO ()
-go = today                       >>=
-     dateDir "updowns"           >>=
+runDate :: Day -> IO ()
+runDate date =
+     dateDir "updowns" date      >>=
      readHist . (++ "/hist.csv") >>=
      print . predict
+
+go :: IO ()
+go = today >>= runDate
 
 -- PLAY STRATEGIES -------------------------------------------------------
 
 type Bag = (USD, USD)
 
-type StratFn = Bag -> Confidence -> Bag
+type StratFn = [Call] -> Bag -> Confidence -> Bag
 
-play :: (Confidence, Call) -> StratFn -> Bag -> Bag
-play cc@(P p, c) f bag@(USD b) =
-   let (USD ante) = f bag (P p)
-       newbag = b - ante
-   in  USD (newbag + (ante * 1.75 * toRational (pl (fromRational p * val c))))
+play :: [Call] -> (Confidence, Call) -> StratFn -> Bag -> Bag
+play hist cc@(P p, c) f bag@(USD b1, USD b2) =
+   let (USD ante1, USD ante2) = f hist bag (P p)
+       newbag = (b1 - ante1, b2 - ante2)
+       payout a = a * 1.75 * toRational (pl (fromRational p * val c))
+       f' nb a = USD (nb + payout a)
+   in  (f' (fst newbag) ante1, f' (snd newbag) ante2)
 
 pl :: Double -> Double
 pl n = if n > 0 then 1 else 0
 
-single10:: StratFn
-single10 (USD b) (P conf) = USD $ b / 10 * conf
+single10, flat, both, sure1 :: StratFn
+single10 _ (USD b, _) (P conf) = (USD $ b / 10 * conf, USD 0)
+flat _ (USD b, _) _ = (USD $ b / 10, USD 0)
+both _ (USD b, USD b') (P conf) =
+   let f amt p = USD (amt / 10 * p) in (f b conf, f b' (1 - conf))
+sure1 _ (USD a, _) (P conf) = (USD $ (if conf > 0.5 then a else 0) / 10, USD 0)
+sure2 _ (USD a, USD b) (P conf) =
+   let f amt p = USD ((if p > 0.5 then amt else 0) / 10 * p)
+   in  (f a conf, f b (1 - conf))
 
 runStrat :: StratFn -> Bag -> FilePath -> Day -> IO Bag
 runStrat f bag file date =
    dateDir "updowns" date     >>=
    readConf . (++ ('/':file)) >>=
-   foldM (printRow f) bag
+   foldM (printRow f []) bag
 
-printRow :: StratFn -> Bag -> (Confidence, Call) -> IO Bag
-printRow f b cc =
-   let yo = play cc f b in
+printRow :: StratFn -> [Call] -> Bag -> (Confidence, Call) -> IO Bag
+printRow f c b cc =
+   let yo = play c cc f b in
    putStrLn (concat ["Comin' in at ", show b, ". And: ", show yo]) >> return yo
 
 readConf :: FilePath -> IO [(Confidence, Call)]
@@ -117,3 +129,9 @@ rc = rc' . csv
 rc' :: [String] -> Maybe (Confidence, Call)
 rc' [_,c,(h:_)] = Just (read c, readPrice h)
 rc' [_, _] = Nothing
+
+{--
+Example runs:
+
+>>> runStrat sure2 (USD 1000, USD 1000) "hist.csv" (read "2021-10-22")
+--}
