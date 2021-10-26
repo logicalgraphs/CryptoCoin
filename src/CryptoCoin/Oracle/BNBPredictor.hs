@@ -18,6 +18,7 @@ Feedback.
 Then, let's see how we do
 --}
 
+import Control.Comonad ((=>>))
 import Control.Monad (foldM)
 
 import Data.Char (toUpper)
@@ -92,14 +93,14 @@ play :: [Call] -> (Confidence, Call) -> StratFn -> Bag -> Bag
 play hist cc@(P p, c) f bag@(USD b1, USD b2) =
    let (USD ante1, USD ante2) = f hist bag (P p)
        newbag = (b1 - ante1, b2 - ante2)
-       payout a = a * 1.75 * toRational (pl (fromRational p * val c))
-       f' nb a = USD (nb + payout a)
-   in  (f' (fst newbag) ante1, f' (snd newbag) ante2)
+       payout a m = a * 1.75 * toRational (pl (fromRational p * m * val c))
+       f' nb a m = USD (nb + payout a m)
+   in  (f' (fst newbag) ante1 1, f' (snd newbag) ante2 (-1))
 
 pl :: Double -> Double
 pl n = if n > 0 then 1 else 0
 
-single10, flat, both, sure1 :: StratFn
+single10, flat, both, sure1, sure2, runOf2 :: StratFn
 single10 _ (USD b, _) (P conf) = (USD $ b / 10 * conf, USD 0)
 flat _ (USD b, _) _ = (USD $ b / 10, USD 0)
 both _ (USD b, USD b') (P conf) =
@@ -109,16 +110,42 @@ sure2 _ (USD a, USD b) (P conf) =
    let f amt p = USD ((if p > 0.5 then amt else 0) / 10 * p)
    in  (f a conf, f b (1 - conf))
 
+-- runs in updowns:
+
+runOf2 (a:b:_) (USD c, _) _ = 
+   let call = if a == b then c / 10 else 0 in (USD call, USD 0)
+runOf2 _ _ _ = (USD 0, USD 0)
+
+runCOf, runOf, runBothOf, runBothCOf :: Int -> StratFn
+runCOf n list@(h:_) (USD c, _) (P conf) = 
+   let samies = take n list
+   in  (USD $ if all (h==) samies then c / 10 * conf else 0, USD 0)
+
+runOf n l b _ = runCOf n l b (P 1)
+
+runBothCOf n list@(h:_) (USD c1, USD c2) (P conf) = 
+   let samies = take n list
+       f a = USD (if all (h==) samies then a / 10 * conf else 0)
+   in  (f c1, f c2)
+
+runBothOf n l b _ = runBothCOf n l b (P 1)
+
+-- execution engine:
+
 runStrat :: StratFn -> Bag -> FilePath -> Day -> IO Bag
 runStrat f bag file date =
    dateDir "updowns" date     >>=
-   readConf . (++ ('/':file)) >>=
-   foldM (printRow f []) bag
+   readConf . (++ ('/':file)) >>= \ccs ->
+   putStrLn ("Start: " ++ show (fst bag + snd bag)) >>
+   snd <$> foldM (uncurry (printRow f)) (map snd ccs =>> id, bag) ccs >>= \ans ->
+   putStrLn ("End: " ++ show (fst ans + snd ans)) >>
+   return ans
 
-printRow :: StratFn -> [Call] -> Bag -> (Confidence, Call) -> IO Bag
+printRow :: StratFn -> [[Call]] -> Bag -> (Confidence, Call) -> IO ([[Call]], Bag)
 printRow f c b cc =
-   let yo = play c cc f b in
-   putStrLn (concat ["Comin' in at ", show b, ". And: ", show yo]) >> return yo
+   let yo = play (head c) cc f b in
+   putStrLn (concat ["Comin' in at ", show b, ". And: ", show yo]) >>
+   return (tail c, yo)
 
 readConf :: FilePath -> IO [(Confidence, Call)]
 readConf file = mapMaybe rc . reverse . tail . lines <$> readFile file
@@ -134,4 +161,6 @@ rc' [_, _] = Nothing
 Example runs:
 
 >>> runStrat sure2 (USD 1000, USD 1000) "hist.csv" (read "2021-10-22")
+
+runOf: 3 looks like we can try that.
 --}
