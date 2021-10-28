@@ -137,7 +137,8 @@ runStrat f bag file date =
    dateDir "updowns" date     >>=
    readConf . (++ ('/':file)) >>= \ccs ->
    putStrLn ("Start: " ++ show (fst bag + snd bag)) >>
-   snd <$> foldM (uncurry (printRow f)) (map snd ccs =>> id, bag) ccs >>= \ans ->
+   snd <$> foldM (uncurry (printRow f))
+                 (reverse $ map snd ccs =>> id, bag) (reverse ccs) >>= \ans ->
    putStrLn ("End: " ++ show (fst ans + snd ans)) >>
    return ans
 
