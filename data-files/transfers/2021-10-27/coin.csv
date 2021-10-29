@@ -1,0 +1,2 @@
+call,date,amount,coin,from,to,surcharge,coin_surcharge,basis,confirmation
+XFER,2021-10-27,669,ONE,BINANCE,HARMONY,0.001,ONE,$200.00
