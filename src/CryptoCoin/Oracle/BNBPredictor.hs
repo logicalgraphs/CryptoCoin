@@ -25,6 +25,7 @@ import Data.Char (toUpper)
 import Data.Maybe (mapMaybe)
 import Data.Time (Day)
 
+import Control.List (softtail)
 import Control.Scan.CSV (csv)
 import CryptoCoin.Utils (dateDir)
 import Data.Monetary.USD
@@ -91,9 +92,9 @@ type StratFn = [Call] -> Bag -> Confidence -> Bag
 
 play :: [Call] -> (Confidence, Call) -> StratFn -> Bag -> Bag
 play hist cc@(P p, c) f bag@(USD b1, USD b2) =
-   let (USD ante1, USD ante2) = f hist bag (P p)
+   let (USD ante1, USD ante2) = f (softtail hist) bag (P p)
        newbag = (b1 - ante1, b2 - ante2)
-       payout a m = a * 1.75 * toRational (pl (fromRational p * m * val c))
+       payout a m = a * (1 + (1.75 * toRational (pl (fromRational p * m * val c))))
        f' nb a m = USD (nb + payout a m)
    in  (f' (fst newbag) ante1 1, f' (snd newbag) ante2 (-1))
 
@@ -117,12 +118,14 @@ runOf2 (a:b:_) (USD c, _) _ =
 runOf2 _ _ _ = (USD 0, USD 0)
 
 runCOf, runOf, runBothOf, runBothCOf :: Int -> StratFn
+runCOf _ [] _ _ = (USD 0, USD 0)
 runCOf n list@(h:_) (USD c, _) (P conf) = 
    let samies = take n list
    in  (USD $ if all (h==) samies then c / 10 * conf else 0, USD 0)
 
 runOf n l b _ = runCOf n l b (P 1)
 
+runBothCOf _ [] _ _ = (USD 0, USD 0)
 runBothCOf n list@(h:_) (USD c1, USD c2) (P conf) = 
    let samies = take n list
        f a = USD (if all (h==) samies then a / 10 * conf else 0)
