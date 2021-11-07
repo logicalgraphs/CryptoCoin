@@ -1,0 +1,2 @@
+call,date,amount,coin,from,to,surcharge,coin_surcharge,basis,confirmation
+XFER,2021-11-06,315.672493,UST,HARMONY,TERRA,0.00037871,ONE,$315.00,0x2a814ba0b26f4bf6ec1ea70e68ae7685dec277b1da4c27fc0c8c176793b298fe
