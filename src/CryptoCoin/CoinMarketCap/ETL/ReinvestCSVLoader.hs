@@ -39,6 +39,8 @@ nomonay = Just (USD 0)
 mkReinvest :: [String] -> Maybe Transaction
 mkReinvest a@[sym,date,amt,portfolio,_confirmation] = mr' nomonay (init a)
 mkReinvest a@[sym,date,amt,portfolio] = mr' nomonay a
+mkReinvest a@[sym,date,amt,portfolio,surcharge,_confirmation,_memo] =
+   mkReinvest (init a)
 mkReinvest [sym,date,amt,portfolio,surcharge,_confirmation] =
    mr' (readMaybe surcharge) [sym,date,amt,portfolio]
 mkReinvest row = error ("Could not process: " ++ show row)

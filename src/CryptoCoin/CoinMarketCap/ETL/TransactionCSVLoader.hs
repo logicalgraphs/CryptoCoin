@@ -42,6 +42,8 @@ onlyStoreTransactions :: StoreTransactionsF
 onlyStoreTransactions conn tc = mapM_ (storeTransaction conn tc)
 
 mkTrans :: [String] -> Maybe Transaction
+mkTrans [sym,date,spent,surcharge,amt,call,portfolio,confirmation,_memo] =
+   mkTrans [sym,date,spent,surcharge,amt,call,portfolio,confirmation]
 mkTrans [sym,date,spent,surcharge,amt,call,portfolio,_confirmation] =
    mkTrans [sym,date,spent,surcharge,amt,call,portfolio]
 mkTrans [sym,date,spent,surcharge,amt,call,portfolio] =
