@@ -118,22 +118,22 @@ reportYields :: String -> Day -> IO ()
 reportYields coin date =
      let capCoin = map toUpper coin
          title = capCoin ++ " yield-farm report for " ++ show date ++ ":"
-         caveat = " (ranked highest-yield first)\n\n"
-         row = "rank,lp,tvl," ++ coin ++ " per week," ++ coin ++ "/$100/week" in
-     putStrLn (title ++ caveat ++ row)                              >>
-     dateDir ("yield-farming/" ++ coin) date                        >>=
-     readFarms . (++ "/scrape.txt")                                 >>= \yfs ->
-     let sorts = sortOn (Down . output) (map mkYFOutput yfs) in
-     mapM ppYieldFarm (zip [1..] sorts)                             >>=
-     pass' (reportPrices date yfs)                                  >>=
+         row = "rank,lp,tvl," ++ coin ++ " per week," ++ coin ++ "/$100/week"
+         caveat = " (ranked highest-yield first)\n\n" in
+     putStrLn (title ++ caveat ++ row)                 >>
+     dateDir ("yield-farming/" ++ coin) date           >>=
+     readFarms . (++ "/scrape.txt")                    >>= \yfs ->
+     let top10 = take 10 (sortOn (Down . output) (map mkYFOutput yfs)) in
+     mapM ppYieldFarm (zip [1..] top10)                >>=
+     pass' (reportPrices date top10)                   >>=
      tweetIt date capCoin
 
 ppYieldFarm :: (Int, YFOutput) -> IO String
 ppYieldFarm (show -> n, YFOut (YieldFarm nm _ t j) o) =
    putStrLn (weave [n, nm, show t, show j, laxmi 2 (toRational o)]) >> return nm
 
-reportPrices :: Day -> [YieldFarm] -> IO ()
-reportPrices (show -> date) (Map.unions . map coins -> cns) =
+reportPrices :: Day -> [YFOutput] -> IO ()
+reportPrices (show -> date) (Map.unions . map (coins . yf) -> cns) =
    putStrLn "\nCoin prices\n\nfor_date,cmc_id,coin,price (USD)" >>
    mapM_ (putStrLn . weave . ([date,""] ++) . tup2list) (Map.toList cns)
 
