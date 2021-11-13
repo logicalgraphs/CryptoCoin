@@ -1,0 +1,261 @@
+Home - MCN - All - BSC - ARBITRUM - HECO - POLYGON - xDAI - AVAX - FANTOM - HARMONY - FUSE - ThunderCore - OKEX - KUCOIN - CELO - IoTeX - Moonriver - Optimism - SmartBCH - Polis - Seigniorage
+
+[light mode]
+*************** 👨‍🌾 UNOFFICIAL VIPERSWAP FARMING CALCULATOR 👨‍🌾 ***************
+INFO  : https://viper.exchange
+
+For ViperNest, BridgePools and CommunityPools click here
+**************************************************************************************
+
+Fri Nov 12 2021 10:32:51 GMT-0500 (Eastern Standard Time)
+
+[CHANGE WALLET] -=- [CLEAR BROWSER STORAGE]
+
+Initialized 0x9ac3c1b5a436d2b6dda16c539550c15304208857
+
+Reading smart contracts...
+
+Found 42 pools.
+
+Showing incentivized pools only.
+
+Finished reading smart contracts.
+
+0 - [WONE]-[BUSD] Uni LP [+] [-] [<=>] Price: $1.43 TVL: $169,143.53
+WONE Price: $0.27
+BUSD Price: $1.00
+Staked: 116347.1667 VENOM-LP ($166,326.96)
+VIPER Per Week: 3347.60 ($3,449.19)
+APR: Day 0.30% Week 2.07% Year 107.83%
+You are staking 0.00 [WONE]-[BUSD] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [WONE]-[BUSD] Uni LP
+Unstake 0.00 [WONE]-[BUSD] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+1 - [WONE]-[VIPER] Uni LP [+] [-] [<=>] Price: $1.10 TVL: $9,978,705.94
+WONE Price: $0.27
+VIPER Price: $1.03
+Staked: 8898402.5062 VENOM-LP ($9,800,060.47)
+VIPER Per Week: 418450.18 ($431,148.95)
+APR: Day 0.63% Week 4.40% Year 228.77%
+You are staking 0.00 [WONE]-[VIPER] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [WONE]-[VIPER] Uni LP
+Unstake 0.00 [WONE]-[VIPER] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+2 - [1ETH]-[WONE] Uni LP [+] [-] [<=>] Price: $79.28 TVL: $555,932.06
+1ETH Price: $4,566.57
+WONE Price: $0.27
+Staked: 6465.9748 VENOM-LP ($512,599.56)
+VIPER Per Week: 3347.60 ($3,449.19)
+APR: Day 0.10% Week 0.67% Year 34.99%
+You are staking 0.00 [1ETH]-[WONE] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [1ETH]-[WONE] Uni LP
+Unstake 0.00 [1ETH]-[WONE] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+3 - [BUSD]-[VIPER] Uni LP [+] [-] [<=>] Price: $2.37 TVL: $252,152.06
+BUSD Price: $1.00
+VIPER Price: $1.03
+Staked: 101928.2722 VENOM-LP ($241,718.69)
+VIPER Per Week: 3347.60 ($3,449.19)
+APR: Day 0.20% Week 1.43% Year 74.20%
+You are staking 0.00 [BUSD]-[VIPER] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [BUSD]-[VIPER] Uni LP
+Unstake 0.00 [BUSD]-[VIPER] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+5 - [1USDC]-[WONE] Uni LP [+] [-] [<=>] Price: $1,285,427.48 TVL: $173,434.38
+1USDC Price: $1.00
+WONE Price: $0.27
+Staked: 0.1203 VENOM-LP ($154,678.75)
+VIPER Per Week: 3347.60 ($3,449.19)
+APR: Day 0.32% Week 2.23% Year 115.96%
+You are staking 0.00 [1USDC]-[WONE] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [1USDC]-[WONE] Uni LP
+Unstake 0.00 [1USDC]-[WONE] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+10 - [LINK]-[VIPER] Uni LP [+] [-] [<=>] Price: $12.20 TVL: $251,142.37
+LINK Price: $33.18
+VIPER Price: $1.03
+Staked: 20451.2224 VENOM-LP ($249,521.76)
+VIPER Per Week: 6137.27 ($6,323.52)
+APR: Day 0.36% Week 2.53% Year 131.78%
+You are staking 0.00 [LINK]-[VIPER] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [LINK]-[VIPER] Uni LP
+Unstake 0.00 [LINK]-[VIPER] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+16 - [1SUSHI]-[VIPER] Uni LP [+] [-] [<=>] Price: $7.14 TVL: $113,125.30
+1SUSHI Price: $10.73
+VIPER Price: $1.03
+Staked: 15257.4861 VENOM-LP ($108,994.86)
+VIPER Per Week: 6137.27 ($6,323.52)
+APR: Day 0.83% Week 5.80% Year 301.69%
+You are staking 0.00 [1SUSHI]-[VIPER] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [1SUSHI]-[VIPER] Uni LP
+Unstake 0.00 [1SUSHI]-[VIPER] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+18 - [1ETH]-[1WISE] Uni LP [+] [-] [<=>] Price: $112.87 TVL: $523,261.68
+1ETH Price: $4,566.57
+1WISE Price: $0.65
+Staked: 4631.6281 VENOM-LP ($522,790.51)
+VIPER Per Week: 557.93 ($574.87)
+APR: Day 0.02% Week 0.11% Year 5.72%
+You are staking 0.00 [1ETH]-[1WISE] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [1ETH]-[1WISE] Uni LP
+Unstake 0.00 [1ETH]-[1WISE] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+19 - [1WBTC]-[WONE] Uni LP [+] [-] [<=>] Price: $27,992,943.01 TVL: $370,530.32
+1WBTC Price: $63,188.95
+WONE Price: $0.27
+Staked: 0.0125 VENOM-LP ($349,995.17)
+VIPER Per Week: 5579.34 ($5,748.65)
+APR: Day 0.23% Week 1.64% Year 85.41%
+You are staking 0.00 [1WBTC]-[WONE] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [1WBTC]-[WONE] Uni LP
+Unstake 0.00 [1WBTC]-[WONE] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+20 - [1MATIC]-[WONE] Uni LP [+] [-] [<=>] Price: $1.39 TVL: $425,654.01
+1MATIC Price: $1.68
+WONE Price: $0.27
+Staked: 273261.0612 VENOM-LP ($379,947.83)
+VIPER Per Week: 5579.34 ($5,748.65)
+APR: Day 0.22% Week 1.51% Year 78.68%
+You are staking 0.00 [1MATIC]-[WONE] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [1MATIC]-[WONE] Uni LP
+Unstake 0.00 [1MATIC]-[WONE] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+21 - [JENN]-[VIPER] Uni LP [+] [-] [<=>] Price: $1.10 TVL: $96,588.49
+JENN Price: $0.28
+VIPER Price: $1.03
+Staked: 84908.2925 VENOM-LP ($93,340.19)
+VIPER Per Week: 5579.34 ($5,748.65)
+APR: Day 0.88% Week 6.16% Year 320.26%
+You are staking 0.00 [JENN]-[VIPER] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [JENN]-[VIPER] Uni LP
+Unstake 0.00 [JENN]-[VIPER] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+22 - [WONE]-[xVIPER] Uni LP [+] [-] [<=>] Price: $1.24 TVL: $1,368,936.64
+WONE Price: $0.27
+xVIPER Price: $1.37
+Staked: 1082528.9474 VENOM-LP ($1,341,978.43)
+VIPER Per Week: 27896.68 ($28,743.26)
+APR: Day 0.31% Week 2.14% Year 111.38%
+You are staking 0.00 [WONE]-[xVIPER] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [WONE]-[xVIPER] Uni LP
+Unstake 0.00 [WONE]-[xVIPER] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+23 - [bscBNB]-[VIPER] Uni LP [+] [-] [<=>] Price: $58.67 TVL: $367,587.04
+bscBNB Price: $614.67
+VIPER Price: $1.03
+Staked: 5782.5772 VENOM-LP ($339,282.48)
+VIPER Per Week: 18411.81 ($18,970.55)
+APR: Day 0.80% Week 5.59% Year 290.75%
+You are staking 0.00 [bscBNB]-[VIPER] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [bscBNB]-[VIPER] Uni LP
+Unstake 0.00 [bscBNB]-[VIPER] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+33 - [UST]-[WONE] Uni LP [+] [-] [<=>] Price: $1.13 TVL: $565,458.73
+UST Price: $1.00
+WONE Price: $0.27
+Staked: 426659.0314 VENOM-LP ($482,128.84)
+VIPER Per Week: 6137.27 ($6,323.52)
+APR: Day 0.19% Week 1.31% Year 68.20%
+You are staking 0.00 [UST]-[WONE] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [UST]-[WONE] Uni LP
+Unstake 0.00 [UST]-[WONE] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+37 - [LUNA]-[VIPER] Uni LP [+] [-] [<=>] Price: $14.58 TVL: $298,409.64
+LUNA Price: $47.66
+VIPER Price: $1.03
+Staked: 18944.0552 VENOM-LP ($276,175.75)
+VIPER Per Week: 12274.54 ($12,647.04)
+APR: Day 0.65% Week 4.58% Year 238.13%
+You are staking 0.00 [LUNA]-[VIPER] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [LUNA]-[VIPER] Uni LP
+Unstake 0.00 [LUNA]-[VIPER] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+38 - [bscCOBRA]-[VIPER] Uni LP [+] [-] [<=>] Price: $0.77 TVL: $626,452.89
+bscCOBRA Price: $0.14
+VIPER Price: $1.03
+Staked: 807271.8495 VENOM-LP ($620,116.82)
+VIPER Per Week: 41845.02 ($43,114.90)
+APR: Day 0.99% Week 6.95% Year 361.54%
+You are staking 0.00 [bscCOBRA]-[VIPER] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [bscCOBRA]-[VIPER] Uni LP
+Unstake 0.00 [bscCOBRA]-[VIPER] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+39 - [UST]-[VIPER] Uni LP [+] [-] [<=>] Price: $2.08 TVL: $294,697.69
+UST Price: $1.00
+VIPER Price: $1.03
+Staked: 133837.8022 VENOM-LP ($278,329.76)
+VIPER Per Week: 12274.54 ($12,647.04)
+APR: Day 0.65% Week 4.54% Year 236.28%
+You are staking 0.00 [UST]-[VIPER] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [UST]-[VIPER] Uni LP
+Unstake 0.00 [UST]-[VIPER] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+40 - [LUNA]-[WONE] Uni LP [+] [-] [<=>] Price: $7.57 TVL: $810,891.94
+LUNA Price: $47.66
+WONE Price: $0.27
+Staked: 103890.2355 VENOM-LP ($786,260.87)
+VIPER Per Week: 12274.54 ($12,647.04)
+APR: Day 0.23% Week 1.61% Year 83.64%
+You are staking 0.00 [LUNA]-[WONE] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [LUNA]-[WONE] Uni LP
+Unstake 0.00 [LUNA]-[WONE] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+41 - [anyBTC]-[WONE] Uni LP [+] [-] [<=>] Price: $25,952,883.74 TVL: $557,989.26
+anyBTC Price: $61,469.51
+WONE Price: $0.27
+Staked: 0.0212 VENOM-LP ($550,347.82)
+VIPER Per Week: 12274.54 ($12,647.04)
+APR: Day 0.33% Week 2.30% Year 119.50%
+You are staking 0.00 [anyBTC]-[WONE] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [anyBTC]-[WONE] Uni LP
+Unstake 0.00 [anyBTC]-[WONE] Uni LP
+Claim 0.00 VIPER ($0.00)
+Staking or unstaking also claims rewards.
+
+ViperPit TVL: $20,499,475.42
+VIPER Price: $1.03
+Staked: 19895697.77 VIPER ($20,499,475.42)
+You are staking 93.94 VIPER ($96.79), 0.00% of the pool.
+Stake 0.00 VIPER
+Unstake 93.94 VIPER
+ViperPit rewards are visible after unstaking / exiting the pool.
+
+Total Staked: $37,754,070.93
+You are staking a total of $96.79 in the ViperPit single staking pool.
