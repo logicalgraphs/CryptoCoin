@@ -1,0 +1,194 @@
+Home - MCN - All - BSC - ARBITRUM - HECO - POLYGON - xDAI - AVAX - FANTOM - HARMONY - FUSE - ThunderCore - OKEX - KUCOIN - CELO - IoTeX - Moonriver - Optimism - SmartBCH - Polis - Cronos - Velas - Aurora - Boba - Seigniorage
+
+[light mode]
+*************** 👨‍🌾 UNOFFICIAL ARTEMIS PROTOCOL FARMING CALCULATOR 👨‍🌾 ***************
+INFO  : https://app.artemisprotocol.one
+**************************************************************************************
+
+Thu Nov 18 2021 09:25:22 GMT-0500 (Eastern Standard Time)
+
+[CHANGE WALLET] -=- [CLEAR BROWSER STORAGE]
+
+Initialized 0x9ac3c1b5a436d2b6dda16c539550c15304208857
+
+Reading smart contracts...
+
+Found 13 pools.
+
+Showing incentivized pools only.
+
+Finished reading smart contracts.
+
+0 - [UST]-[MIS] Uni LP [+] [-] [<=>] Price: $2.65 TVL: $1,067,394.09
+UST Price: $1.00
+MIS Price: $1.65
+Staked: 398406.5825 JEWEL-LP ($1,054,593.44)
+MIS Per Week: 78624.00 ($129,601.23)
+APR: Day 1.76% Week 12.29% Year 639.04%
+You are staking 0.00 [UST]-[MIS] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [UST]-[MIS] Uni LP
+Unstake 0.00 [UST]-[MIS] Uni LP
+Claim 0.00 MIS ($0.00)
+Staking or unstaking also claims rewards.
+
+1 - [UST]-[WONE] Uni LP [+] [-] [<=>] Price: $1.08 TVL: $854,608.87
+UST Price: $1.00
+WONE Price: $0.25
+Staked: 757197.1241 JEWEL-LP ($819,677.06)
+MIS Per Week: 18144.00 ($29,907.98)
+APR: Day 0.52% Week 3.65% Year 189.74%
+You are staking 0.00 [UST]-[WONE] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [UST]-[WONE] Uni LP
+Unstake 0.00 [UST]-[WONE] Uni LP
+Claim 0.00 MIS ($0.00)
+Staking or unstaking also claims rewards.
+
+2 - [WONE]-[MIS] Uni LP [+] [-] [<=>] Price: $1.36 TVL: $5,131,144.06
+WONE Price: $0.25
+MIS Price: $1.65
+Staked: 3209879.3606 JEWEL-LP ($4,350,984.97)
+MIS Per Week: 302400.00 ($498,466.28)
+APR: Day 1.64% Week 11.46% Year 595.73%
+You are staking 104.00 [WONE]-[MIS] Uni LP ($140.97), 0.00% of the pool.
+Estimated MIS earnings: Day 1.40 ($2.31) Week 9.80 ($16.15) Year 509.48 ($839.82)
+Your LP tokens comprise of 278.2704 WONE + 42.7610 MIS
+Stake 0.00 [WONE]-[MIS] Uni LP
+Unstake 104.00 [WONE]-[MIS] Uni LP
+Claim 0.96 MIS ($1.58)
+Staking or unstaking also claims rewards.
+
+3 - [TRANQ]-[MIS] Uni LP [+] [-] [<=>] Price: $1.12 TVL: $400,846.79
+TRANQ Price: $0.18
+MIS Price: $1.65
+Staked: 349445.8253 JEWEL-LP ($390,107.70)
+MIS Per Week: 18144.00 ($29,907.98)
+APR: Day 1.10% Week 7.67% Year 398.66%
+You are staking 51.62 [TRANQ]-[MIS] Uni LP ($57.63), 0.01% of the pool.
+Estimated MIS earnings: Day 0.38 ($0.63) Week 2.68 ($4.42) Year 139.37 ($229.73)
+Your LP tokens comprise of 162.8045 TRANQ + 17.4796 MIS
+Stake 0.00 [TRANQ]-[MIS] Uni LP
+Unstake 51.62 [TRANQ]-[MIS] Uni LP
+Claim 0.28 MIS ($0.47)
+Staking or unstaking also claims rewards.
+
+4 - [1WBTC]-[MIS] Uni LP [+] [-] [<=>] Price: $6,377,515,191.46 TVL: $265,817.80
+1WBTC Price: $58,153.37
+MIS Price: $1.65
+Staked: 0.0000 JEWEL-LP ($262,691.59)
+MIS Per Week: 24192.00 ($39,877.30)
+APR: Day 2.17% Week 15.18% Year 789.37%
+You are staking 0.00 [1WBTC]-[MIS] Uni LP ($150.77), 0.06% of the pool.
+Estimated MIS earnings: Day 1.98 ($3.27) Week 13.88 ($22.89) Year 722.01 ($1,190.13)
+Your LP tokens comprise of 0.0013 1WBTC + 45.7328 MIS
+Stake 0.00 [1WBTC]-[MIS] Uni LP
+Unstake 0.00 [1WBTC]-[MIS] Uni LP
+Claim 1.44 MIS ($2.38)
+Staking or unstaking also claims rewards.
+
+5 - [JEWEL]-[MIS] Uni LP [+] [-] [<=>] Price: $7.29 TVL: $3,152,130.26
+JEWEL Price: $7.62
+MIS Price: $1.65
+Staked: 36691.1561 JEWEL-LP ($267,600.43)
+MIS Per Week: 18144.00 ($29,907.98)
+APR: Day 1.60% Week 11.18% Year 581.17%
+You are staking 0.00 [JEWEL]-[MIS] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [JEWEL]-[MIS] Uni LP
+Unstake 0.00 [JEWEL]-[MIS] Uni LP
+Claim 0.00 MIS ($0.00)
+Staking or unstaking also claims rewards.
+
+6 - [XYA]-[MIS] Uni LP [+] [-] [<=>] Price: $1.93 TVL: $475,875.57
+XYA Price: $0.55
+MIS Price: $1.65
+Staked: 243669.4577 JEWEL-LP ($469,868.45)
+MIS Per Week: 30240.00 ($49,846.63)
+APR: Day 1.52% Week 10.61% Year 551.65%
+You are staking 177.02 [XYA]-[MIS] Uni LP ($341.36), 0.07% of the pool.
+Estimated MIS earnings: Day 3.14 ($5.17) Week 21.97 ($36.21) Year 1142.40 ($1,883.10)
+Your LP tokens comprise of 310.2860 XYA + 103.5441 MIS
+Stake 0.00 [XYA]-[MIS] Uni LP
+Unstake 177.02 [XYA]-[MIS] Uni LP
+Claim 2.10 MIS ($3.46)
+Staking or unstaking also claims rewards.
+
+7 - [FOX]-[MIS] Uni LP [+] [-] [<=>] Price: $8.26 TVL: $705,845.22
+FOX Price: $9.90
+MIS Price: $1.65
+Staked: 57145.4972 JEWEL-LP ($471,787.60)
+MIS Per Week: 36288.00 ($59,815.95)
+APR: Day 1.81% Week 12.68% Year 659.29%
+You are staking 0.00 [FOX]-[MIS] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [FOX]-[MIS] Uni LP
+Unstake 0.00 [FOX]-[MIS] Uni LP
+Claim 0.00 MIS ($0.00)
+Staking or unstaking also claims rewards.
+
+8 - [UST]-[1USDC] Uni LP [+] [-] [<=>] Price: $2,035,099.25 TVL: $827,571.37
+UST Price: $1.00
+1USDC Price: $1.00
+Staked: 0.4009 JEWEL-LP ($815,854.91)
+MIS Per Week: 3024.00 ($4,984.66)
+APR: Day 0.09% Week 0.61% Year 31.77%
+You are staking 0.00 [UST]-[1USDC] Uni LP ($0.00), 0.00% of the pool.
+Stake 0.00 [UST]-[1USDC] Uni LP
+Unstake 0.00 [UST]-[1USDC] Uni LP
+Claim 0.00 MIS ($0.00)
+Staking or unstaking also claims rewards.
+
+9 - [LUNA]-[MIS] Uni LP [+] [-] [<=>] Price: $16.96 TVL: $250,432.30
+LUNA Price: $42.00
+MIS Price: $1.65
+Staked: 14670.6942 JEWEL-LP ($248,782.10)
+MIS Per Week: 12096.00 ($19,938.65)
+APR: Day 1.14% Week 8.01% Year 416.75%
+You are staking 4.24 [LUNA]-[MIS] Uni LP ($71.89), 0.03% of the pool.
+Estimated MIS earnings: Day 0.50 ($0.82) Week 3.50 ($5.76) Year 181.76 ($299.61)
+Your LP tokens comprise of 0.8669 LUNA + 21.5256 MIS
+Stake 0.00 [LUNA]-[MIS] Uni LP
+Unstake 4.24 [LUNA]-[MIS] Uni LP
+Claim 0.34 MIS ($0.56)
+Staking or unstaking also claims rewards.
+
+10 - [rFTM]-[MIS] Uni LP [+] [-] [<=>] Price: $3.60 TVL: $158,936.59
+rFTM Price: $1.94
+MIS Price: $1.65
+Staked: 43298.6257 JEWEL-LP ($155,940.70)
+MIS Per Week: 12096.00 ($19,938.65)
+APR: Day 1.83% Week 12.79% Year 664.87%
+You are staking 17.39 [rFTM]-[MIS] Uni LP ($62.61), 0.04% of the pool.
+Estimated MIS earnings: Day 0.69 ($1.14) Week 4.86 ($8.01) Year 252.55 ($416.30)
+Your LP tokens comprise of 16.1238 rFTM + 18.9924 MIS
+Stake 0.00 [rFTM]-[MIS] Uni LP
+Unstake 17.39 [rFTM]-[MIS] Uni LP
+Claim 0.46 MIS ($0.75)
+Staking or unstaking also claims rewards.
+
+11 - [MIS]-[RVRS] Uni LP [+] [-] [<=>] Price: $5.87 TVL: $501,790.50
+MIS Price: $1.65
+RVRS Price: $5.06
+Staked: 85011.5751 JEWEL-LP ($498,862.59)
+MIS Per Week: 45360.00 ($74,769.94)
+APR: Day 2.14% Week 14.99% Year 779.38%
+You are staking 17.64 [MIS]-[RVRS] Uni LP ($103.51), 0.02% of the pool.
+Estimated MIS earnings: Day 1.34 ($2.22) Week 9.41 ($15.51) Year 489.44 ($806.77)
+Your LP tokens comprise of 31.3991 MIS + 10.2317 RVRS
+Stake 0.00 [MIS]-[RVRS] Uni LP
+Unstake 17.64 [MIS]-[RVRS] Uni LP
+Claim 1.01 MIS ($1.66)
+Staking or unstaking also claims rewards.
+
+12 - MIS Price: $1.65 Market Cap: $8,366,539.71 
+Staked: 75352.3605 MIS ($124,208.37)
+MIS Per Week: 6048.00 ($9,969.33)
+APR: Day 1.15% Week 8.03% Year 417.37%
+You are staking 0.00 MIS ($0.00), 0.00% of the pool.
+Stake 0.00 MIS
+Unstake 0.00 MIS
+Claim 0.00 MIS ($0.00)
+Staking or unstaking also claims rewards.
+
+Total Staked: $9,930,959.90
+
+You are staking a total of $928.74 at an average APR of 610.01%
+Estimated earnings: Day $15.52 Week $108.95 Year $5,665.46
+
