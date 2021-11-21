@@ -12,7 +12,7 @@ import Data.Maybe (mapMaybe)
 import CryptoCoin.VfatTools.Types (YieldFarm(YieldFarm), CoinPrices)
 import CryptoCoin.VfatTools.Scanners.Types
           (FileScanner, LPScanner, readCleenUSD)
-import CryptoCoin.VfatTools.Scanners.Utils (readFarmsWith)
+import CryptoCoin.VfatTools.Scanners.Utils (readFarmsWith, fastForwardP)
 
 -- 1HaskellADay imports
 
@@ -34,11 +34,7 @@ So, a YieldFarm is the one that provides the most JEWEL / USD
 --}
 
 fastForwardTo :: String -> [String] -> [String]
-fastForwardTo _ [] = []
-fastForwardTo start lines@(l:ines)
-   | l == []                     = fastForwardTo start ines
-   | start `isPrefixOf` (dropWhile (/= ' ') l) = lines
-   | otherwise                   = fastForwardTo start ines
+fastForwardTo start = fastForwardP ((start `isPrefixOf`) . dropWhile (/= ' '))
 
 -- So: all the below works with everything but SushiSwap, because SushiSwap
 -- just has to be a little bit/enough different to break my scanner. Hard.

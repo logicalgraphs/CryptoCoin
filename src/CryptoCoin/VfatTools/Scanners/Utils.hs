@@ -15,3 +15,7 @@ scanFileWith :: FileScanner -> [String] -> [Maybe YieldFarm]
 scanFileWith scanner [] = []
 scanFileWith scanner lines@(_:_) =
    (second (scanFileWith scanner) >>> uncurry (:)) (scanner lines)
+
+fastForwardP :: (String -> Bool) -> [String] -> [String]
+fastForwardP f [] = []
+fastForwardP f lines@(l:ines) = if f l then lines else fastForwardP f ines
