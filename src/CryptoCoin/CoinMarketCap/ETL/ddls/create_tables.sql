@@ -182,7 +182,7 @@ INSERT INTO portfolio (portfolio_id, portfolio_name, tracked_type_id)
 VALUES (1, 'COINBASE', 2), (2, 'BINANCE', 3), (3, 'GEMINI', 5), (4, 'USAA', 9),
        (5, 'PHEMEX', 4), (6, 'TERRA', 10), (7, 'IPHONE', 11), (8, 'MATIC', 12),
        (9,'AAVE',13), (10,'YEARN.FINANCE',14), (11,'HARMONY',15),
-       (12,'HIVE',16),(13,'THORCHAIN',17);
+       (12,'HIVE',16),(13,'THORCHAIN',17),(14,'HARMONY2',15);
 
 -- Tells us which (bank) account is tied to a portfolio, so that when a 
 -- transaction occurs, we pull (transfer) the funds from that account.
