@@ -20,6 +20,15 @@ sushi' = yest >>= sushi''
 
 sushi'' :: Day -> IO ()
 sushi'' dt =
-        dateDir "yield-farming/sushi" dt    >>=
-        readSushiFarms . (++ "/scrape.txt") >>=
-        reportYields "sushi" dt
+   mkFullPath "sushi" dt >>= readSushiFarms >>= reportYields "sushi" dt
+
+go, gon :: String -> IO ()
+go coin = today >>= goes coin
+gon coin = yest >>= goes coin
+
+goes :: String -> Day -> IO ()
+goes coin dt = mkFullPath coin dt >>= readFarms >>= reportYields coin dt
+
+mkFullPath :: String -> Day -> IO String
+mkFullPath coin dt =
+   (++ "/scrape.txt") <$> dateDir ("yield-farming/" ++ coin) dt
