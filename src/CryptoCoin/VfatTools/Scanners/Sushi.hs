@@ -7,10 +7,6 @@ import CryptoCoin.VfatTools.Scanners.Utils
           (readFarmsWith, fastForwardP, convertOneBlock)
 import CryptoCoin.VfatTools.Types (YieldFarm)
 
-readSushiFarm :: FilePath -> IO [YieldFarm]
-readSushiFarm =
-   readFarmsWith (convertOneBlock 0 . fastForwardP ("TVL:" `isInfixOf`))
-
 {--
 The format for Sushi yield farms is as follows:
 
@@ -29,4 +25,20 @@ Stake 0.00 [1USDC]-[WONE] SLP
 Unstake 0.00 [1USDC]-[WONE] SLP
 Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
 Staking or unstaking also claims rewards.
+--}
+
+readSushiFarms :: FilePath -> IO [YieldFarm]
+readSushiFarms =
+   readFarmsWith (convertOneBlock 0 . fastForwardP ("TVL:" `isInfixOf`))
+
+{--
+>>> sush <- readSushiFarm "data-files/yield-farming/sushi/2021-11-20/scrape.txt"
+>>> length sush
+16
+
+>>> head sush
+YieldFarm {name = "[1USDC]-[WONE]", 
+           coins = {("1USDC",$1.00),("WONE",$0.28)},
+           tvl = $10474154.62,
+           jewels = 4697.0}
 --}
