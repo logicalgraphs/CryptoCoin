@@ -1,22 +1,13 @@
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE ViewPatterns #-}
-
 module CryptoCoin.VfatTools.Scanners.PlainOl where
 
 -- Here is where we scan most the yield-farm text file-types.
 
 import Data.List (isPrefixOf, dropWhile)
-import qualified Data.Map as Map
-import Data.Maybe (mapMaybe)
 
-import CryptoCoin.VfatTools.Types (YieldFarm(YieldFarm), CoinPrices)
-import CryptoCoin.VfatTools.Scanners.Types
-          (FileScanner, LPScanner, readCleenUSD)
-import CryptoCoin.VfatTools.Scanners.Utils (readFarmsWith, fastForwardP)
-
--- 1HaskellADay imports
-
-import Control.Scan.CSV (readMaybe)
+import CryptoCoin.VfatTools.Types (YieldFarm)
+import CryptoCoin.VfatTools.Scanners.Types (FileScanner)
+import CryptoCoin.VfatTools.Scanners.Utils
+          (readFarmsWith, fastForwardP, convertYieldFarm)
 
 readFarms :: FilePath -> IO [YieldFarm]
 readFarms = readFarmsWith (convertOneBlock . fastForwardTo " - [")
@@ -24,7 +15,7 @@ readFarms = readFarmsWith (convertOneBlock . fastForwardTo " - [")
 {--
 First iteration of scanFile where YieldFarm = String:
 
->>> today >>= dateDir "kingdoms" >>= readFarms . (++ "/scrape.txt") >>= mapM_ putStrLn . take 5
+>>> today >>= dateDir "jewel" >>= readFarms . (++ "/scrape.txt") >>= mapM_ putStrLn . take 5
 0 - [JEWEL]-[WONE] Uni LP [+] [-] [<=>] Price: $2.02 TVL: $51,097,846.16
 JEWEL Price: $4.40
 WONE Price: $0.22
@@ -41,23 +32,10 @@ fastForwardTo start = fastForwardP ((start `isPrefixOf`) . dropWhile (/= ' '))
 
 convertOneBlock :: FileScanner
 convertOneBlock [] = (Nothing, [])
-convertOneBlock (t:a:b:_:jpw:rest) = (convertYieldFarm t a b jpw, rest)
-
-convertYieldFarm :: String -> String -> String -> String -> Maybe YieldFarm
-convertYieldFarm t a b jpw =
-   let (_:_:n:r) = words t
-       (_:_:_:j:_) = words jpw
-   in  YieldFarm n (scanCoins a b) <$> readCleenUSD (last r) <*> readMaybe j
-   -- in  if yf == Nothing then error (unwords ["Couldn't read",t,jpw]) else yf
-
-scanCoins :: String -> String -> CoinPrices
-scanCoins a b = Map.fromList (mapMaybe scanCoin [a,b])
-
-scanCoin :: LPScanner
-scanCoin (words -> [c,_,v]) = (c,) <$> readCleenUSD v
+convertOneBlock (t:a:b:_:jpw:rest) = (convertYieldFarm 2 t a b jpw, rest)
 
 {--
-With those 3 new functions, we now have:
+With the new function, we now have:
 
 >>> today >>= dateDir "kingdoms" >>= readFarms . (++ "/scrape.txt") >>= mapM_ print
 YieldFarm {name = "[JEWEL]-[WONE]", tvl = $51097846.16, jewels = 7294070.35}
