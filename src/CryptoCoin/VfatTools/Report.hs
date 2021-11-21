@@ -17,7 +17,6 @@ import Data.CryptoCurrency.Utils (pass')
 
 import CryptoCoin.VfatTools.Types
           (YieldFarm(YieldFarm), YFOutput(YFOut), output, mkYFOutput, coins, yf)
-import CryptoCoin.VfatTools.Scanners.PlainOl (readFarms)
 
 reportYields :: String -> Day -> [YieldFarm] -> IO ()
 reportYields coin date yfs =
