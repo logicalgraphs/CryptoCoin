@@ -35,6 +35,11 @@ scanCoins a b = Map.fromList (mapMaybe scanCoin [a,b])
 scanCoin :: LPScanner
 scanCoin (words -> [c,_,v]) = (c,) <$> readCleenUSD v
 
+convertOneBlock :: Int -> FileScanner
+convertOneBlock offset [] = (Nothing, [])
+convertOneBlock offset (t:a:b:_:jpw:rest) =
+   (convertYieldFarm offset t a b jpw, rest)
+
 convertYieldFarm ::
    Int -> String -> String -> String -> String -> Maybe YieldFarm
 convertYieldFarm offset t a b jpw =

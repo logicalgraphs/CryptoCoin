@@ -5,12 +5,11 @@ module CryptoCoin.VfatTools.Scanners.PlainOl where
 import Data.List (isPrefixOf, dropWhile)
 
 import CryptoCoin.VfatTools.Types (YieldFarm)
-import CryptoCoin.VfatTools.Scanners.Types (FileScanner)
 import CryptoCoin.VfatTools.Scanners.Utils
-          (readFarmsWith, fastForwardP, convertYieldFarm)
+          (readFarmsWith, fastForwardP, convertOneBlock)
 
 readFarms :: FilePath -> IO [YieldFarm]
-readFarms = readFarmsWith (convertOneBlock . fastForwardTo " - [")
+readFarms = readFarmsWith (convertOneBlock 2 . fastForwardTo " - [")
 
 {--
 First iteration of scanFile where YieldFarm = String:
@@ -30,12 +29,8 @@ fastForwardTo start = fastForwardP ((start `isPrefixOf`) . dropWhile (/= ' '))
 -- So: all the below works with everything but SushiSwap, because SushiSwap
 -- just has to be a little bit/enough different to break my scanner. Hard.
 
-convertOneBlock :: FileScanner
-convertOneBlock [] = (Nothing, [])
-convertOneBlock (t:a:b:_:jpw:rest) = (convertYieldFarm 2 t a b jpw, rest)
-
 {--
-With the new function, we now have:
+We now have:
 
 >>> today >>= dateDir "kingdoms" >>= readFarms . (++ "/scrape.txt") >>= mapM_ print
 YieldFarm {name = "[JEWEL]-[WONE]", tvl = $51097846.16, jewels = 7294070.35}
