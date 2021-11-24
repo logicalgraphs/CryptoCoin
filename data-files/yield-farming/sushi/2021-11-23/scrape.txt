@@ -1,0 +1,278 @@
+Home - MCN - All - BSC - ARBITRUM - HECO - POLYGON - xDAI - AVAX - FANTOM - HARMONY - FUSE - ThunderCore - OKEX - KUCOIN - CELO - IoTeX - Moonriver - Optimism - SmartBCH - Polis - Cronos - Velas - Aurora - Boba - Metis - Seigniorage
+
+[light mode]
+*************** 👨‍🌾 UNOFFICIAL SUSHISWAP FARMING CALCULATOR 👨‍🌾 ***************
+INFO  : https://app.sushi.com
+******************************************************************************
+
+Tue Nov 23 2021 13:02:48 GMT-0500 (Eastern Standard Time)
+
+[CHANGE WALLET] -=- [CLEAR BROWSER STORAGE]
+
+Initialized 0x9ac3c1b5a436d2b6dda16c539550c15304208857
+
+Reading smart contracts...
+
+Found 19 pools.
+
+Showing incentivized pools only.
+
+Finished reading smart contracts.
+
+[1USDC]-[WONE] SLP [+] [-] [<=>] Price: $1,270,453.81 TVL: $11,759,666.65
+1USDC Price: $1.00
+WONE Price: $0.32
+Staked: 8.6222 SLP ($10,954,169.09)
+SUSHI Per Week: 4697.00 ($40,206.32)
+WONE Per Week: 3024.00 ($971.18)
+APR SUSHI: Day 0.05% Week 0.37% Year 19.09%
+APR WONE: Day 0.00% Week 0.01% Year 0.46%
+Total Per Week: $41,177.50
+Total APR: Day 0.0537% Week 0.38% Year 19.55%
+You are staking 0.00 [1USDC]-[WONE] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [1USDC]-[WONE] SLP
+Unstake 0.00 [1USDC]-[WONE] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[1USDT]-[WONE] SLP [+] [-] [<=>] Price: $1,256,751.57 TVL: $1,879,571.33
+1USDT Price: $1.00
+WONE Price: $0.32
+Staked: 1.1735 SLP ($1,474,750.01)
+SUSHI Per Week: 920.61 ($7,880.44)
+WONE Per Week: 592.70 ($190.35)
+APR SUSHI: Day 0.08% Week 0.53% Year 27.79%
+APR WONE: Day 0.00% Week 0.01% Year 0.67%
+Total Per Week: $8,070.79
+Total APR: Day 0.0782% Week 0.55% Year 28.46%
+You are staking 0.00 [1USDT]-[WONE] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [1USDT]-[WONE] SLP
+Unstake 0.00 [1USDT]-[WONE] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[1ETH]-[WONE] SLP [+] [-] [<=>] Price: $79.72 TVL: $22,002,824.26
+1ETH Price: $4,315.26
+WONE Price: $0.32
+Staked: 267191.2508 SLP ($21,300,054.85)
+SUSHI Per Week: 8642.48 ($73,979.63)
+WONE Per Week: 5564.16 ($1,786.96)
+APR SUSHI: Day 0.05% Week 0.35% Year 18.06%
+APR WONE: Day 0.00% Week 0.01% Year 0.44%
+Total Per Week: $75,766.59
+Total APR: Day 0.0508% Week 0.36% Year 18.50%
+You are staking 0.00 [1ETH]-[WONE] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [1ETH]-[WONE] SLP
+Unstake 0.00 [1ETH]-[WONE] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[bscBUSD]-[BUSD] SLP [+] [-] [<=>] Price: $2.04 TVL: $2,410,276.03
+bscBUSD Price: $1.00
+BUSD Price: $1.00
+Staked: 1173310.1016 SLP ($2,391,722.36)
+SUSHI Per Week: 1127.28 ($9,649.52)
+WONE Per Week: 725.76 ($233.08)
+APR SUSHI: Day 0.06% Week 0.40% Year 20.98%
+APR WONE: Day 0.00% Week 0.01% Year 0.51%
+Total Per Week: $9,882.60
+Total APR: Day 0.0590% Week 0.41% Year 21.49%
+You are staking 0.00 [bscBUSD]-[BUSD] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [bscBUSD]-[BUSD] SLP
+Unstake 0.00 [bscBUSD]-[BUSD] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[1WBTC]-[WONE] SLP [+] [-] [<=>] Price: $28,353,119.46 TVL: $9,115,343.83
+1WBTC Price: $57,127.82
+WONE Price: $0.32
+Staked: 0.3036 SLP ($8,606,978.10)
+SUSHI Per Week: 3381.84 ($28,948.55)
+WONE Per Week: 2177.28 ($699.25)
+APR SUSHI: Day 0.05% Week 0.34% Year 17.49%
+APR WONE: Day 0.00% Week 0.01% Year 0.42%
+Total Per Week: $29,647.80
+Total APR: Day 0.0492% Week 0.34% Year 17.91%
+You are staking 0.00 [1WBTC]-[WONE] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [1WBTC]-[WONE] SLP
+Unstake 0.00 [1WBTC]-[WONE] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[1USDT]-[1USDC] SLP [+] [-] [<=>] Price: $2,023,415,025,221.45 TVL: $3,907,747.69
+1USDT Price: $1.00
+1USDC Price: $1.00
+Staked: 0.0000 SLP ($3,876,459.10)
+SUSHI Per Week: 1127.28 ($9,649.52)
+WONE Per Week: 725.76 ($233.08)
+APR SUSHI: Day 0.04% Week 0.25% Year 12.94%
+APR WONE: Day 0.00% Week 0.01% Year 0.31%
+Total Per Week: $9,882.60
+Total APR: Day 0.0364% Week 0.25% Year 13.26%
+You are staking 0.00 [1USDT]-[1USDC] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [1USDT]-[1USDC] SLP
+Unstake 0.00 [1USDT]-[1USDC] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[1SUSHI]-[WONE] SLP [+] [-] [<=>] Price: $3.60 TVL: $2,212,696.89
+1SUSHI Price: $8.56
+WONE Price: $0.32
+Staked: 609336.6126 SLP ($2,192,694.27)
+SUSHI Per Week: 751.52 ($6,433.01)
+WONE Per Week: 483.84 ($155.39)
+APR SUSHI: Day 0.04% Week 0.29% Year 15.26%
+APR WONE: Day 0.00% Week 0.01% Year 0.37%
+Total Per Week: $6,588.40
+Total APR: Day 0.0429% Week 0.30% Year 15.62%
+You are staking 0.00 [1SUSHI]-[WONE] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [1SUSHI]-[WONE] SLP
+Unstake 0.00 [1SUSHI]-[WONE] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[WONE]-[BUSD] SLP [+] [-] [<=>] Price: $1.33 TVL: $1,276,857.51
+WONE Price: $0.32
+BUSD Price: $1.00
+Staked: 658732.0427 SLP ($877,852.20)
+SUSHI Per Week: 450.91 ($3,859.81)
+WONE Per Week: 290.30 ($93.23)
+APR SUSHI: Day 0.06% Week 0.44% Year 22.86%
+APR WONE: Day 0.00% Week 0.01% Year 0.55%
+Total Per Week: $3,953.04
+Total APR: Day 0.0643% Week 0.45% Year 23.42%
+You are staking 0.00 [WONE]-[BUSD] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [WONE]-[BUSD] SLP
+Unstake 0.00 [WONE]-[BUSD] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[1WBTC]-[1ETH] SLP [+] [-] [<=>] Price: $62,429,471,661.42 TVL: $24,402,384.72
+1WBTC Price: $57,127.82
+1ETH Price: $4,315.26
+Staked: 0.0004 SLP ($24,374,917.84)
+SUSHI Per Week: 9394.00 ($80,412.64)
+WONE Per Week: 6048.00 ($1,942.35)
+APR SUSHI: Day 0.05% Week 0.33% Year 17.15%
+APR WONE: Day 0.00% Week 0.01% Year 0.41%
+Total Per Week: $82,354.99
+Total APR: Day 0.0483% Week 0.34% Year 17.57%
+You are staking 0.00 [1WBTC]-[1ETH] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [1WBTC]-[1ETH] SLP
+Unstake 0.00 [1WBTC]-[1ETH] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[UST]-[1ETH] SLP [+] [-] [<=>] Price: $140.50 TVL: $2,239,597.12
+UST Price: $1.01
+1ETH Price: $4,315.26
+Staked: 15751.5208 SLP ($2,213,082.70)
+SUSHI Per Week: 939.40 ($8,041.26)
+WONE Per Week: 604.80 ($194.24)
+APR SUSHI: Day 0.05% Week 0.36% Year 18.89%
+APR WONE: Day 0.00% Week 0.01% Year 0.46%
+Total Per Week: $8,235.50
+Total APR: Day 0.0532% Week 0.37% Year 19.35%
+You are staking 0.00 [UST]-[1ETH] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [UST]-[1ETH] SLP
+Unstake 0.00 [UST]-[1ETH] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[1ETH]-[1FRAX] SLP [+] [-] [<=>] Price: $132.77 TVL: $739,601.05
+1ETH Price: $4,315.26
+1FRAX Price: $1.00
+Staked: 5560.9490 SLP ($738,323.39)
+SUSHI Per Week: 751.52 ($6,433.01)
+WONE Per Week: 483.84 ($155.39)
+APR SUSHI: Day 0.12% Week 0.87% Year 45.31%
+APR WONE: Day 0.00% Week 0.02% Year 1.09%
+Total Per Week: $6,588.40
+Total APR: Day 0.1275% Week 0.89% Year 46.40%
+You are staking 0.00 [1ETH]-[1FRAX] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [1ETH]-[1FRAX] SLP
+Unstake 0.00 [1ETH]-[1FRAX] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[1USDT]-[1ETH] SLP [+] [-] [<=>] Price: $135,042,265.98 TVL: $3,285,710.03
+1USDT Price: $1.00
+1ETH Price: $4,315.26
+Staked: 0.0242 SLP ($3,266,185.98)
+SUSHI Per Week: 2141.83 ($18,334.08)
+WONE Per Week: 1378.94 ($442.86)
+APR SUSHI: Day 0.08% Week 0.56% Year 29.19%
+APR WONE: Day 0.00% Week 0.01% Year 0.71%
+Total Per Week: $18,776.94
+Total APR: Day 0.0821% Week 0.57% Year 29.89%
+You are staking 0.00 [1USDT]-[1ETH] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [1USDT]-[1ETH] SLP
+Unstake 0.00 [1USDT]-[1ETH] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[1ETH]-[1DAI] SLP [+] [-] [<=>] Price: $138.46 TVL: $5,715,592.51
+1ETH Price: $4,315.26
+1DAI Price: $1.00
+Staked: 41020.9873 SLP ($5,679,735.75)
+SUSHI Per Week: 1690.92 ($14,474.28)
+WONE Per Week: 1088.64 ($349.62)
+APR SUSHI: Day 0.04% Week 0.25% Year 13.25%
+APR WONE: Day 0.00% Week 0.01% Year 0.32%
+Total Per Week: $14,823.90
+Total APR: Day 0.0373% Week 0.26% Year 13.57%
+You are staking 0.00 [1ETH]-[1DAI] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [1ETH]-[1DAI] SLP
+Unstake 0.00 [1ETH]-[1DAI] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[1AXS]-[1ETH] SLP [+] [-] [<=>] Price: $1,551.47 TVL: $262,981.30
+1AXS Price: $135.07
+1ETH Price: $4,315.26
+Staked: 168.7377 SLP ($261,791.96)
+SUSHI Per Week: 413.34 ($3,538.16)
+WONE Per Week: 266.11 ($85.46)
+APR SUSHI: Day 0.19% Week 1.35% Year 70.28%
+APR WONE: Day 0.00% Week 0.03% Year 1.70%
+Total Per Week: $3,623.62
+Total APR: Day 0.1977% Week 1.38% Year 71.98%
+You are staking 0.00 [1AXS]-[1ETH] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [1AXS]-[1ETH] SLP
+Unstake 0.00 [1AXS]-[1ETH] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[1ETH]-[1AAVE] SLP [+] [-] [<=>] Price: $2,192.87 TVL: $1,012,709.76
+1ETH Price: $4,315.26
+1AAVE Price: $274.65
+Staked: 461.2943 SLP ($1,011,560.44)
+SUSHI Per Week: 864.25 ($7,397.96)
+WONE Per Week: 556.42 ($178.70)
+APR SUSHI: Day 0.10% Week 0.73% Year 38.03%
+APR WONE: Day 0.00% Week 0.02% Year 0.92%
+Total Per Week: $7,576.66
+Total APR: Day 0.1070% Week 0.75% Year 38.95%
+You are staking 0.00 [1ETH]-[1AAVE] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [1ETH]-[1AAVE] SLP
+Unstake 0.00 [1ETH]-[1AAVE] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+[1YGG]-[1ETH] SLP [+] [-] [<=>] Price: $391.09 TVL: $246,128.24
+1YGG Price: $8.57
+1ETH Price: $4,315.26
+Staked: 627.9113 SLP ($245,567.86)
+SUSHI Per Week: 281.82 ($2,412.38)
+WONE Per Week: 181.44 ($58.27)
+APR SUSHI: Day 0.14% Week 0.98% Year 51.08%
+APR WONE: Day 0.00% Week 0.02% Year 1.23%
+Total Per Week: $2,470.65
+Total APR: Day 0.1437% Week 1.01% Year 52.32%
+You are staking 0.00 [1YGG]-[1ETH] SLP ($0.00), 0.00% of the pool.
+Stake 0.00 [1YGG]-[1ETH] SLP
+Unstake 0.00 [1YGG]-[1ETH] SLP
+Claim 0.00 SUSHI ($0.00) + 0.00 WONE ($0.00)
+Staking or unstaking also claims rewards.
+
+Total Staked: $89,465,845.89
