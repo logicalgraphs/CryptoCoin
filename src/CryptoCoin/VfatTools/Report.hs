@@ -74,4 +74,5 @@ tweetIt date (('$':) -> coin) lps =
       "",
       head lps ++ " is the top " ++ coin ++ "-yielding LP for " ++ show date,
       "",
-      "data scraped from: https://vfat.tools/"]
+      "data scraped from: https://vfat.tools/","",
+      "yield analyzer source code at https://github.com/logicalgraphs/CryptoCoin/tree/master/src/CryptoCoin/VfatTools"]
