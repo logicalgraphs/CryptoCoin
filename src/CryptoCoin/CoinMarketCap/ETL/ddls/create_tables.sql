@@ -154,7 +154,8 @@ VALUES (1, 'NEW', null),
        (14,'YEARN.FINANCE','https://yearn.finance/vaults'),
        (15,'HARMONY','https://staking.harmony.one/validators/mainnet'),
        (16,'HIVE','https://splinterlands.com/?p=sps_management'),
-       (17,'THORCHAIN','https://app.thorswap.finance/');
+       (17,'THORCHAIN','https://app.thorswap.finance/'),
+       (18, 'ALGORAND', 'https://www.algorand.com/');
 
 CREATE TABLE "j_tracked_coin_tracked_type" (
 	"jtctt_id" serial NOT NULL,
@@ -182,7 +183,8 @@ INSERT INTO portfolio (portfolio_id, portfolio_name, tracked_type_id)
 VALUES (1, 'COINBASE', 2), (2, 'BINANCE', 3), (3, 'GEMINI', 5), (4, 'USAA', 9),
        (5, 'PHEMEX', 4), (6, 'TERRA', 10), (7, 'IPHONE', 11), (8, 'MATIC', 12),
        (9,'AAVE',13), (10,'YEARN.FINANCE',14), (11,'HARMONY',15),
-       (12,'HIVE',16),(13,'THORCHAIN',17),(14,'HARMONY2',15);
+       (12,'HIVE',16),(13,'THORCHAIN',17),(14,'HARMONY2',15),
+       (15,'ALGORAND',18);
 
 -- Tells us which (bank) account is tied to a portfolio, so that when a 
 -- transaction occurs, we pull (transfer) the funds from that account.
