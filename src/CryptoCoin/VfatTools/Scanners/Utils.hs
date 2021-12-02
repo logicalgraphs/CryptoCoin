@@ -33,7 +33,11 @@ scanCoins :: String -> String -> CoinPrices
 scanCoins a b = Map.fromList (mapMaybe scanCoin [a,b])
 
 scanCoin :: LPScanner
-scanCoin (words -> [c,_,v]) = (c,) <$> readCleenUSD v
+scanCoin (words -> [c,_,v]) = (drop1 c,) <$> readCleenUSD v
+
+drop1 :: String -> String
+drop1 ('1':rest) = rest
+drop1 eh = eh
 
 convertOneBlock :: Int -> FileScanner
 convertOneBlock offset [] = (Nothing, [])

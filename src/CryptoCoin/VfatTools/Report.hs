@@ -6,17 +6,22 @@ module CryptoCoin.VfatTools.Report where
 
 import Data.Char (toUpper)
 import Data.List (sortOn)
+import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Ord
 import Data.Time (Day)
-
-import Control.List (weave)
-import Control.Presentation (laxmi)
 
 import Data.CryptoCurrency.Utils (pass')
 
 import CryptoCoin.VfatTools.Types
           (YieldFarm(YieldFarm), YFOutput(YFOut), output, mkYFOutput, coins, yf)
+
+-- 1HaskellADay modules:
+
+import Control.List (weave)
+import Control.Presentation (laxmi)
+
+import Data.Monetary.USD (USD(USD))
 
 reportYields :: String -> Day -> [YieldFarm] -> IO ()
 reportYields coin date yfs =
@@ -24,18 +29,24 @@ reportYields coin date yfs =
          title = capCoin ++ " yield-farm report for " ++ show date ++ ":"
          row = "rank,lp,tvl," ++ coin ++ " per week," ++ coin ++ "/$100/week"
          caveat = " (ranked highest-yield first)\n\n"
-         top10 = take 10 (sortOn (Down . output) (map mkYFOutput yfs)) in
-     putStrLn (title ++ caveat ++ row)                 >>
-     mapM ppYieldFarm (zip [1..] top10)                >>=
-     pass' (reportPrices date top10)                   >>=
+         alles = sortOn (Down . output) (map mkYFOutput yfs)
+         coinPrices' = Map.unions (map (coins . yf) alles) -- for Sushi
+         price = coinPrices' Map.! capCoin
+         top10 = take 10 alles
+         coinPrices = Map.unions (map (coins . yf) top10) in
+     putStrLn (title ++ caveat ++ row ++ ",USD/$100/week") >>
+     mapM (ppYieldFarm price) (zip [1..] top10)          >>=
+     pass' (reportPrices date coinPrices)                >>=
      tweetIt date capCoin
 
-ppYieldFarm :: (Int, YFOutput) -> IO String
-ppYieldFarm (show -> n, YFOut (YieldFarm nm _ t j) o) =
-   putStrLn (weave [n, nm, show t, show j, laxmi 2 (toRational o)]) >> return nm
+ppYieldFarm :: USD -> (Int, YFOutput) -> IO String
+ppYieldFarm (USD coinPrice) (show -> n, YFOut (YieldFarm nm _ t j) o) =
+   let toks = toRational o
+       dallahs = show (USD (toks * coinPrice)) in
+   putStrLn (weave [n, nm, show t, show j, laxmi 2 toks, dallahs]) >> return nm
 
-reportPrices :: Day -> [YFOutput] -> IO ()
-reportPrices (show -> date) (Map.unions . map (coins . yf) -> cns) =
+reportPrices :: Day -> Map String USD -> IO ()
+reportPrices (show -> date) cns =
    putStrLn "\nCoin prices\n\nfor_date,cmc_id,coin,price (USD)" >>
    mapM_ (putStrLn . weave . ([date,""] ++) . tup2list) (Map.toList cns)
 
