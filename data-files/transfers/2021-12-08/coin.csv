@@ -1,0 +1,2 @@
+call,date,amount,coin,from,to,surcharge,coin_surcharge,basis,confirmation
+XFER,2021-12-08,29.36149,ALGO,HARMONY,BINANCE,0.00002,ALGO,$50.00,0xc326925f38148f8c8d0941c983d568be708a6e8741921495f3eea4152b161ff0
