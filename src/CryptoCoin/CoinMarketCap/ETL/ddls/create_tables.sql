@@ -155,7 +155,8 @@ VALUES (1, 'NEW', null),
        (15,'HARMONY','https://staking.harmony.one/validators/mainnet'),
        (16,'HIVE','https://splinterlands.com/?p=sps_management'),
        (17,'THORCHAIN','https://app.thorswap.finance/'),
-       (18, 'ALGORAND', 'https://www.algorand.com/');
+       (18, 'ALGORAND', 'https://www.algorand.com/'),
+       (19, 'PHANTOM', null);
 
 CREATE TABLE "j_tracked_coin_tracked_type" (
 	"jtctt_id" serial NOT NULL,
@@ -184,7 +185,7 @@ VALUES (1, 'COINBASE', 2), (2, 'BINANCE', 3), (3, 'GEMINI', 5), (4, 'USAA', 9),
        (5, 'PHEMEX', 4), (6, 'TERRA', 10), (7, 'IPHONE', 11), (8, 'MATIC', 12),
        (9,'AAVE',13), (10,'YEARN.FINANCE',14), (11,'HARMONY',15),
        (12,'HIVE',16),(13,'THORCHAIN',17),(14,'HARMONY2',15),
-       (15,'ALGORAND',18);
+       (15,'ALGORAND',18), (16,'PHANTOM',19);
 
 -- Tells us which (bank) account is tied to a portfolio, so that when a 
 -- transaction occurs, we pull (transfer) the funds from that account.
